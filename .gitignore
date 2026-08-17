@@ -1,0 +1,6 @@
+venv/
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+gift_city_funds.db
+.pytest_cache/
