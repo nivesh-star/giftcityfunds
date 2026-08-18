@@ -1,0 +1,42 @@
+[
+  {
+    "fund_name": "HDFC International – Developed Markets Equity Fund",
+    "amc_name": "HDFC AMC International (IFSC) Limited",
+    "category": "Retail Fund",
+    "launch_date": null,
+    "nav": null,
+    "nav_currency": "USD",
+    "nav_as_of": null,
+    "expense_ratio": 0.5,
+    "aum": null,
+    "aum_currency": null,
+    "aum_unit": null,
+    "inception_date": null,
+    "source_name": "HDFC AMC IFSC official fundListing API",
+    "source_url": "https://www.hdfcinternational.com/invest-globally",
+    "source_tier": "tier1_amc",
+    "scraped_at": "2026-08-18T11:24:06.701941+00:00",
+    "scrape_status": "partial",
+    "error_message": "Confirmed real Retail-registered GIFT City fund. NFO subscription period runs 28 July 2026 to 2026-08-21 per official disclaimer -- NAV genuinely doesn't exist yet since trading hasn't started. Not a scraping gap."
+  },
+  {
+    "fund_name": "HDFC International – Emerging Markets Equity Fund",
+    "amc_name": "HDFC AMC International (IFSC) Limited",
+    "category": "Retail Fund",
+    "launch_date": null,
+    "nav": null,
+    "nav_currency": "USD",
+    "nav_as_of": null,
+    "expense_ratio": 0.5,
+    "aum": null,
+    "aum_currency": null,
+    "aum_unit": null,
+    "inception_date": null,
+    "source_name": "HDFC AMC IFSC official fundListing API",
+    "source_url": "https://www.hdfcinternational.com/invest-globally",
+    "source_tier": "tier1_amc",
+    "scraped_at": "2026-08-18T11:24:06.701941+00:00",
+    "scrape_status": "partial",
+    "error_message": "Confirmed real Retail-registered GIFT City fund. NFO subscription period runs 28 July 2026 to 2026-08-21 per official disclaimer -- NAV genuinely doesn't exist yet since trading hasn't started. Not a scraping gap."
+  }
+]

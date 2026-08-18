@@ -4,3 +4,6 @@ __pycache__/
 .ipynb_checkpoints/
 gift_city_funds.db
 .pytest_cache/
+work/
+Untitled.ipynb
+*.xlsx.inspect.ndjson

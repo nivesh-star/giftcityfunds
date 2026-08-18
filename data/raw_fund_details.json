@@ -1,0 +1,32 @@
+[
+  {
+    "source_url": "https://gift.ppfas.com/product/inbound/parag_parikh_india_flexicap_fund/",
+    "nav": null,
+    "expense_ratio": null,
+    "aum_crores": null,
+    "min_investment": "10,000",
+    "inception_date": null,
+    "fund_status": "Coming Soon",
+    "scraped_at": "2026-08-16T19:27:29.781528+00:00"
+  },
+  {
+    "source_url": "https://giftcity.dspim.com/product",
+    "nav": "9.62",
+    "expense_ratio": "1.75",
+    "aum_crores": null,
+    "min_investment": "5,000",
+    "inception_date": null,
+    "fund_status": "Live",
+    "scraped_at": "2026-08-16T19:27:33.522451+00:00"
+  },
+  {
+    "source_url": "https://giftcity.miraeassetmf.co.in/mirae-asset-global-allocation-fund.html",
+    "nav": null,
+    "expense_ratio": null,
+    "aum_crores": null,
+    "min_investment": null,
+    "inception_date": null,
+    "fund_status": "Live",
+    "scraped_at": "2026-08-16T19:27:40.729840+00:00"
+  }
+]

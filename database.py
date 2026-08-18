@@ -1,193 +1,101 @@
-"""
-database.py
-Creates the SQLite schema and loads:
-  1. data/funds_cleaned.csv -> funds table
-  2. logs/scrape_audit.log  -> scrape_audit table
-
-Schema is Girish's original design, extended with fields my cleaning
-pipeline actually produces (min_ticket, k1_compliant, return_3m/6m/
-since_inception, has_return_data, direction, grouping, min_investment,
-fund_status) -- documented here rather than silently dropping data I
-worked to extract. Core required fields (fund_name, amc_name, category,
-launch_date, nav, expense_ratio, aum, inception_date, last_updated) are
-unchanged from the original spec.
-
-fund_name is UNIQUE and loaded with INSERT OR REPLACE, so re-running this
-script after a fresh scrape/clean never creates duplicate rows.
-"""
+"""Load the normalized individual-AMC dataset into SQLite idempotently."""
 
 import csv
 import json
 import sqlite3
 from pathlib import Path
 
-DB_PATH = Path("gift_city_funds.db")
+# Kept separate from the earlier Fynprint-first database so prior work remains
+# available for comparison while this source-first pipeline is validated.
+DB_PATH = Path("gift_city_amc_funds.db")
 CSV_PATH = Path("data/funds_cleaned.csv")
-AUDIT_LOG_PATH = Path("logs/scrape_audit.log")
+AUDIT_PATH = Path("logs/scrape_audit.log")
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS funds (
     fund_id INTEGER PRIMARY KEY AUTOINCREMENT,
-    fund_name TEXT NOT NULL UNIQUE,
-    amc_name TEXT NOT NULL,
-    category TEXT,
-    launch_date DATE,
-    nav DECIMAL(10, 4),
-    expense_ratio DECIMAL(5, 2),
-    aum DECIMAL(15, 2),
-    inception_date DATE,
-    last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-
-    -- Extended fields beyond the original spec, kept because the source
-    -- data genuinely supports them -- see cleaner.py docstring for the
-    -- reasoning behind each.
-    min_ticket DECIMAL(15, 2),
-    k1_compliant BOOLEAN,
-    return_3m DECIMAL(6, 2),
-    return_6m DECIMAL(6, 2),
-    return_since_inception DECIMAL(6, 2),
-    has_return_data BOOLEAN,
-    min_investment DECIMAL(15, 2),
-    fund_status TEXT,
-    direction TEXT,
-    grouping TEXT,
-    source_url TEXT
+    fund_name TEXT NOT NULL UNIQUE, amc_name TEXT NOT NULL, category TEXT,
+    launch_date DATE, nav REAL, nav_currency TEXT, nav_as_of DATE,
+    expense_ratio REAL, aum REAL, aum_currency TEXT, aum_unit TEXT,
+    inception_date DATE, source_name TEXT NOT NULL, source_url TEXT NOT NULL,
+    scraped_at TIMESTAMP NOT NULL, scrape_status TEXT NOT NULL,
+    source_tier TEXT NOT NULL DEFAULT 'tier1_amc',
+    last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
-
 CREATE TABLE IF NOT EXISTS scrape_audit (
-    audit_id INTEGER PRIMARY KEY AUTOINCREMENT,
-    url TEXT,
-    http_status INTEGER,
-    success BOOLEAN,
-    error_message TEXT,
-    scraped_at TIMESTAMP
+    audit_id INTEGER PRIMARY KEY AUTOINCREMENT, url TEXT NOT NULL,
+    http_status INTEGER, success BOOLEAN NOT NULL, error_message TEXT,
+    scraped_at TIMESTAMP NOT NULL
 );
 """
 
 
+def nullable_float(value):
+    return None if value in (None, "") else float(value)
+
+
 def create_schema(conn):
     conn.executescript(SCHEMA)
-    conn.commit()
-
-
-def _to_float_or_none(value):
-    if value is None or value == "":
-        return None
-    # min_investment/aum sometimes carry commas (e.g. "5,000") depending
-    # on which cleaning step produced them -- strip defensively.
+    # Migration: the funds table may already exist from an earlier run of
+    # this pipeline (before source_tier existed). CREATE TABLE IF NOT
+    # EXISTS won't add a column to an already-existing table, so add it
+    # explicitly and ignore the error if it's already there.
     try:
-        return float(str(value).replace(",", ""))
-    except ValueError:
-        return None
-
-
-def _to_bool_or_none(value):
-    if value in (None, ""):
-        return None
-    return str(value).strip().upper() in ("TRUE", "1", "YES")
+        conn.execute("ALTER TABLE funds ADD COLUMN source_tier TEXT NOT NULL DEFAULT 'tier1_amc'")
+    except sqlite3.OperationalError as exc:
+        if "duplicate column name" not in str(exc).lower():
+            raise
 
 
 def load_funds(conn, csv_path=CSV_PATH):
-    with open(csv_path, newline="", encoding="utf-8") as f:
-        reader = csv.DictReader(f)
-        rows = list(reader)
-
-    cursor = conn.cursor()
-    loaded = 0
+    with open(csv_path, newline="", encoding="utf-8") as data_file:
+        rows = list(csv.DictReader(data_file))
+    # Clean up any stale rows from prior broken/partial runs -- e.g. a
+    # NULL fund_name row from an earlier failure never gets overwritten
+    # by ON CONFLICT (SQLite treats multiple NULLs as non-conflicting
+    # under a UNIQUE constraint), so it would otherwise persist forever.
+    conn.execute("DELETE FROM funds WHERE fund_name IS NULL OR TRIM(fund_name) = ''")
     for row in rows:
-        cursor.execute(
-            """
-            INSERT OR REPLACE INTO funds (
-                fund_name, amc_name, category, launch_date, nav,
-                expense_ratio, aum, inception_date,
-                min_ticket, k1_compliant, return_3m, return_6m,
-                return_since_inception, has_return_data,
-                min_investment, fund_status, direction, grouping, source_url
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """,
-            (
-                row.get("fund_name"),
-                row.get("amc_name"),
-                row.get("category"),
-                row.get("launch_date") or None,
-                _to_float_or_none(row.get("nav")),
-                _to_float_or_none(row.get("expense_ratio")),
-                _to_float_or_none(row.get("aum_crores")),
-                row.get("inception_date") or None,
-                _to_float_or_none(row.get("min_ticket")),
-                _to_bool_or_none(row.get("k1_compliant")),
-                _to_float_or_none(row.get("return_3m")),
-                _to_float_or_none(row.get("return_6m")),
-                _to_float_or_none(row.get("return_since_inception")),
-                _to_bool_or_none(row.get("has_return_data")),
-                _to_float_or_none(row.get("min_investment")),
-                row.get("fund_status") or None,
-                row.get("direction"),
-                row.get("grouping"),
-                row.get("source_url"),
-            ),
+        conn.execute(
+            """INSERT INTO funds (
+                fund_name, amc_name, category, launch_date, nav, nav_currency,
+                nav_as_of, expense_ratio, aum, aum_currency, aum_unit,
+                inception_date, source_name, source_url, scraped_at, scrape_status,
+                source_tier
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ON CONFLICT(fund_name) DO UPDATE SET
+                amc_name=excluded.amc_name, category=excluded.category,
+                launch_date=excluded.launch_date, nav=excluded.nav,
+                nav_currency=excluded.nav_currency, nav_as_of=excluded.nav_as_of,
+                expense_ratio=excluded.expense_ratio, aum=excluded.aum,
+                aum_currency=excluded.aum_currency, aum_unit=excluded.aum_unit,
+                inception_date=excluded.inception_date, source_name=excluded.source_name,
+                source_url=excluded.source_url, scraped_at=excluded.scraped_at,
+                scrape_status=excluded.scrape_status, source_tier=excluded.source_tier,
+                last_updated=CURRENT_TIMESTAMP""",
+            (row["fund_name"], row["amc_name"], row["category"] or None,
+             row["launch_date"] or None, nullable_float(row["nav"]), row["nav_currency"] or None,
+             row["nav_as_of"] or None, nullable_float(row["expense_ratio"]),
+             nullable_float(row["aum"]), row["aum_currency"] or None, row["aum_unit"] or None,
+             row["inception_date"] or None, row["source_name"], row["source_url"],
+             row["scraped_at"], row["scrape_status"], row.get("source_tier") or "tier1_amc"),
         )
-        loaded += 1
-
-    conn.commit()
-    return loaded
+    return len(rows)
 
 
-def load_audit_log(conn, log_path=AUDIT_LOG_PATH):
-    if not log_path.exists():
-        print(f"  Warning: {log_path} not found, skipping audit load.")
-        return 0
-
-    cursor = conn.cursor()
-    loaded = 0
-    with open(log_path, encoding="utf-8") as f:
-        for line in f:
-            line = line.strip()
-            if not line:
-                continue
-            entry = json.loads(line)
-            cursor.execute(
-                """
-                INSERT INTO scrape_audit (url, http_status, success, error_message, scraped_at)
-                VALUES (?, ?, ?, ?, ?)
-                """,
-                (
-                    entry.get("url"),
-                    entry.get("http_status"),
-                    entry.get("success"),
-                    entry.get("error_message"),
-                    entry.get("scraped_at"),
-                ),
-            )
-            loaded += 1
-
-    conn.commit()
-    return loaded
-
-
-def run_load():
-    conn = sqlite3.connect(DB_PATH)
-    create_schema(conn)
-
-    funds_loaded = load_funds(conn)
-    print(f"Loaded {funds_loaded} funds into '{DB_PATH}'")
-
-    audit_loaded = load_audit_log(conn)
-    print(f"Loaded {audit_loaded} scrape_audit entries")
-
-    # Quick sanity check -- fund_name uniqueness should hold given the
-    # UNIQUE constraint + INSERT OR REPLACE, but verify rather than assume.
-    cursor = conn.cursor()
-    cursor.execute("SELECT COUNT(*) FROM funds")
-    total = cursor.fetchone()[0]
-    cursor.execute("SELECT COUNT(DISTINCT fund_name) FROM funds")
-    distinct = cursor.fetchone()[0]
-    print(f"funds table: {total} rows, {distinct} distinct fund_name values")
-    if total != distinct:
-        print("  WARNING: duplicate fund_name values detected despite UNIQUE constraint.")
-
-    conn.close()
+def load_audit(conn, audit_path=AUDIT_PATH):
+    with open(audit_path, encoding="utf-8") as audit_file:
+        rows = [json.loads(line) for line in audit_file if line.strip()]
+    # The log is a snapshot of the current run, so replace the prior snapshot.
+    conn.execute("DELETE FROM scrape_audit")
+    conn.executemany(
+        "INSERT INTO scrape_audit (url, http_status, success, error_message, scraped_at) VALUES (?, ?, ?, ?, ?)",
+        [(row["url"], row["http_status"], row["success"], row["error_message"], row["scraped_at"]) for row in rows],
+    )
+    return len(rows)
 
 
 if __name__ == "__main__":
-    run_load()
+    with sqlite3.connect(DB_PATH) as conn:
+        create_schema(conn)
+        print(f"Loaded {load_funds(conn)} funds and {load_audit(conn)} audit entries into {DB_PATH}")
