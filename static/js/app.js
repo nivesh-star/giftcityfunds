@@ -618,8 +618,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
       document.getElementById('modalNav').textContent = f.nav !== null ? `${f.nav.toFixed(2)} ${f.nav_currency || 'USD'}` : 'Private / NFO Pending';
       document.getElementById('modalNavDate').textContent = f.nav_as_of ? `As of ${f.nav_as_of}` : (f.nav !== null ? 'Live Daily NAV' : 'Institutional Non-Public');
-      document.getElementById('modalTer').textContent = f.expense_ratio !== null ? `${f.expense_ratio.toFixed(2)}%` : 'Per Factsheet';
-      document.getElementById('modalLaunchDate').textContent = f.launch_date || 'On Request';
+      document.getElementById('modalTer').textContent = f.expense_ratio !== null ? `${f.expense_ratio.toFixed(2)}%` : 'Not Publicly Disclosed';
+      document.getElementById('modalLaunchDate').textContent = f.launch_date || 'Not Publicly Disclosed';
       document.getElementById('modalSourceLink').href = f.source_url;
       document.getElementById('modalSourceLink').textContent = f.source_name;
 
@@ -770,10 +770,10 @@ document.addEventListener('DOMContentLoaded', () => {
               ${f.nav !== null ? `${f.nav.toFixed(2)} ${f.nav_currency || 'USD'}` : 'Private/NFO'}
             </div>
             <div class="h-10 flex items-center font-mono font-semibold">
-              ${f.expense_ratio !== null ? `${f.expense_ratio.toFixed(2)}%` : 'Factsheet'}
+              ${f.expense_ratio !== null ? `${f.expense_ratio.toFixed(2)}%` : '—'}
             </div>
             <div class="h-10 flex items-center font-mono text-[var(--color-text-muted)]">${f.launch_date || '—'}</div>
-            <div class="h-10 flex items-center font-medium">${isTier1 && f.category && f.category.includes('Retail') ? 'Retail ($500+)' : '$150,000 (AIF)'}</div>
+            <div class="h-10 flex items-center font-medium truncate" title="${escapeHtml(f.minimum_investment || '')}">${escapeHtml(f.minimum_investment || '—')}</div>
             <div class="h-10 flex items-center text-emerald-400 font-semibold">0% IFSC Capital Gains</div>
           </div>
         `;
