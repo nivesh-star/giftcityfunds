@@ -697,6 +697,7 @@ def scrape_dsp_global_equity_fund() -> tuple[dict, dict]:
         record.update(
             fund_name="DSP Global Equity Fund",
             amc_name="DSP Fund Managers IFSC Private Limited",
+            launch_date="September 22, 2025",  # confirmed via Tequity's verified fund directory
             category="Retail Fund",
             nav=nav,
             nav_currency="USD",
@@ -921,6 +922,8 @@ def scrape_edelweiss_greater_china_fund() -> tuple[dict, dict]:
             aum_currency="USD",
             minimum_investment=(f"USD {min_investment:.0f}" if min_investment
                                  else "USD 5,000"),  # regex result if found on page, else confirmed via Angel One's GIFT City launch article
+            exit_load="2% (Year 1), 1% (Year 2), Nil (Year 3+)",  # resolved: confirmed on Tequity's verified fund directory page (earlier sources conflicted: Angel One said none, Tequity said tiered)
+            benchmark_index="MSCI Golden Dragon Index",  # corrected: confirmed via Tequity's verified fund directory (more precise than earlier generic search)
             scrape_status="pending_launch" if is_fundraising else ("success" if expense_ratio else "partial"),
         )
         # A pending-launch fund with correctly-extracted static fields is a
@@ -1049,6 +1052,34 @@ def scrape_nj_india_opportunities_fund() -> tuple[dict, dict]:
         import traceback
         audit["error_message"] = f"{type(exc).__name__}: {exc}" + " | " + traceback.format_exc(limit=3).replace(chr(10), " ")
         return record, audit
+
+
+def scrape_ppfas_india_flexicap_fund() -> tuple[dict, dict]:
+    """Parag Parikh India Flexi Cap Fund -- inbound feeder into the
+    domestic PPFAS Flexi Cap Fund. This is genuinely a NEW fund not
+    previously in this project's dataset (distinct from PPFAS's two
+    outbound funds, S&P500/Nasdaq, and the PMS). No official public
+    page found with live figures; static facts confirmed via Tequity's
+    verified GIFT City fund directory (min investment, TER, and tiered
+    exit load are all explicitly fund-specific, not conflated from the
+    domestic scheme)."""
+    url = "https://tequity.co.in/gift-city/mutual-funds/"
+    record = _empty_amc_record("Tequity verified fund directory", url)
+    audit = _new_audit(url)
+    record.update(
+        fund_name="Parag Parikh India Flexi Cap Fund",
+        amc_name="PPFAS Alternate Asset Managers IFSC Private Limited",
+        category="Retail Fund (inbound feeder into domestic PPFAS Flexi Cap Fund)",
+        nav=None,
+        nav_currency="USD",
+        expense_ratio=0.30,  # Direct plan
+        minimum_investment="USD 10,000",
+        exit_load="2% (Year 1), 1% (Year 2), Nil (Year 3+)",
+        scrape_status="partial",
+    )
+    audit["success"] = True
+    audit["error_message"] = "Static facts confirmed via Tequity's verified fund directory, not independently scraped from an official PPFAS page."
+    return record, audit
 
 
 def scrape_ppfas_global_investing_pms() -> tuple[dict, dict]:
@@ -1362,6 +1393,80 @@ def scrape_marcellus_gcp_pms() -> tuple[dict, dict]:
     return record, audit
 
 
+def scrape_baroda_bnp_gift_multicap_fund() -> tuple[dict, dict]:
+    """Baroda BNP Paribas Gift Multicap Fund -- inbound feeder fund
+    (into the domestic Baroda BNP Paribas Multicap Fund). Confirmed to
+    genuinely exist via Tequity's verified directory, but Tequity
+    itself explicitly marks minimum investment, TER, and exit load as
+    "not yet publicly disclosed" -- so those stay honestly null here
+    too, rather than guessed. This is a DIFFERENT product from Baroda
+    BNP's outbound "GIFT US Small Cap Fund" AIF already in this
+    project -- do not confuse the two."""
+    url = "https://tequity.co.in/gift-city/mutual-funds/"
+    record = _empty_amc_record("Tequity verified fund directory", url)
+    audit = _new_audit(url)
+    record.update(
+        fund_name="Baroda BNP Paribas Gift Multicap Fund",
+        amc_name="Baroda BNP Paribas Asset Management India Private Limited (IFSC Branch)",
+        category="Retail Fund (inbound feeder into domestic Baroda BNP Paribas Multicap Fund)",
+        nav=None,
+        nav_currency="USD",
+        scrape_status="partial",
+    )
+    audit["success"] = True
+    audit["error_message"] = "Fund confirmed to exist via Tequity's verified directory, but minimum investment/TER/exit load are explicitly marked not-yet-publicly-disclosed even by that source -- left NULL rather than guessed."
+    return record, audit
+
+
+def scrape_motilal_oswal_giftcity_fof() -> tuple[dict, dict]:
+    """Motilal Oswal GIFT City India Equity Fund of Funds Trust --
+    Category III AIF, inbound feeder into the domestic Motilal Oswal
+    Large & Midcap Fund. Confirmed real via multiple independent
+    sources (Kalviro Ventures' dedicated FAQ page, PMS AIF World,
+    Motilal Oswal's own GIFT City page). Min investment confirmed
+    specific to this exact fund, not conflated from a domestic sibling."""
+    url = "https://www.kalviroventures.com/motilal-oswal-gift-city-fund-nri-foreign-investors/"
+    record = _empty_amc_record("Kalviro Ventures fund guide + Motilal Oswal official GIFT City page", url)
+    audit = _new_audit(url)
+    record.update(
+        fund_name="Motilal Oswal GIFT City India Equity Fund of Funds Trust",
+        amc_name="MO Alternative IFSC Private Limited",
+        category="Category III AIF (inbound feeder into domestic Motilal Oswal Large & Midcap Fund)",
+        nav=None,
+        nav_currency="USD",
+        minimum_investment="USD 150,000",  # confirmed via Kalviro's dedicated FAQ page for this exact fund
+        scrape_status="partial",
+    )
+    audit["success"] = True
+    audit["error_message"] = "Static facts confirmed via multiple independent sources, not independently scraped from a single official page with live figures."
+    return record, audit
+
+
+def scrape_edelweiss_india_opportunities_fund() -> tuple[dict, dict]:
+    """Edelweiss India Opportunities Fund -- inbound feeder fund
+    (underlying domestic scheme not yet confirmed even by Tequity's own
+    research). Confirmed to genuinely exist, but no terms public yet.
+    NOTE: this is a THIRD, distinct Edelweiss GIFT City product,
+    different from both Edelweiss Greater China Equity Fund (outbound,
+    already in this project) and Edelweiss India Multimanager Equity
+    Fund (a separate inbound AIF also added this session) -- three
+    separate Edelweiss products, not duplicates of each other."""
+    url = "https://tequity.co.in/gift-city/mutual-funds/"
+    record = _empty_amc_record("Tequity verified fund directory", url)
+    audit = _new_audit(url)
+    record.update(
+        fund_name="Edelweiss India Opportunities Fund",
+        amc_name="Edelweiss Asset Management Limited (IFSC Branch)",
+        category="Retail Fund (inbound feeder, underlying domestic scheme not yet confirmed)",
+        nav=None,
+        nav_currency="USD",
+        scrape_status="partial",
+    )
+    audit["success"] = True
+    audit["error_message"] = "Fund confirmed to exist via Tequity's verified directory, but underlying fund, minimum investment, TER, and exit load are explicitly marked not-yet-confirmed even by that source -- left NULL rather than guessed."
+    return record, audit
+
+
 def scrape_edelweiss_india_multimanager_fund() -> tuple[dict, dict]:
     """Edelweiss India Multimanager Equity Fund -- inbound Category III
     AIF (fund-of-funds across top India mutual funds), a sibling to
@@ -1543,6 +1648,9 @@ def run_amc_scrape(config: ScraperConfig = CONFIG) -> dict:
         scrape_marcellus_global_equities_fund,
         scrape_marcellus_gcp_pms,
         scrape_edelweiss_india_multimanager_fund,
+        scrape_baroda_bnp_gift_multicap_fund,
+        scrape_edelweiss_india_opportunities_fund,
+        scrape_motilal_oswal_giftcity_fof,
         scrape_baroda_bnp_us_smallcap_fund,
         scrape_nippon_india_largecap_fund,
         scrape_altus_quant_algorithmic_fund,
@@ -1550,6 +1658,7 @@ def run_amc_scrape(config: ScraperConfig = CONFIG) -> dict:
         scrape_unifi_rangoli_india_fund,
         scrape_phillip_pioneer_portfolio,
         scrape_ppfas_global_investing_pms,
+        scrape_ppfas_india_flexicap_fund,
         scrape_nj_india_opportunities_fund,
     ]
     records, audits = [], []

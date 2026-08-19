@@ -1319,3 +1319,99 @@ waiting for locator("#gift-city-fund-list") to be visible
 2026-08-19 12:02:25 | INFO     | Scraping individual AMC source: scrape_nj_india_opportunities_fund
 2026-08-19 12:02:27 | INFO     |   [NJ debug] Excel shape: (12, 3)
 2026-08-19 12:02:27 | INFO     |   -> success=True | fund=NJ India Opportunities Fund
+2026-08-19 13:07:30 | INFO     | Scraping individual AMC source: scrape_tata_dynamic_equity_fund
+2026-08-19 13:07:32 | INFO     |   -> success=True | fund=Tata India Dynamic Equity Fund
+2026-08-19 13:07:33 | INFO     | Scraping individual AMC source: scrape_dsp_global_equity_fund
+2026-08-19 13:07:36 | INFO     |   -> success=True | fund=DSP Global Equity Fund
+2026-08-19 13:07:37 | INFO     | Scraping individual AMC source: scrape_ppfas_sp500_fund
+2026-08-19 13:07:41 | INFO     |   -> success=True | fund=Parag Parikh IFSC S&P 500 Fund of Fund
+2026-08-19 13:07:42 | INFO     | Scraping individual AMC source: scrape_ppfas_nasdaq_fund
+2026-08-19 13:07:48 | INFO     |   -> success=True | fund=Parag Parikh IFSC Nasdaq 100 Fund of Fund
+2026-08-19 13:07:49 | INFO     | Scraping individual AMC source: scrape_edelweiss_greater_china_fund
+2026-08-19 13:07:50 | INFO     |   -> success=True | fund=Edelweiss Greater China Equity Fund
+2026-08-19 13:07:51 | INFO     | Scraping individual AMC source: scrape_sundaram_india_midcap_fund
+2026-08-19 13:07:53 | INFO     |   -> success=True | fund=Sundaram India Mid Cap - GIFT
+2026-08-19 13:07:54 | INFO     | Scraping individual AMC source: scrape_mirae_global_allocation_fund
+2026-08-19 13:07:55 | INFO     |   -> success=True | fund=Mirae Asset Global Allocation Fund
+2026-08-19 13:07:56 | INFO     | Scraping individual AMC source: scrape_bandhan_india_smallcap_fund
+2026-08-19 13:07:58 | INFO     |   -> success=True | fund=Bandhan India Small Cap Fund (IFSC)
+2026-08-19 13:07:59 | INFO     | Scraping individual AMC source: scrape_bandhan_india_large_midcap_fund
+2026-08-19 13:08:01 | INFO     |   -> success=True | fund=Bandhan India Large and Mid-Cap Fund (IFSC)
+2026-08-19 13:08:02 | INFO     | Scraping individual AMC source: scrape_marcellus_global_equities_fund
+2026-08-19 13:08:03 | INFO     |   -> success=True | fund=Marcellus Global Equities Fund
+2026-08-19 13:08:04 | INFO     | Scraping individual AMC source: scrape_marcellus_gcp_pms
+2026-08-19 13:08:04 | INFO     |   -> success=True | fund=Marcellus GCP
+2026-08-19 13:08:05 | INFO     | Scraping individual AMC source: scrape_edelweiss_india_multimanager_fund
+2026-08-19 13:08:05 | INFO     |   -> success=True | fund=Edelweiss India Multimanager Equity Fund
+2026-08-19 13:08:06 | INFO     | Scraping individual AMC source: scrape_baroda_bnp_gift_multicap_fund
+2026-08-19 13:08:06 | INFO     |   -> success=True | fund=Baroda BNP Paribas Gift Multicap Fund
+2026-08-19 13:08:07 | INFO     | Scraping individual AMC source: scrape_edelweiss_india_opportunities_fund
+2026-08-19 13:08:07 | INFO     |   -> success=True | fund=Edelweiss India Opportunities Fund
+2026-08-19 13:08:08 | INFO     | Scraping individual AMC source: scrape_baroda_bnp_us_smallcap_fund
+2026-08-19 13:08:10 | INFO     |   -> success=True | fund=Baroda BNP Paribas GIFT US Small Cap Fund
+2026-08-19 13:08:11 | INFO     | Scraping individual AMC source: scrape_nippon_india_largecap_fund
+2026-08-19 13:08:12 | INFO     |   -> success=True | fund=Nippon India Large Cap Fund GIFT
+2026-08-19 13:08:13 | INFO     | Scraping individual AMC source: scrape_altus_quant_algorithmic_fund
+2026-08-19 13:08:18 | INFO     |   -> success=True | fund=Quant Algorithmic Strategies Fund
+2026-08-19 13:08:19 | INFO     | Scraping individual AMC source: scrape_nuvama_india_edge_fund
+2026-08-19 13:08:21 | INFO     |   -> success=True | fund=Nuvama India EDGE Fund
+2026-08-19 13:08:22 | INFO     | Scraping individual AMC source: scrape_unifi_rangoli_india_fund
+2026-08-19 13:08:22 | INFO     |   -> success=True | fund=Rangoli India Fund
+2026-08-19 13:08:23 | INFO     | Scraping individual AMC source: scrape_phillip_pioneer_portfolio
+2026-08-19 13:08:25 | INFO     |   -> success=True | fund=Phillip International Pioneer Portfolio
+2026-08-19 13:08:26 | INFO     | Scraping individual AMC source: scrape_ppfas_global_investing_pms
+2026-08-19 13:08:31 | INFO     |   -> success=True | fund=Parag Parikh Global Investing Strategy
+2026-08-19 13:08:32 | INFO     | Scraping individual AMC source: scrape_ppfas_india_flexicap_fund
+2026-08-19 13:08:32 | INFO     |   -> success=True | fund=Parag Parikh India Flexi Cap Fund
+2026-08-19 13:08:33 | INFO     | Scraping individual AMC source: scrape_nj_india_opportunities_fund
+2026-08-19 13:08:35 | INFO     |   [NJ debug] Excel shape: (12, 3)
+2026-08-19 13:08:35 | INFO     |   -> success=True | fund=NJ India Opportunities Fund
+2026-08-19 13:14:46 | INFO     | Scraping individual AMC source: scrape_tata_dynamic_equity_fund
+2026-08-19 13:14:47 | INFO     |   -> success=True | fund=Tata India Dynamic Equity Fund
+2026-08-19 13:14:48 | INFO     | Scraping individual AMC source: scrape_dsp_global_equity_fund
+2026-08-19 13:14:53 | INFO     |   -> success=True | fund=DSP Global Equity Fund
+2026-08-19 13:14:54 | INFO     | Scraping individual AMC source: scrape_ppfas_sp500_fund
+2026-08-19 13:14:58 | INFO     |   -> success=True | fund=Parag Parikh IFSC S&P 500 Fund of Fund
+2026-08-19 13:14:59 | INFO     | Scraping individual AMC source: scrape_ppfas_nasdaq_fund
+2026-08-19 13:15:08 | INFO     |   -> success=True | fund=Parag Parikh IFSC Nasdaq 100 Fund of Fund
+2026-08-19 13:15:09 | INFO     | Scraping individual AMC source: scrape_edelweiss_greater_china_fund
+2026-08-19 13:15:09 | INFO     |   -> success=True | fund=Edelweiss Greater China Equity Fund
+2026-08-19 13:15:10 | INFO     | Scraping individual AMC source: scrape_sundaram_india_midcap_fund
+2026-08-19 13:15:12 | INFO     |   -> success=True | fund=Sundaram India Mid Cap - GIFT
+2026-08-19 13:15:13 | INFO     | Scraping individual AMC source: scrape_mirae_global_allocation_fund
+2026-08-19 13:15:14 | INFO     |   -> success=True | fund=Mirae Asset Global Allocation Fund
+2026-08-19 13:15:15 | INFO     | Scraping individual AMC source: scrape_bandhan_india_smallcap_fund
+2026-08-19 13:15:16 | INFO     |   -> success=True | fund=Bandhan India Small Cap Fund (IFSC)
+2026-08-19 13:15:17 | INFO     | Scraping individual AMC source: scrape_bandhan_india_large_midcap_fund
+2026-08-19 13:15:18 | INFO     |   -> success=True | fund=Bandhan India Large and Mid-Cap Fund (IFSC)
+2026-08-19 13:15:19 | INFO     | Scraping individual AMC source: scrape_marcellus_global_equities_fund
+2026-08-19 13:15:20 | INFO     |   -> success=True | fund=Marcellus Global Equities Fund
+2026-08-19 13:15:21 | INFO     | Scraping individual AMC source: scrape_marcellus_gcp_pms
+2026-08-19 13:15:21 | INFO     |   -> success=True | fund=Marcellus GCP
+2026-08-19 13:15:22 | INFO     | Scraping individual AMC source: scrape_edelweiss_india_multimanager_fund
+2026-08-19 13:15:22 | INFO     |   -> success=True | fund=Edelweiss India Multimanager Equity Fund
+2026-08-19 13:15:23 | INFO     | Scraping individual AMC source: scrape_baroda_bnp_gift_multicap_fund
+2026-08-19 13:15:23 | INFO     |   -> success=True | fund=Baroda BNP Paribas Gift Multicap Fund
+2026-08-19 13:15:24 | INFO     | Scraping individual AMC source: scrape_edelweiss_india_opportunities_fund
+2026-08-19 13:15:24 | INFO     |   -> success=True | fund=Edelweiss India Opportunities Fund
+2026-08-19 13:15:25 | INFO     | Scraping individual AMC source: scrape_motilal_oswal_giftcity_fof
+2026-08-19 13:15:25 | INFO     |   -> success=True | fund=Motilal Oswal GIFT City India Equity Fund of Funds Trust
+2026-08-19 13:15:26 | INFO     | Scraping individual AMC source: scrape_baroda_bnp_us_smallcap_fund
+2026-08-19 13:15:28 | INFO     |   -> success=True | fund=Baroda BNP Paribas GIFT US Small Cap Fund
+2026-08-19 13:15:29 | INFO     | Scraping individual AMC source: scrape_nippon_india_largecap_fund
+2026-08-19 13:15:29 | INFO     |   -> success=True | fund=Nippon India Large Cap Fund GIFT
+2026-08-19 13:15:30 | INFO     | Scraping individual AMC source: scrape_altus_quant_algorithmic_fund
+2026-08-19 13:15:34 | INFO     |   -> success=True | fund=Quant Algorithmic Strategies Fund
+2026-08-19 13:15:35 | INFO     | Scraping individual AMC source: scrape_nuvama_india_edge_fund
+2026-08-19 13:15:36 | INFO     |   -> success=True | fund=Nuvama India EDGE Fund
+2026-08-19 13:15:37 | INFO     | Scraping individual AMC source: scrape_unifi_rangoli_india_fund
+2026-08-19 13:15:38 | INFO     |   -> success=True | fund=Rangoli India Fund
+2026-08-19 13:15:39 | INFO     | Scraping individual AMC source: scrape_phillip_pioneer_portfolio
+2026-08-19 13:15:41 | INFO     |   -> success=True | fund=Phillip International Pioneer Portfolio
+2026-08-19 13:15:42 | INFO     | Scraping individual AMC source: scrape_ppfas_global_investing_pms
+2026-08-19 13:15:52 | INFO     |   -> success=True | fund=Parag Parikh Global Investing Strategy
+2026-08-19 13:15:53 | INFO     | Scraping individual AMC source: scrape_ppfas_india_flexicap_fund
+2026-08-19 13:15:53 | INFO     |   -> success=True | fund=Parag Parikh India Flexi Cap Fund
+2026-08-19 13:15:54 | INFO     | Scraping individual AMC source: scrape_nj_india_opportunities_fund
+2026-08-19 13:15:56 | INFO     |   [NJ debug] Excel shape: (12, 3)
+2026-08-19 13:15:56 | INFO     |   -> success=True | fund=NJ India Opportunities Fund

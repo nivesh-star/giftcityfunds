@@ -253,8 +253,10 @@ def export_json():
 
 
 if __name__ == "__main__":
+    import os
+    port = int(os.environ.get("PORT", 5000))
     print("=" * 70)
     print("  GIFT360 — GIFT City (IFSC) Funds Intelligence Platform")
-    print("  Serving live at http://127.0.0.1:5000")
+    print(f"  Serving live on port {port}")
     print("=" * 70)
-    app.run(host="127.0.0.1", port=5000, debug=True)
+    app.run(host="0.0.0.0", port=port, debug=False)

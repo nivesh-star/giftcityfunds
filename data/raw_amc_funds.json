@@ -19,14 +19,14 @@
     "benchmark_index": null,
     "source_name": "Tata Asset Management IFSC factsheet - Class A Direct",
     "source_url": "https://www.tatamutualfund.com/system/files/2026-02/Tata%20India%20Dynamic%20Equity%20Fund%20Factsheet%20-%20Class%20A%20-%20Feb%2726.pdf",
-    "scraped_at": "2026-08-19T06:31:27.431878+00:00",
+    "scraped_at": "2026-08-19T07:44:46.260853+00:00",
     "scrape_status": "success"
   },
   {
     "fund_name": "DSP Global Equity Fund",
     "amc_name": "DSP Fund Managers IFSC Private Limited",
     "category": "Retail Fund",
-    "launch_date": null,
+    "launch_date": "September 22, 2025",
     "nav": 9.55,
     "nav_currency": "USD",
     "nav_as_of": null,
@@ -42,7 +42,7 @@
     "benchmark_index": "MSCI ACWI Net Total Return",
     "source_name": "DSP GIFT City product page",
     "source_url": "https://giftcity.dspim.com/product",
-    "scraped_at": "2026-08-19T06:31:29.389568+00:00",
+    "scraped_at": "2026-08-19T07:44:48.011709+00:00",
     "scrape_status": "success"
   },
   {
@@ -65,7 +65,7 @@
     "benchmark_index": "S&P 500 Net TRI",
     "source_name": "PPFAS GIFT S&P 500 factsheet",
     "source_url": "https://gift.ppfas.com/product/outbound/parag_parikh_ifsc_s%26p_500_fof/pdf/Parag_Parikh_IFSC_S%26P_500-regular-factsheet.pdf",
-    "scraped_at": "2026-08-19T06:31:33.255824+00:00",
+    "scraped_at": "2026-08-19T07:44:54.617634+00:00",
     "scrape_status": "partial"
   },
   {
@@ -88,7 +88,7 @@
     "benchmark_index": "NASDAQ 100 Notional Net TRI",
     "source_name": "PPFAS GIFT Nasdaq 100 NAV history + official factsheet",
     "source_url": "https://gift.ppfas.com/product/outbound/parag_parikh_ifsc_nasdaq_100_fof/nav-history/",
-    "scraped_at": "2026-08-19T06:31:37.866637+00:00",
+    "scraped_at": "2026-08-19T07:44:59.551171+00:00",
     "scrape_status": "success"
   },
   {
@@ -106,12 +106,12 @@
     "inception_date": null,
     "minimum_investment": "USD 10000",
     "lock_in_period": null,
-    "exit_load": null,
+    "exit_load": "2% (Year 1), 1% (Year 2), Nil (Year 3+)",
     "exit_load_description": null,
-    "benchmark_index": null,
+    "benchmark_index": "MSCI Golden Dragon Index",
     "source_name": "Edelweiss GIFT City official page",
     "source_url": "https://www.edelweissmf.com/gift-city",
-    "scraped_at": "2026-08-19T06:31:44.560024+00:00",
+    "scraped_at": "2026-08-19T07:45:09.051670+00:00",
     "scrape_status": "pending_launch"
   },
   {
@@ -134,7 +134,7 @@
     "benchmark_index": "Nifty Midcap 150",
     "source_name": "Sundaram GIFT City factsheet",
     "source_url": "https://www.sundarammutual.com/pdf2/2026/Gift_City/India_Midcap_Gift_City_Fund_FactSheet_Apr_2026_V1.pdf",
-    "scraped_at": "2026-08-19T06:31:46.070847+00:00",
+    "scraped_at": "2026-08-19T07:45:10.605822+00:00",
     "scrape_status": "success"
   },
   {
@@ -157,7 +157,7 @@
     "benchmark_index": null,
     "source_name": "Mirae Asset GIFT City official page",
     "source_url": "https://giftcity.miraeassetmf.co.in/mirae-asset-global-allocation-fund.html",
-    "scraped_at": "2026-08-19T06:31:48.442321+00:00",
+    "scraped_at": "2026-08-19T07:45:13.545471+00:00",
     "scrape_status": "partial"
   },
   {
@@ -180,7 +180,7 @@
     "benchmark_index": "Nifty Smallcap 250",
     "source_name": "Bandhan GIFT City factsheet",
     "source_url": "https://www.bandhanamc.com/amcaccess/sites/default/files/2026-05/GIFT-Bandhan-India-Small-Cap-IFSC-Factsheet-Apr-26.pdf",
-    "scraped_at": "2026-08-19T06:31:50.027172+00:00",
+    "scraped_at": "2026-08-19T07:45:15.341175+00:00",
     "scrape_status": "success"
   },
   {
@@ -203,7 +203,7 @@
     "benchmark_index": "NIFTY Large Midcap 250 TRI",
     "source_name": "Bandhan GIFT City factsheet (Large & Mid-Cap)",
     "source_url": "https://www.bandhanamc.com/amcaccess/sites/default/files/2025-11/Bandhan-India-Large-and-Midcap-IFSC-Factsheet-Nov-25.pdf",
-    "scraped_at": "2026-08-19T06:31:53.559434+00:00",
+    "scraped_at": "2026-08-19T07:45:17.464173+00:00",
     "scrape_status": "success"
   },
   {
@@ -226,7 +226,7 @@
     "benchmark_index": null,
     "source_name": "Marcellus GIFT City factsheet",
     "source_url": "https://marcellus.in/wp-content/uploads/gift-retail/marcellus_global_equities_fund_factsheet.pdf",
-    "scraped_at": "2026-08-19T06:31:56.328021+00:00",
+    "scraped_at": "2026-08-19T07:45:19.497298+00:00",
     "scrape_status": "success"
   },
   {
@@ -249,7 +249,7 @@
     "benchmark_index": null,
     "source_name": "Tequity verified fund directory",
     "source_url": "https://tequity.co.in/gift-city/pms/marcellus-gcp/",
-    "scraped_at": "2026-08-19T06:31:58.494267+00:00",
+    "scraped_at": "2026-08-19T07:45:21.682435+00:00",
     "scrape_status": "partial"
   },
   {
@@ -272,7 +272,76 @@
     "benchmark_index": null,
     "source_name": "Tequity verified fund directory",
     "source_url": "https://tequity.co.in/gift-city/aif/edelweiss-india-multimanager/",
-    "scraped_at": "2026-08-19T06:31:59.494758+00:00",
+    "scraped_at": "2026-08-19T07:45:22.683144+00:00",
+    "scrape_status": "partial"
+  },
+  {
+    "fund_name": "Baroda BNP Paribas Gift Multicap Fund",
+    "amc_name": "Baroda BNP Paribas Asset Management India Private Limited (IFSC Branch)",
+    "category": "Retail Fund (inbound feeder into domestic Baroda BNP Paribas Multicap Fund)",
+    "launch_date": null,
+    "nav": null,
+    "nav_currency": "USD",
+    "nav_as_of": null,
+    "expense_ratio": null,
+    "aum": null,
+    "aum_currency": null,
+    "aum_unit": null,
+    "inception_date": null,
+    "minimum_investment": null,
+    "lock_in_period": null,
+    "exit_load": null,
+    "exit_load_description": null,
+    "benchmark_index": null,
+    "source_name": "Tequity verified fund directory",
+    "source_url": "https://tequity.co.in/gift-city/mutual-funds/",
+    "scraped_at": "2026-08-19T07:45:23.683772+00:00",
+    "scrape_status": "partial"
+  },
+  {
+    "fund_name": "Edelweiss India Opportunities Fund",
+    "amc_name": "Edelweiss Asset Management Limited (IFSC Branch)",
+    "category": "Retail Fund (inbound feeder, underlying domestic scheme not yet confirmed)",
+    "launch_date": null,
+    "nav": null,
+    "nav_currency": "USD",
+    "nav_as_of": null,
+    "expense_ratio": null,
+    "aum": null,
+    "aum_currency": null,
+    "aum_unit": null,
+    "inception_date": null,
+    "minimum_investment": null,
+    "lock_in_period": null,
+    "exit_load": null,
+    "exit_load_description": null,
+    "benchmark_index": null,
+    "source_name": "Tequity verified fund directory",
+    "source_url": "https://tequity.co.in/gift-city/mutual-funds/",
+    "scraped_at": "2026-08-19T07:45:24.685344+00:00",
+    "scrape_status": "partial"
+  },
+  {
+    "fund_name": "Motilal Oswal GIFT City India Equity Fund of Funds Trust",
+    "amc_name": "MO Alternative IFSC Private Limited",
+    "category": "Category III AIF (inbound feeder into domestic Motilal Oswal Large & Midcap Fund)",
+    "launch_date": null,
+    "nav": null,
+    "nav_currency": "USD",
+    "nav_as_of": null,
+    "expense_ratio": null,
+    "aum": null,
+    "aum_currency": null,
+    "aum_unit": null,
+    "inception_date": null,
+    "minimum_investment": "USD 150,000",
+    "lock_in_period": null,
+    "exit_load": null,
+    "exit_load_description": null,
+    "benchmark_index": null,
+    "source_name": "Kalviro Ventures fund guide + Motilal Oswal official GIFT City page",
+    "source_url": "https://www.kalviroventures.com/motilal-oswal-gift-city-fund-nri-foreign-investors/",
+    "scraped_at": "2026-08-19T07:45:25.686199+00:00",
     "scrape_status": "partial"
   },
   {
@@ -280,9 +349,9 @@
     "amc_name": "Baroda BNP Paribas Asset Management India Private Limited (IFSC Branch)",
     "category": "Open-ended Category III AIF",
     "launch_date": null,
-    "nav": 114.5252,
+    "nav": 113.4611,
     "nav_currency": "USD",
-    "nav_as_of": "August 17, 2026",
+    "nav_as_of": "August 18, 2026",
     "expense_ratio": 1.75,
     "aum": null,
     "aum_currency": null,
@@ -295,7 +364,7 @@
     "benchmark_index": null,
     "source_name": "Baroda BNP Paribas GIFT City page",
     "source_url": "https://www.barodabnpparibasmf.in/gift-us-small-cap-fund",
-    "scraped_at": "2026-08-19T06:32:00.495832+00:00",
+    "scraped_at": "2026-08-19T07:45:26.687184+00:00",
     "scrape_status": "success"
   },
   {
@@ -318,7 +387,7 @@
     "benchmark_index": "Nifty 100 TRI",
     "source_name": "Nippon India GIFT City factsheet",
     "source_url": "https://giftcity.nipponindiaim.com/giftcity_files/pdf/GIFT-CITY-Factsheet-Aug25.pdf",
-    "scraped_at": "2026-08-19T06:32:02.308532+00:00",
+    "scraped_at": "2026-08-19T07:45:29.229329+00:00",
     "scrape_status": "success"
   },
   {
@@ -341,7 +410,7 @@
     "benchmark_index": null,
     "source_name": "Altus IFSC weekly factsheet",
     "source_url": "https://www.altusifsc.com/upload/files/Quant%20Algorithmic%20Strategies%20Fund%20Week%2024.pdf",
-    "scraped_at": "2026-08-19T06:32:05.370050+00:00",
+    "scraped_at": "2026-08-19T07:45:30.870131+00:00",
     "scrape_status": "success"
   },
   {
@@ -364,7 +433,7 @@
     "benchmark_index": null,
     "source_name": "Nuvama Asset Management public markets page",
     "source_url": "https://www.nuvamaassetmanagement.com/public-markets.html",
-    "scraped_at": "2026-08-19T06:32:09.954000+00:00",
+    "scraped_at": "2026-08-19T07:45:35.863202+00:00",
     "scrape_status": "partial"
   },
   {
@@ -387,7 +456,7 @@
     "benchmark_index": "MSCI India (USD)",
     "source_name": "Unifi Investment Management official fund page",
     "source_url": "https://unifiinvestment.com/the-rangoli-india-fund/",
-    "scraped_at": "2026-08-19T06:32:12.006737+00:00",
+    "scraped_at": "2026-08-19T07:45:37.460495+00:00",
     "scrape_status": "success"
   },
   {
@@ -410,7 +479,7 @@
     "benchmark_index": null,
     "source_name": "Phillip Ventures IFSC factsheet",
     "source_url": "https://phillipventuresifsc.com/assets/pdfs/product-services/global-portfolios/Monthly-Factsheet-Pioneer.pdf",
-    "scraped_at": "2026-08-19T06:32:13.716380+00:00",
+    "scraped_at": "2026-08-19T07:45:39.344000+00:00",
     "scrape_status": "partial"
   },
   {
@@ -433,7 +502,30 @@
     "benchmark_index": null,
     "source_name": "PPFAS Global Investing Strategy factsheet",
     "source_url": "https://gift.ppfas.com/factsheet/2025/factsheet-nov-2025.pdf",
-    "scraped_at": "2026-08-19T06:32:16.405877+00:00",
+    "scraped_at": "2026-08-19T07:45:42.259899+00:00",
+    "scrape_status": "partial"
+  },
+  {
+    "fund_name": "Parag Parikh India Flexi Cap Fund",
+    "amc_name": "PPFAS Alternate Asset Managers IFSC Private Limited",
+    "category": "Retail Fund (inbound feeder into domestic PPFAS Flexi Cap Fund)",
+    "launch_date": null,
+    "nav": null,
+    "nav_currency": "USD",
+    "nav_as_of": null,
+    "expense_ratio": 0.3,
+    "aum": null,
+    "aum_currency": null,
+    "aum_unit": null,
+    "inception_date": null,
+    "minimum_investment": "USD 10,000",
+    "lock_in_period": null,
+    "exit_load": "2% (Year 1), 1% (Year 2), Nil (Year 3+)",
+    "exit_load_description": null,
+    "benchmark_index": null,
+    "source_name": "Tequity verified fund directory",
+    "source_url": "https://tequity.co.in/gift-city/mutual-funds/",
+    "scraped_at": "2026-08-19T07:45:53.709322+00:00",
     "scrape_status": "partial"
   },
   {
@@ -456,7 +548,7 @@
     "benchmark_index": null,
     "source_name": "NJ AMC GIFT City NAV file",
     "source_url": "https://www.njmutualfund.com/njgiftcity/viewfile.php?file=NJIOF-Aug-26-NAV-20260817124710.xls",
-    "scraped_at": "2026-08-19T06:32:25.717750+00:00",
+    "scraped_at": "2026-08-19T07:45:54.710510+00:00",
     "scrape_status": "success"
   }
 ]
