@@ -687,8 +687,19 @@ document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('modalSourceLink').href = f.source_url;
       document.getElementById('modalSourceLink').textContent = f.source_name;
 
-      // Render simulated NAV trend chart or placeholder
-      renderModalNavChart(f);
+      // Render real NAV trend chart (or an honest "no history yet" note) --
+      // previously this generated a fake Math.random() trajectory that
+      // changed on every page reload. Now it's the actual recorded series
+      // from /api/fund/<id>/nav-history.
+      let navHistory = [];
+      try {
+        const historyRes = await fetch(`/api/fund/${fundId}/nav-history`);
+        const historyData = await historyRes.json();
+        if (historyData.success) navHistory = historyData.nav_history;
+      } catch (e) {
+        console.error('Error fetching NAV history:', e);
+      }
+      renderModalNavChart(f, navHistory);
 
       modal.classList.remove('hidden');
       modal.classList.add('flex');
@@ -697,40 +708,52 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  function renderModalNavChart(fund) {
+  function renderModalNavChart(fund, history) {
     const canvas = document.getElementById('modalNavCanvas');
-    if (!canvas) return;
+    const wrapper = document.getElementById('modalNavChartWrapper');
+    const subtitle = document.getElementById('modalNavSubtitle');
+    if (!canvas || !wrapper) return;
 
     if (state.charts.modalNav) {
       state.charts.modalNav.destroy();
+      state.charts.modalNav = null;
     }
 
-    const isLight = document.documentElement.classList.contains('light');
-    const baseNav = fund.nav || 100;
-    
-    // Generate synthetic 12-month performance trajectory based on real NAV
-    const months = ['Sep 25', 'Oct 25', 'Nov 25', 'Dec 25', 'Jan 26', 'Feb 26', 'Mar 26', 'Apr 26', 'May 26', 'Jun 26', 'Jul 26', 'Aug 26'];
-    const trajectory = [];
-    let current = baseNav * 0.92;
-    for (let i = 0; i < months.length - 1; i++) {
-      trajectory.push(Number(current.toFixed(2)));
-      current += (Math.random() * 2.2 - 0.7);
+    const existingNote = wrapper.querySelector('.chart-empty-note');
+    if (existingNote) existingNote.remove();
+
+    if (!history || history.length === 0) {
+      canvas.style.display = 'none';
+      if (subtitle) subtitle.textContent = 'No History Yet';
+      const note = document.createElement('div');
+      note.className = 'chart-empty-note absolute inset-0 flex items-center justify-center text-center text-[11px] text-[var(--color-text-subtle)] px-4';
+      note.textContent = 'No NAV history recorded yet for this fund. A real trend will build up here as the data pipeline runs over time.';
+      wrapper.appendChild(note);
+      return;
     }
-    trajectory.push(baseNav);
+
+    canvas.style.display = '';
+    const isLight = document.documentElement.classList.contains('light');
+    const isSingle = history.length === 1;
+    if (subtitle) subtitle.textContent = isSingle ? '1 Snapshot Recorded' : `${history.length} Recorded Points`;
+
+    const labels = history.map(h => h.nav_date);
+    const values = history.map(h => h.nav);
 
     state.charts.modalNav = new Chart(canvas, {
-      type: 'line',
+      type: isSingle ? 'bar' : 'line',
       data: {
-        labels: months,
+        labels,
         datasets: [{
           label: `${fund.fund_name} NAV (${fund.nav_currency || 'USD'})`,
-          data: trajectory,
+          data: values,
           borderColor: '#2563eb',
-          backgroundColor: 'rgba(37, 99, 235, 0.12)',
-          fill: true,
+          backgroundColor: isSingle ? '#2563eb' : 'rgba(37, 99, 235, 0.12)',
+          fill: !isSingle,
           tension: 0.35,
-          pointRadius: 3,
+          pointRadius: isSingle ? 0 : 3,
           pointHoverRadius: 6,
+          maxBarThickness: 48,
         }]
       },
       options: {
@@ -749,6 +772,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       }
     });
+
+    if (isSingle) {
+      const note = document.createElement('div');
+      note.className = 'chart-empty-note absolute bottom-1 right-2 text-[9px] text-[var(--color-text-subtle)] italic';
+      note.textContent = 'Only one NAV snapshot recorded so far -- not enough history yet for a trend line.';
+      wrapper.appendChild(note);
+    }
   }
 
   // --------------------------------------------------------------------------
@@ -847,9 +877,118 @@ document.addEventListener('DOMContentLoaded', () => {
       container.innerHTML = matrixHtml;
       modal.classList.remove('hidden');
       modal.classList.add('flex');
+
+      // Visual comparison chart -- fetch each compared fund's real NAV
+      // history in parallel and plot as a multi-line chart. Funds with
+      // sparse history (most currently have 0-1 points, since real
+      // history only accumulates over multiple future pipeline runs)
+      // are shown honestly rather than papered over with a fake trend.
+      const histories = await Promise.all(
+        funds.map(f =>
+          fetch(`/api/fund/${f.fund_id}/nav-history`)
+            .then(r => r.json())
+            .then(d => (d.success ? d.nav_history : []))
+            .catch(() => [])
+        )
+      );
+      renderCompareNavChart(funds, histories);
     } catch (e) {
       console.error('Error opening compare modal:', e);
     }
+  }
+
+  function renderCompareNavChart(funds, histories) {
+    const section = document.getElementById('compareChartSection');
+    const wrapper = document.getElementById('compareChartWrapper');
+    const canvas = document.getElementById('compareNavCanvas');
+    const note = document.getElementById('compareChartNote');
+    if (!section || !wrapper || !canvas || !note) return;
+
+    if (state.charts.compareNav) {
+      state.charts.compareNav.destroy();
+      state.charts.compareNav = null;
+    }
+    const existingEmptyNote = wrapper.querySelector('.chart-empty-note');
+    if (existingEmptyNote) existingEmptyNote.remove();
+
+    section.classList.remove('hidden');
+
+    // Funds with at least 2 recorded NAV points actually have a line to draw.
+    const plottable = funds
+      .map((f, i) => ({ fund: f, history: histories[i] || [] }))
+      .filter(x => x.history.length > 0);
+
+    if (plottable.length === 0) {
+      canvas.style.display = 'none';
+      note.textContent = '';
+      const emptyNote = document.createElement('div');
+      emptyNote.className = 'chart-empty-note absolute inset-0 flex items-center justify-center text-center text-[11px] text-[var(--color-text-subtle)] px-6';
+      emptyNote.textContent = 'None of the selected funds have recorded NAV history yet -- the trend chart will populate as the data pipeline runs over time.';
+      wrapper.appendChild(emptyNote);
+      return;
+    }
+
+    canvas.style.display = '';
+    const isLight = document.documentElement.classList.contains('light');
+    const categoricalSet = isLight ? CATEGORICAL_LIGHT : CATEGORICAL_DARK;
+
+    // Union of all NAV dates across compared funds, sorted, used as the
+    // shared category axis. Each fund's series uses spanGaps so a date it
+    // has no snapshot for just leaves a gap rather than a fabricated value.
+    const allDates = Array.from(new Set(plottable.flatMap(x => x.history.map(h => h.nav_date)))).sort();
+
+    const datasets = plottable.map((x, idx) => {
+      const byDate = new Map(x.history.map(h => [h.nav_date, h.nav]));
+      const data = allDates.map(d => (byDate.has(d) ? byDate.get(d) : null));
+      const color = categoricalSet[idx % categoricalSet.length];
+      const single = x.history.length === 1;
+      return {
+        label: `${x.fund.fund_name}${single ? ' (single snapshot)' : ''}`,
+        data,
+        borderColor: color,
+        backgroundColor: color,
+        // Dataviz palette guidance: only the first 3 categorical slots
+        // validate as CVD-safe when every series is simultaneously visible
+        // (an "all-pairs" chart like this one). The 4th compared fund
+        // (max 4 per the compare limit) gets a dashed line as a secondary,
+        // non-color encoding so it stays distinguishable.
+        borderDash: idx >= 3 ? [6, 4] : undefined,
+        spanGaps: true,
+        tension: 0.3,
+        pointRadius: single ? 5 : 3,
+        pointHoverRadius: 7,
+        showLine: !single || allDates.length > 1,
+        fill: false,
+      };
+    });
+
+    state.charts.compareNav = new Chart(canvas, {
+      type: 'line',
+      data: { labels: allDates, datasets },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: { color: isLight ? '#0b0b0b' : '#ffffff', font: { size: 10 }, boxWidth: 12, usePointStyle: true }
+          },
+          tooltip: { mode: 'index', intersect: false }
+        },
+        scales: {
+          x: { grid: { display: false }, ticks: { color: isLight ? '#64748b' : '#94a3b8', font: { size: 10 } } },
+          y: { grid: { color: isLight ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.05)' }, ticks: { color: isLight ? '#64748b' : '#94a3b8', font: { size: 10 } } }
+        }
+      }
+    });
+
+    const skipped = funds.length - plottable.length;
+    const singleCount = plottable.filter(x => x.history.length === 1).length;
+    const notes = [];
+    if (skipped > 0) notes.push(`${skipped} of ${funds.length} selected fund${skipped === 1 ? '' : 's'} ${skipped === 1 ? 'has' : 'have'} no NAV history yet and ${skipped === 1 ? 'is' : 'are'} omitted from the chart.`);
+    if (singleCount > 0) notes.push(`${singleCount} fund${singleCount === 1 ? '' : 's'} only ${singleCount === 1 ? 'has' : 'have'} a single recorded snapshot so far, shown as a point rather than a trend.`);
+    note.textContent = notes.join(' ');
   }
 
   // --------------------------------------------------------------------------

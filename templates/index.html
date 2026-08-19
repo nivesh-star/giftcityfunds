@@ -525,9 +525,9 @@
       <div class="mb-5">
         <div class="flex items-center justify-between mb-2">
           <h3 class="text-xs font-bold text-[var(--color-text)] uppercase tracking-wider">NAV Performance Trajectory</h3>
-          <span class="text-[10px] text-[var(--color-text-subtle)]">12-Month Indexed Series</span>
+          <span id="modalNavSubtitle" class="text-[10px] text-[var(--color-text-subtle)]">Recorded NAV History</span>
         </div>
-        <div class="h-44 w-full bg-[var(--color-bg-subtle)] border border-[var(--color-border)] rounded-2xl p-3">
+        <div id="modalNavChartWrapper" class="h-44 w-full bg-[var(--color-bg-subtle)] border border-[var(--color-border)] rounded-2xl p-3 relative">
           <canvas id="modalNavCanvas"></canvas>
         </div>
       </div>
@@ -571,6 +571,17 @@
 
       <div id="compareMatrixContainer" class="overflow-x-auto pb-4">
         <!-- Rendered dynamically by app.js -->
+      </div>
+
+      <div id="compareChartSection" class="mt-6 pt-5 border-t border-[var(--color-border)] hidden">
+        <div class="mb-3">
+          <span class="text-xs font-extrabold uppercase tracking-widest text-blue-500">Visual Comparison</span>
+          <h3 class="text-sm font-black text-[var(--color-text)] tracking-tight">NAV Trend — Selected Funds</h3>
+        </div>
+        <div id="compareChartWrapper" class="h-64 w-full bg-[var(--color-bg-subtle)] border border-[var(--color-border)] rounded-2xl p-3 relative">
+          <canvas id="compareNavCanvas"></canvas>
+        </div>
+        <p id="compareChartNote" class="text-[10px] text-[var(--color-text-subtle)] mt-2"></p>
       </div>
 
     </div>
