@@ -868,7 +868,7 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
             <div class="h-10 flex items-center font-mono text-[var(--color-text-muted)]">${f.launch_date || '—'}</div>
             <div class="h-10 flex items-center font-medium truncate" title="${escapeHtml(f.minimum_investment || '')}">${escapeHtml(f.minimum_investment || '—')}</div>
-            <div class="h-10 flex items-center text-emerald-400 font-semibold">0% IFSC Capital Gains</div>
+            <div class="h-10 flex items-center text-[var(--color-text-muted)]">—</div>
           </div>
         `;
       });
