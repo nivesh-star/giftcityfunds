@@ -108,12 +108,13 @@ def get_funds():
 
 @app.route("/api/fund/<int:fund_id>")
 def get_fund_detail(fund_id: int):
-    """Returns single fund details with related funds from same AMC."""
+    """Returns single fund details with related funds from same AMC, plus
+    portfolio composition (holdings) where the source discloses it."""
     with get_db_connection() as conn:
         fund = conn.execute("SELECT * FROM funds WHERE fund_id = ?", (fund_id,)).fetchone()
         if not fund:
             return jsonify({"success": False, "error": "Fund not found"}), 404
-        
+
         fund_dict = dict(fund)
         # Fetch related funds from same AMC
         related = conn.execute(
@@ -122,7 +123,53 @@ def get_fund_detail(fund_id: int):
         ).fetchall()
         fund_dict["related_funds"] = [dict(r) for r in related]
 
+        # Portfolio composition -- only populated for the small set of funds
+        # whose official factsheet actually discloses individual security
+        # names (see portfolio_holdings schema comment in database.py).
+        # Empty list, not an error, for every other fund.
+        holdings_rows = conn.execute(
+            """SELECT holding_name, weight_pct, rank, as_of_date, source_name
+               FROM portfolio_holdings WHERE fund_id = ? ORDER BY rank ASC""",
+            (fund_id,)
+        ).fetchall()
+        fund_dict["holdings"] = [dict(r) for r in holdings_rows]
+
     return jsonify({"success": True, "fund": fund_dict})
+
+
+@app.route("/api/fund/<int:fund_id>/nav-history")
+def get_fund_nav_history(fund_id: int):
+    """Returns the NAV time series for a fund, oldest first.
+
+    History accumulates two ways (see database.py's nav_history schema
+    comment): a real multi-date series where a source actually publishes
+    one (currently only PPFAS Nasdaq 100), and a same-day snapshot of the
+    fund's current NAV taken on every pipeline run for every fund that has
+    a live NAV -- so most funds will show a short, real, growing series
+    rather than a long fabricated one. Funds with no live NAV at all
+    return an empty list.
+    """
+    with get_db_connection() as conn:
+        fund = conn.execute(
+            "SELECT fund_id, fund_name, nav_currency FROM funds WHERE fund_id = ?", (fund_id,)
+        ).fetchone()
+        if not fund:
+            return jsonify({"success": False, "error": "Fund not found"}), 404
+
+        rows = conn.execute(
+            """SELECT nav_date, nav, nav_currency, source_name
+               FROM nav_history WHERE fund_id = ? ORDER BY nav_date ASC""",
+            (fund_id,)
+        ).fetchall()
+        history = [dict(r) for r in rows]
+
+    return jsonify({
+        "success": True,
+        "fund_id": fund_id,
+        "fund_name": fund["fund_name"],
+        "count": len(history),
+        "nav_history": history,
+    })
 
 
 @app.route("/api/compare")

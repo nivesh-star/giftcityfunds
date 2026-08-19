@@ -93,9 +93,19 @@ def clean_data(raw_path: Path = RAW_PATH, altport_path: Path = ALTPORT_PATH,
     # Prefer tier1 (NAV-verified) over tier2 (directory-verified) on name collision --
     # sort so tier1_amc sorts after tier2_directory alphabetically is NOT reliable,
     # so do it explicitly: keep tier1 rows on duplicate fund_name.
+    #
+    # Dedup on a normalized (trimmed, lowercased) key, NOT the raw fund_name --
+    # discovered a real duplication bug where the same fund appears with
+    # different capitalization across sources (e.g. tier1's "HDFC India
+    # Mid-cap Opportunities Fund" vs tier2 ALTPORT's "HDFC India Mid-Cap
+    # Opportunities Fund", and "NIFTY 50" vs "Nifty 50"). Exact-string
+    # drop_duplicates silently let both through as two separate rows since
+    # they aren't byte-identical. The kept row still preserves whichever
+    # fund_name string came from the tier1 (higher-priority) source.
     funds["_tier_rank"] = funds["source_tier"].map({"tier1_amc": 0, "tier2_directory": 1, "tier2_aggregator": 1}).fillna(1)
-    funds = funds.sort_values("_tier_rank").drop_duplicates(subset=["fund_name"], keep="first")
-    return funds.drop(columns=["_tier_rank"]).reset_index(drop=True)
+    funds["_dedup_key"] = funds["fund_name"].astype(str).str.strip().str.lower()
+    funds = funds.sort_values("_tier_rank").drop_duplicates(subset=["_dedup_key"], keep="first")
+    return funds.drop(columns=["_tier_rank", "_dedup_key"]).reset_index(drop=True)
 
 
 if __name__ == "__main__":

@@ -10,6 +10,8 @@ from pathlib import Path
 DB_PATH = Path("gift_city_amc_funds.db")
 CSV_PATH = Path("data/funds_cleaned.csv")
 AUDIT_PATH = Path("logs/scrape_audit.log")
+NAV_HISTORY_PATH = Path("data/nav_history.json")
+HOLDINGS_PATH = Path("data/portfolio_holdings.json")
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS funds (
@@ -28,6 +30,38 @@ CREATE TABLE IF NOT EXISTS scrape_audit (
     audit_id INTEGER PRIMARY KEY AUTOINCREMENT, url TEXT NOT NULL,
     http_status INTEGER, success BOOLEAN NOT NULL, error_message TEXT,
     scraped_at TIMESTAMP NOT NULL
+);
+-- NAV history: one row per (fund, date). Populated two ways -- (1) a real
+-- multi-date series where a source actually publishes one (currently only
+-- PPFAS Nasdaq 100's own "nav-history" page, via load_nav_history), and
+-- (2) a same-day snapshot of whatever the funds table's current nav/nav_as_of
+-- is, taken every time this script runs (snapshot_current_nav). (2) means
+-- real, non-fabricated history accumulates naturally across future runs for
+-- every fund that has a live NAV, rather than inventing past values.
+CREATE TABLE IF NOT EXISTS nav_history (
+    history_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    fund_id INTEGER NOT NULL REFERENCES funds(fund_id),
+    nav_date DATE NOT NULL,
+    nav REAL NOT NULL,
+    nav_currency TEXT,
+    source_name TEXT,
+    UNIQUE(fund_id, nav_date)
+);
+-- Portfolio holdings: only populated for funds whose official factsheet
+-- actually discloses individual security names (confirmed by hand for each
+-- source -- most GIFT City factsheets show sector allocation or "invests
+-- 99%+ in [domestic master fund]" instead, not stock-level holdings, and
+-- institutional tier2 AIFs never disclose holdings publicly at all). A
+-- snapshot per load, not a history -- weight_pct is NULL where a source
+-- lists holding names without individual weights (e.g. PPFAS PMS).
+CREATE TABLE IF NOT EXISTS portfolio_holdings (
+    holding_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    fund_id INTEGER NOT NULL REFERENCES funds(fund_id),
+    holding_name TEXT NOT NULL,
+    weight_pct REAL,
+    rank INTEGER,
+    as_of_date DATE,
+    source_name TEXT
 );
 """
 
@@ -125,7 +159,98 @@ def load_audit(conn, audit_path=AUDIT_PATH):
     return len(rows)
 
 
+def _fund_id_by_name(conn, fund_name):
+    row = conn.execute("SELECT fund_id FROM funds WHERE fund_name = ?", (fund_name,)).fetchone()
+    return row[0] if row else None
+
+
+def load_nav_history(conn, path=NAV_HISTORY_PATH):
+    """Loads a real multi-date NAV series where a source publishes one
+    (currently only PPFAS Nasdaq 100's own nav-history page -- see
+    scraper.py's scrape_ppfas_nasdaq_fund). Optional file: most funds have
+    no such source, so a missing file is not an error, just zero rows."""
+    if not path.exists():
+        return 0
+    with open(path, encoding="utf-8") as f:
+        rows = json.load(f)
+    inserted = 0
+    for row in rows:
+        fund_id = _fund_id_by_name(conn, row["fund_name"])
+        if fund_id is None or not row.get("nav_date") or row.get("nav") is None:
+            continue
+        conn.execute(
+            """INSERT INTO nav_history (fund_id, nav_date, nav, nav_currency, source_name)
+               VALUES (?, ?, ?, ?, ?)
+               ON CONFLICT(fund_id, nav_date) DO UPDATE SET
+                   nav=excluded.nav, nav_currency=excluded.nav_currency, source_name=excluded.source_name""",
+            (fund_id, row["nav_date"], nullable_float(row["nav"]), row.get("nav_currency"), row.get("source_name")),
+        )
+        inserted += 1
+    return inserted
+
+
+def snapshot_current_nav(conn):
+    """Appends today's (fund.nav, fund.nav_as_of) as one nav_history row for
+    every fund that currently has a live NAV. Runs on every pipeline run --
+    UNIQUE(fund_id, nav_date) means re-running the same day is a no-op, but
+    running on a NEW day adds a new real data point. This is how a fund with
+    no historical source (e.g. HDFC's, Mirae's live-NAV APIs, which only ever
+    return today's value) still accumulates genuine history over time,
+    instead of history being backfilled with invented past values."""
+    rows = conn.execute(
+        "SELECT fund_id, nav, nav_currency, nav_as_of, source_name FROM funds WHERE nav IS NOT NULL AND nav_as_of IS NOT NULL"
+    ).fetchall()
+    inserted = 0
+    for fund_id, nav, nav_currency, nav_as_of, source_name in rows:
+        conn.execute(
+            """INSERT INTO nav_history (fund_id, nav_date, nav, nav_currency, source_name)
+               VALUES (?, ?, ?, ?, ?)
+               ON CONFLICT(fund_id, nav_date) DO UPDATE SET nav=excluded.nav""",
+            (fund_id, nav_as_of, nav, nav_currency, source_name),
+        )
+        inserted += 1
+    return inserted
+
+
+def load_portfolio_holdings(conn, path=HOLDINGS_PATH):
+    """Loads portfolio holdings for the small set of funds whose official
+    factsheet actually discloses individual security names (see the
+    schema comment on portfolio_holdings for why most funds have none).
+    A snapshot, not a history -- each load replaces prior holdings for
+    exactly the funds present in this file, leaving every other fund's
+    holdings (i.e. none) untouched. Optional file, missing = 0 rows."""
+    if not path.exists():
+        return 0
+    with open(path, encoding="utf-8") as f:
+        rows = json.load(f)
+    fund_ids_touched = set()
+    inserted = 0
+    for row in rows:
+        fund_id = _fund_id_by_name(conn, row["fund_name"])
+        if fund_id is None or not row.get("holding_name"):
+            continue
+        if fund_id not in fund_ids_touched:
+            conn.execute("DELETE FROM portfolio_holdings WHERE fund_id = ?", (fund_id,))
+            fund_ids_touched.add(fund_id)
+        conn.execute(
+            """INSERT INTO portfolio_holdings (fund_id, holding_name, weight_pct, rank, as_of_date, source_name)
+               VALUES (?, ?, ?, ?, ?, ?)""",
+            (fund_id, row["holding_name"], nullable_float(row.get("weight_pct")),
+             row.get("rank"), row.get("as_of_date"), row.get("source_name")),
+        )
+        inserted += 1
+    return inserted
+
+
 if __name__ == "__main__":
     with sqlite3.connect(DB_PATH) as conn:
         create_schema(conn)
-        print(f"Loaded {load_funds(conn)} funds and {load_audit(conn)} audit entries into {DB_PATH}")
+        funds_count = load_funds(conn)
+        audit_count = load_audit(conn)
+        history_count = load_nav_history(conn)
+        snapshot_count = snapshot_current_nav(conn)
+        holdings_count = load_portfolio_holdings(conn)
+        print(f"Loaded {funds_count} funds and {audit_count} audit entries into {DB_PATH}")
+        print(f"  nav_history: {history_count} rows from a real published series, "
+              f"{snapshot_count} rows from today's snapshot (existing dates are no-ops)")
+        print(f"  portfolio_holdings: {holdings_count} rows")

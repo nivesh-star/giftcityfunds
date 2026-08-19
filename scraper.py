@@ -557,6 +557,120 @@ def _extract_common_extra_fields(text: str) -> dict:
     }
 
 
+def _extract_top_holdings(text: str, heading_pattern: str, max_items: int = 10, window_chars: int = 1500) -> list[dict]:
+    """Finds a "Top N Holdings/Stocks" style heading and extracts
+    (name, weight%) pairs from the text window that follows it.
+
+    Only a handful of GIFT City factsheets actually disclose individual
+    security names -- most either show sector allocation only, or invest
+    99%+ in a single domestic master fund (a fund-of-funds structure,
+    disclosed as one line, not underlying stock names). This returns []
+    for those rather than guessing -- confirmed empty vs. confirmed present
+    are different things, and this function only reports the latter.
+
+    Tolerant of the irregular spacing/line-wrapping PDF text extraction
+    produces (same class of problem as the documented PDF column-scrambling
+    issue elsewhere in this file) via a bounded text window after the
+    heading, same technique as the category extraction above.
+    """
+    heading_match = re.search(heading_pattern, text, re.IGNORECASE)
+    if not heading_match:
+        return []
+    window = text[heading_match.end():heading_match.end() + window_chars]
+    pairs = re.findall(r"([A-Za-z][A-Za-z0-9&.,'\-\s]{2,60}?)\s+([\d]{1,3}\.\d{1,2})\s*%", window)
+    holdings = []
+    for name, weight in pairs[:max_items]:
+        name_clean = re.sub(r"\s+", " ", name).strip(" .-")
+        if not name_clean or name_clean.lower() in ("total", "grand total", "others"):
+            continue
+        holdings.append({"holding_name": name_clean, "weight_pct": _to_number(weight)})
+    for rank, holding in enumerate(holdings, start=1):
+        holding["rank"] = rank
+    return holdings
+
+
+def _extract_holding_names_only(text: str, heading_pattern: str, max_items: int = 10, window_chars: int = 1200) -> list[dict]:
+    """Same idea as _extract_top_holdings, but for sources (e.g. PPFAS's PMS
+    factsheet) that list holding names in a "Top 10 Holdings" section
+    without an individual weight next to each name -- only an aggregate
+    "Top 10 Holding %" figure for the whole group. Extracts names as
+    comma/newline-separated items; weight_pct is deliberately left None
+    per holding rather than dividing the aggregate evenly across names,
+    which would fabricate a number the source never stated."""
+    heading_match = re.search(heading_pattern, text, re.IGNORECASE)
+    if not heading_match:
+        return []
+    window = text[heading_match.end():heading_match.end() + window_chars]
+    # Some factsheets run the name list directly into a trailing aggregate
+    # stat (e.g. "... Unilever Plc Top 10 Holding % 43.30 %") with no comma
+    # or newline separating the last name from it -- verified against the
+    # real PPFAS PMS factsheet text. Truncate the window there so that
+    # trailing stat line doesn't swallow the last real name.
+    cutoff_match = re.search(r"Top\s*\d+\s*Holding", window, re.IGNORECASE)
+    if cutoff_match:
+        window = window[:cutoff_match.start()]
+    candidates = re.split(r"[\n,]", window)
+    holdings = []
+    for raw in candidates:
+        name_clean = re.sub(r"\s+", " ", raw).strip(" .-•")
+        if not name_clean or len(name_clean) < 3 or re.search(r"\d{2,}", name_clean):
+            continue
+        holdings.append({"holding_name": name_clean, "weight_pct": None})
+        if len(holdings) >= max_items:
+            break
+    for rank, holding in enumerate(holdings, start=1):
+        holding["rank"] = rank
+    return holdings
+
+
+def _extract_nav_history(text: str, max_items: int = 60) -> list[dict]:
+    """Parse a rendered "NAV history" table page (plain text, after
+    BeautifulSoup .get_text()) into a list of {date, nav} rows.
+
+    These pages are typically a simple repeating "<date> <nav value>"
+    table (e.g. "12 Aug, 2026 $122.165" or "12-Aug-2026 122.165"), but
+    the exact separator/format varies by AMC site and hasn't been
+    directly verified against PPFAS's rendered page in this session
+    (WebFetch could not retrieve it -- see code comment at the call
+    site). This is deliberately defensive: several date-format variants
+    are tried, and if none match, an empty list is returned rather than
+    guessing -- the caller falls back to just the single current NAV
+    value it already extracts separately, so nothing is fabricated
+    either way.
+    """
+    from dateutil import parser as date_parser
+
+    date_patterns = [
+        r"(\d{1,2}\s+[A-Za-z]{3,9}[,]?\s+\d{4})",   # 12 Aug, 2026 / 12 August 2026
+        r"(\d{1,2}-[A-Za-z]{3,9}-\d{4})",           # 12-Aug-2026
+        r"(\d{4}-\d{2}-\d{2})",                     # 2026-08-12
+    ]
+    row_pattern = re.compile(
+        r"(?:" + "|".join(date_patterns) + r")\s*[:\-]?\s*\$?\s*([0-9]{1,6}\.[0-9]{2,4})"
+    )
+    history = []
+    seen_dates = set()
+    for match in row_pattern.finditer(text):
+        date_raw = next(g for g in match.groups()[:-1] if g)
+        nav_raw = match.groups()[-1]
+        if date_raw in seen_dates:
+            continue
+        try:
+            nav_value = float(nav_raw)
+        except (TypeError, ValueError):
+            continue
+        try:
+            parsed_date = date_parser.parse(date_raw, dayfirst=True).date().isoformat()
+        except (ValueError, TypeError, OverflowError):
+            continue
+        seen_dates.add(date_raw)
+        history.append({"nav_date": parsed_date, "nav": nav_value})
+        if len(history) >= max_items:
+            break
+    history.sort(key=lambda row: row["nav_date"])
+    return history
+
+
 def _empty_amc_record(source_name: str, source_url: str) -> dict:
     """Create the common schema returned by every individual AMC scraper."""
     return {
@@ -577,6 +691,8 @@ def _empty_amc_record(source_name: str, source_url: str) -> dict:
         "exit_load": None,
         "exit_load_description": None,
         "benchmark_index": None,
+        "holdings": None,
+        "nav_history": None,
         "source_name": source_name,
         "source_url": source_url,
         "scraped_at": _now_iso(),
@@ -656,6 +772,7 @@ def scrape_tata_dynamic_equity_fund() -> tuple[dict, dict]:
             aum_currency="USD",
             aum_unit="million",
             minimum_investment="USD 500",  # confirmed via Business Standard, Deccan Chronicle, Tata's own site
+            holdings=_extract_top_holdings(text, r"Top\s*5\s*Stocks"),  # confirmed present on this factsheet (verified manually 19-Aug-2026)
             scrape_status="success",
         )
         audit["success"] = record["nav"] is not None
@@ -790,6 +907,14 @@ def scrape_ppfas_nasdaq_fund() -> tuple[dict, dict]:
         nav_values = re.findall(r"\$\s*([0-9]+\.[0-9]+)", nav_text)
         nav = _to_number(nav_values[0]) if nav_values else None
         nav_as_of = _first_match(nav_text, r"NAV\)\s+AS ON\s+(\d{1,2}\s+[A-Z]+,?\s+\d{4})")
+        # This page's name ("nav-history") suggests a full historical table,
+        # not just the current value -- _extract_nav_history() attempts to
+        # parse it into a (date, nav) series. Not directly verified against
+        # the live rendered page in this session (see helper docstring for
+        # why); if the format doesn't match, this safely returns an empty
+        # list and only the single current `nav` value above is used, same
+        # as before -- no data is fabricated either way.
+        nav_history = _extract_nav_history(nav_text)
 
         factsheet_text, _ = _download_pdf_text(PPFAS_NASDAQ_FACTSHEET_URL)
         normalized = re.sub(r"\s+", " ", factsheet_text)
@@ -826,6 +951,7 @@ def scrape_ppfas_nasdaq_fund() -> tuple[dict, dict]:
             lock_in_period="None",
             exit_load="NIL",
             benchmark_index="NASDAQ 100 Notional Net TRI",
+            nav_history=nav_history,
             scrape_status="success" if nav is not None else "partial",
         )
         audit["success"] = nav is not None
@@ -1102,6 +1228,7 @@ def scrape_ppfas_global_investing_pms() -> tuple[dict, dict]:
             minimum_investment="USD 75,000",  # per Kalviro Ventures fund guide -- single detailed source, not cross-confirmed
             lock_in_period="None",
             exit_load="None",
+            holdings=_extract_holding_names_only(normalized, r"Top\s*10\s*Holdings"),  # names only, no per-holding weight on this factsheet (verified manually 19-Aug-2026)
             scrape_status="partial",
         )
         audit["success"] = inception is not None
@@ -1517,6 +1644,7 @@ def scrape_marcellus_global_equities_fund() -> tuple[dict, dict]:
             # for THIS exact fund (Marcellus Global Equities Fund GIFT City NFO) via 6+
             # independent news sources reporting on its June 2026 launch, not generalized
             # from Marcellus's other domestic schemes.
+            holdings=_extract_top_holdings(normalized, r"Top\s*10\s*Core\s*Holdings"),  # confirmed present on this factsheet (verified manually 19-Aug-2026)
             scrape_status="success" if nav is not None else "partial",
         )
         audit["success"] = nav is not None
@@ -1615,6 +1743,7 @@ def scrape_sundaram_india_midcap_fund() -> tuple[dict, dict]:
             nav_currency="USD",
             nav_as_of=_first_match(normalized, r"NAV as of\s+(\d{1,2}-[A-Za-z]+-\d{4})"),
             **{**_extract_common_extra_fields(normalized), "benchmark_index": "Nifty Midcap 150"},
+            holdings=_extract_top_holdings(normalized, r"Top\s*10\s*Stocks"),  # confirmed present on this factsheet (verified manually 19-Aug-2026)
             scrape_status="success" if nav is not None else "partial",
         )
         audit["success"] = nav is not None
@@ -1677,6 +1806,50 @@ def run_amc_scrape(config: ScraperConfig = CONFIG) -> dict:
     with open(config.log_dir / "scrape_audit.log", "w", encoding="utf-8") as audit_file:
         for audit in audits:
             audit_file.write(json.dumps(audit) + "\n")
+
+    # Pull the per-fund holdings/nav_history sub-lists (added by a handful
+    # of scrapers above -- most funds simply won't have these keys, or will
+    # have them as None/empty, which is expected and fine) out into their
+    # own JSON files, as FLAT per-row records -- database.py's
+    # load_portfolio_holdings() and load_nav_history() each expect a flat
+    # list of {fund_name, <row fields>} dicts, not a nested "holdings"/
+    # "nav_history" list per fund. Funds with no holdings/nav_history data
+    # are just omitted here rather than written with fabricated placeholder
+    # values.
+    portfolio_holdings_out = []
+    nav_history_out = []
+    for record in records:
+        fund_name = record.get("fund_name")
+        if not fund_name:
+            continue
+        for holding in (record.get("holdings") or []):
+            portfolio_holdings_out.append({
+                "fund_name": fund_name,
+                "holding_name": holding.get("holding_name"),
+                "weight_pct": holding.get("weight_pct"),
+                "rank": holding.get("rank"),
+                "as_of_date": record.get("nav_as_of"),
+                "source_name": record.get("source_name"),
+            })
+        for point in (record.get("nav_history") or []):
+            nav_history_out.append({
+                "fund_name": fund_name,
+                "nav_date": point.get("nav_date"),
+                "nav": point.get("nav"),
+                "nav_currency": record.get("nav_currency"),
+                "source_name": record.get("source_name"),
+            })
+
+    (config.output_dir / "portfolio_holdings.json").write_text(
+        json.dumps(portfolio_holdings_out, indent=2), encoding="utf-8"
+    )
+    (config.output_dir / "nav_history.json").write_text(
+        json.dumps(nav_history_out, indent=2), encoding="utf-8"
+    )
+    logger.info(
+        "Wrote %d fund(s) of holdings and %d fund(s) of nav_history to %s",
+        len(portfolio_holdings_out), len(nav_history_out), config.output_dir,
+    )
 
     return {"records": records, "audits": audits}
 

@@ -126,13 +126,25 @@ CANDIDATE_SLUGS = [
 MANUAL_OVERRIDES = {
     "ASKWA India Opportunities Fund": {
         "target_corpus_at_launch": "USD 100 million",  # PMS Bazaar: "ASK Private Wealth Launches $100M India Opportunities Fund"
+        "minimum_investment": "USD 150,000",  # IFSCA Fund Management Regulations minimum ticket size for non-retail Cat II/III AIF investors -- regulatory floor, not fund-specific disclosure (none published)
+    },
+    "ASKWA Global Opportunities Fund": {
+        "minimum_investment": "USD 150,000",  # same IFSCA regulatory minimum as ASKWA India Opportunities Fund (same manager/structure)
     },
     "ABSL Global Emerging Market Equity Fund (IFSC)": {
         "category": "Cat II, Close Ended, Closed for Subscription",  # confirmed on ABSL's own official GIFT City page
         "lock_in_period": "4.5 years from first close, extendable by up to 1 year",  # PMS AIF World fund page
+        "minimum_investment": "USD 150,000",  # IFSCA regulatory minimum for non-retail Cat II AIF investors
+        "aum": "69.89", "aum_currency": "USD", "aum_unit": "million",  # fintechbiznews.com: "$69.89 million from 269 investors" at final close, 7 Apr 2025
     },
     "Ashoka WhiteOak India Multi Cap GIFT Fund": {
         "minimum_investment": "USD 150,000",  # ALTPORT's own fund page, directly confirmed
+        "amc_name": "WhiteOak Capital",  # ALTPORT "Provider Name" row -- amc_name extraction came up empty on this page
+    },
+    "Ashoka WhiteOak Capital India Opportunities GIFT Fund": {
+        "amc_name": "WhiteOak Capital",  # ALTPORT "Provider Name" row -- amc_name extraction came up empty on this page
+        "category": "Category- II AIF",  # ALTPORT Fund Snapshot ("Category" row) -- corrects the generic "Gift City Funds" nav-heading mis-extraction
+        "minimum_investment": "USD 150,000",  # IFSCA regulatory minimum for non-retail Cat II AIF investors; not individually disclosed by the fund
     },
     "Carnelian India Amritkaal Fund": {
         "benchmark_index": "S&P BSE 500 Index",  # same QGARP strategy/benchmark as their domestic Bharat Amritkaal Fund, confirmed identical across multiple sources
@@ -147,10 +159,25 @@ MANUAL_OVERRIDES = {
     },
     "Alchemy India Long Term Fund": {
         "launch_date": "April 2023",  # confirmed via Business Standard: fund re-domiciled from Mauritius to GIFT City IFSC in April 2023
+        "category": "Category III AIF (Long Only)",  # PMS AIF World: "A GIFT CITY Domiciled Cat III Long Only AIF"
+        "lock_in_period": "Generally two years plus",  # ALTPORT fund page, Fund Snapshot table
+        "exit_load": "0-12 Months: 3% | 13-24 Months: 2% | 25-36 Months: 1% | Thereafter: Nil",  # ALTPORT fund page
+        "benchmark_index": "Benchmark agnostic",  # ALTPORT fund page -- fund's own stated policy, not an omission
     },
     "ABSL Global Bluechip Equity Fund (IFSC)": {
         "category": "Cat III, Close Ended, Closed for Subscription",  # confirmed on ABSL's own official GIFT City page
         "minimum_investment": "USD 150,100",  # confirmed via Tequity's verified fund directory
+        "launch_date": "20 September 2024",  # ALTPORT Fund Snapshot "Registration Date" -- scraper's label check only matches "Date of Registration", missed this page's variant label
+        "lock_in_period": "4 years from First Closing, extendable up to 1 year with prior consent of Two-Third Majority of Contributors",  # ALTPORT Fund Snapshot
+        "exit_load": "No redemptions during the term of the fund",  # ALTPORT Fund Snapshot ("Redemption" row)
+        "benchmark_index": "MSCI ACWI",  # ALTPORT Fund Snapshot
+        "target_corpus_at_launch": "USD 200 million",  # ALTPORT Fund Snapshot ("Target Corpus" row)
+    },
+    "ABSL India Flexicap Fund (IFSC)": {
+        "category": "Category III AIF, GIFT City",  # ALTPORT Fund Snapshot ("Structure" row)
+        "launch_date": "10 September 2024",  # ALTPORT Fund Snapshot's own "Launch Date" row for the GIFT wrapper -- distinct from the separately-labeled "Feeder Fund Inception: 27 August 1998" (domestic ABSL Flexicap Fund), which is deliberately NOT used here
+        "minimum_investment": "USD 150,100 (general) / USD 50,000 (accredited investors), Class A1",  # ALTPORT Fund Snapshot
+        "benchmark_index": "Nifty 500 TRI",  # ALTPORT Fund Snapshot, explicitly labeled "Feeder Benchmark" -- legitimate carryover since this is a feeder relationship (same reasoning as Bandhan/Sundaram/Nippon/Carnelian)
     },
     "Axis India Multicap Fund": {
         "minimum_investment": "USD 150,000 (USD 50,000 for Accredited Investors)",  # confirmed via AIF & PMS Experts India, specific to the GIFT wrapper itself
@@ -161,7 +188,116 @@ MANUAL_OVERRIDES = {
         # so the domestic fund's ₹-denominated figures would misrepresent
         # the actual GIFT product, same reasoning applied throughout this
         # project (e.g. the ABSL 1998-inception case).
+        "category": "Category III AIF, Open-Ended, Restricted Scheme (Non-Retail)",  # ALTPORT Fund Snapshot ("Category of Registration of the scheme")
+        "benchmark_index": "NIFTY 500 Multicap 50:25:25 TRI",  # ALTPORT Fund Snapshot, explicitly labeled "Benchmark of Master Fund" -- legitimate feeder carryover
+        "exit_load": "Redeemed within 12 months: 3%; 12-24 months: 2%; 24-36 months: 1%; after 36 months: Nil",  # ALTPORT Fund Snapshot
+        "minimum_investment": "Share Class B1: USD 150,000; B2: USD 500,000; B3: USD 1,000,000; B4 (Accredited): USD 50,000",  # ALTPORT Fund Snapshot, refines the earlier summary figure with the full per-class breakdown
     },
+    "Bandhan India Government Securities Fund (IFSC)": {
+        "amc_name": "Bandhan AMC",  # ALTPORT "Provider Name" row -- amc_name extraction came up empty on this page
+        "category": "Category- III AIF",  # ALTPORT Fund Snapshot ("Category" row) -- corrects the generic "Gift City Funds" nav-heading mis-extraction
+    },
+    "Carnelian India Amritkaal Fund": {
+        "minimum_investment": "USD 500,000",  # ALTPORT Fund Snapshot ("Investment amount" row) -- a third-party aggregator separately claimed USD 150,000, but ALTPORT's own fund page is the primary source and is used here
+    },
+    "DSP India Absolute Return Fund": {
+        "amc_name": "DSP India",  # ALTPORT "Provider Name" row -- amc_name extraction came up empty on this page
+        "category": "Category- III AIF",  # ALTPORT Fund Snapshot ("Category" row) -- corrects the generic "Gift City Funds" nav-heading mis-extraction
+        "minimum_investment": "USD 150,000",  # DSP's own official investor page (giftcity.dspim.com/invest-in-india), confirmed by the user directly from the live page
+        # Page description also refers to it as "DSP India Long Short Fund" (long/short equity strategy) -- possibly an alternate/renamed product name, not applied to fund_name since ALTPORT (our source_url) still lists it as "DSP India Absolute Return Fund"
+    },
+    "DSP India Equity Opportunities Fund": {
+        "amc_name": "DSP India",  # ALTPORT "Provider Name" row -- amc_name extraction came up empty on this page
+        "category": "Category III AIF (Non-Retail, Restricted Scheme), Open-ended",  # kalviroventures.com dedicated fund page
+        "lock_in_period": "None (daily subscription and redemption)",  # kalviroventures.com dedicated fund page
+        "minimum_investment": "Class A1: USD 150,000 (0.30% expense ratio); Class A2: USD 500,000 (0.20%); Class A3: USD 1,000,000 (0.10%); Advisor-led classes approx. 1.40-1.50%",  # kalviroventures.com dedicated fund page
+        "benchmark_index": "NIFTY LargeMidcap 250 TRI",  # confirmed via DSP's own official page for the underlying domestic fund it feeds into (DSP Large & Mid Cap Fund, ex-DSP Equity Opportunities Fund) -- legitimate feeder carryover
+    },
+    "DSP India IFSC Fund": {
+        "amc_name": "DSP India",  # ALTPORT "Provider Name" row -- amc_name extraction came up empty on this page
+        "category": "Category- III AIF",  # ALTPORT Fund Snapshot ("Category" row) -- corrects the generic "Gift City Funds" nav-heading mis-extraction
+        "minimum_investment": "USD 150,000",  # DSP's own official investor page (giftcity.dspim.com/invest-in-india), confirmed by the user directly from the live page
+    },
+    "Kotak Equity India Fund of Fund IFSC": {
+        "category": "Category- III AIF",  # ALTPORT page was unreachable (server error); inferred from the fund's own official Registration Authority ID "IFSC/AIF3/2024-25/0151" (leikart.com LEI record) -- the "AIF3" segment is the same category code confirmed literally on every other fund's own snapshot page in this batch, not a guess
+        # NOTE: leikart.com's LEI record for this fund shows Entity Status "INACTIVE" and LEI Status "RETIRED" (next renewal was 2025-11-26) -- worth a manual look to confirm whether this fund is still operating before relying on it further.
+    },
+    "SBI India Equity Advantage Fund (IFSC)": {
+        "category": "Foreign Portfolio Investor (FPI)",  # esi.in (citing SEBI's FPI register): SEBI registration INIGFP107125, valid Oct 2025-Oct 2028 -- this fund is registered as an FPI, not an AIF like most other tier2 entries; ALTPORT's own page was unreachable (server error) to cross-check
+    },
+    "SBI Investment Opportunities Fund (IFSC)": {
+        "category": "Category- III AIF",  # leikart.com LEI record: Registration Authority ID "IFSC/AIF3/2021-22/0010", Entity Status ACTIVE
+        "launch_date": "2021-05-24",  # leikart.com LEI record: entity registration date -- ALTPORT's own page was unreachable (server error) to cross-check against "Date of Registration"
+    },
+    "DSP India Strategic Bond Fund": {
+        "amc_name": "DSP India",  # ALTPORT "Provider Name" row -- amc_name extraction came up empty on this page
+        "category": "Category- III AIF",  # ALTPORT Fund Snapshot ("Category" row) -- corrects the generic "Gift City Funds" nav-heading mis-extraction; confirmed genuinely GIFT-registered (IFSC/AIF3/2024-25/0194), not to be confused with the similarly-named domestic DSP Strategic Bond Fund
+    },
+    "DSP INDIA T.I.G.E.R. FUND": {
+        "amc_name": "DSP India",  # ALTPORT "Provider Name" row -- amc_name extraction came up empty on this page
+        "category": "Category- III AIF",  # ALTPORT Fund Snapshot ("Category" row) -- corrects the generic "Gift City Funds" nav-heading mis-extraction; confirmed genuinely GIFT-registered (IFSC/AIF3/2024-25/0212), not to be confused with the similarly-named domestic DSP India T.I.G.E.R. Fund
+    },
+    # NOTE on "Marcellus Global Compounders Fund" (tier2, this batch): pmsaifworld.com has a
+    # "Marcellus Global Compounders Portfolio -- GIFT CITY Domiciled PMS" page with real AUM/return
+    # figures, but that is "Marcellus GCP", a SEPARATE fund already present in this database as its
+    # own tier1 row -- same distinction the project already draws between Marcellus Global Equities
+    # Fund and Marcellus GCP. Deliberately NOT applied here to avoid conflating two different products.
+    "DSP Pre-IPO Fund": {
+        "amc_name": "DSP India",  # ALTPORT "Provider Name" row -- amc_name extraction came up empty on this page
+        "category": "Category- III AIF",  # ALTPORT Fund Snapshot ("Category" row) -- corrects the generic "Gift City Funds" nav-heading mis-extraction
+    },
+    "Kotak Real Estate Fund- X IFSC": {
+        "category": "Category-II AIF",  # ALTPORT Fund Snapshot ("AIF Category" row)
+        "minimum_investment": "USD 150,000 (or equivalent in foreign currencies)",  # ALTPORT Fund Snapshot
+    },
+    "Kotak Real Estate Fund XII – IFSC I": {
+        "amc_name": "Kotak Mutual Fund",  # ALTPORT "Provider Name" row -- amc_name extraction came up empty on this page
+        "category": "Category- II AIF",  # ALTPORT Fund Snapshot ("Category" row) -- corrects the generic "Gift City Funds" nav-heading mis-extraction
+    },
+    "Kotak Real Estate Fund XII – IFSC II": {
+        "amc_name": "Kotak Mutual Fund",  # ALTPORT "Provider Name" row -- amc_name extraction came up empty on this page
+        "category": "Category-II AIF",  # ALTPORT Fund Snapshot ("AIF Category" row) -- corrects the generic "Gift City Funds" nav-heading mis-extraction
+    },
+    "Kotak Strategic Situations Fund – II IFSC": {
+        "amc_name": "Kotak Mutual Fund",  # ALTPORT "Provider Name" row -- amc_name extraction came up empty on this page
+        "category": "Category-II AIF",  # ALTPORT Fund Snapshot ("AIF Category" row) -- corrects the generic "Gift City Funds" nav-heading mis-extraction
+    },
+    "Kotak Real Estate Investment Fund – IFSC": {
+        "amc_name": "Kotak Mutual Fund",  # ALTPORT "Provider Name" row -- amc_name extraction came up empty on this page
+        "category": "Category- II AIF",  # ALTPORT Fund Snapshot ("Category" row) -- corrects the generic "Gift City Funds" nav-heading mis-extraction
+    },
+    "Kotak Real Estate Investment Fund II – IFSC": {
+        "amc_name": "Kotak Mutual Fund",  # ALTPORT "Provider Name" row -- amc_name extraction came up empty on this page
+        "category": "Category-II AIF",  # ALTPORT Fund Snapshot ("AIF Category" row) -- corrects the generic "Gift City Funds" nav-heading mis-extraction
+        "minimum_investment": "USD 150,000 (or equivalent in convertible foreign currencies)",  # ALTPORT Fund Snapshot
+    },
+    "Kotak Performing RE Credit Strategy Fund II IFSC": {
+        "category": "Category-II AIF",  # ALTPORT Fund Snapshot ("AIF Category" row)
+        "minimum_investment": "USD 150,000 (or equivalent in convertible foreign currencies)",  # ALTPORT Fund Snapshot, citing IFSCA Category-II AIF minimum ticket rule
+    },
+    "Kotak India Commercial Real Estate Fund IFSC": {
+        "category": "Category-II AIF",  # ALTPORT Fund Snapshot ("AIF Category" row)
+        "minimum_investment": "USD 150,000",  # ALTPORT page FAQ section: "minimum entry ticket size for a qualified individual investor"
+    },
+    "Nippon India ETF Nifty 50 BeES GIFT": {
+        "benchmark_index": "Nifty 50",  # derived directly from the fund's own name/product type -- "BeES" (Benchmark Exchange Traded Scheme) is Nippon's ETF brand that replicates the named index by definition, not a guess
+    },
+    "Girik Multicap India Fund": {
+        "amc_name": "Girik Capital",  # ALTPORT "Provider Name" row -- amc_name extraction came up empty on this page
+    },
+    "Sameeksha India Flexicap Equity Fund": {
+        "amc_name": "Sameeksha Capital",  # confirmed via the manager's own domain (sameeksha.capital) -- amc_name extraction came up empty on this page
+    },
+    "Aikyam India Discovery Fund": {
+        "amc_name": "Aikyam Capital Pvt. Ltd.",  # ALTPORT "Provider Name" row -- amc_name extraction came up empty on this page
+    },
+    "ABC India Equity Fund": {
+        "category": "Category- III AIF",  # ALTPORT Fund Snapshot ("Category" row) -- corrects the generic "Gift City Funds" nav-heading mis-extraction
+    },
+    # UTI India Opportunities (IFSC) Fund III, Sage One India Growth GIFT Fund, and Valuequest India
+    # G.I.F.T. Fund: checked ALTPORT (no Fund Snapshot table on any of these three pages) and web
+    # search -- genuinely no additional public data found for any of them beyond what scraping
+    # already captured.
 }
 
 
