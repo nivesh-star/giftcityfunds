@@ -1756,6 +1756,73 @@ def scrape_sundaram_india_midcap_fund() -> tuple[dict, dict]:
         return record, audit
 
 
+# Manually-researched supplementary facts for tier1 (official AMC) funds --
+# same pattern as MANUAL_OVERRIDES in altport_source.py for tier2 funds.
+# Each scraper above only extracts what its specific factsheet/page layout
+# reliably yields; these fill in additional fields that were separately
+# confirmed on the same official source but aren't (yet) covered by that
+# scraper's own regex. Never guessed -- every value here was read verbatim
+# off the fund's own factsheet/page (research pass, 19-Aug-2026). Applied
+# by fund_name match in run_amc_scrape() below, so a future re-scrape keeps
+# these instead of silently reverting to NULL.
+TIER1_MANUAL_OVERRIDES = {
+    "Tata India Dynamic Equity Fund": {
+        "benchmark_index": "Nifty 500 (TRI)",  # Tata factsheet PDF, "Benchmark" row
+    },
+    "Edelweiss Greater China Equity Fund": {
+        "exit_load": "1% on or before 25 months",  # Edelweiss's own GIFT City fund datasheet PDF
+    },
+    "Sundaram India Mid Cap - GIFT": {
+        "lock_in_period": "None (Open Ended Retail Scheme)",  # factsheet
+        "exit_load": "Within 12 months of allotment: 2% of NAV; 12-24 months: 1% of NAV; after 24 months: Nil",  # factsheet
+    },
+    "Marcellus Global Equities Fund": {
+        "benchmark_index": "S&P 500 NTR (primary); S&P World NTR (secondary)",  # factsheet PDF
+    },
+    "Baroda BNP Paribas GIFT US Small Cap Fund": {
+        "benchmark_index": "Russell 2000",  # fund's own official page
+        "lock_in_period": "Varies by share class: Class U -- 2 years (no redemptions in first 2 years); Class T -- none; Class I -- none",  # fund's own official page
+        "exit_load": "Class U: Nil; Class T: 1% for 1 year; Class I: Nil",  # fund's own official page
+    },
+    "Nippon India Large Cap Fund GIFT": {
+        "launch_date": "2025-06-03",  # confirmed via factsheet PDF ("June 03, 2025")
+    },
+    "Quant Algorithmic Strategies Fund": {
+        "minimum_investment": "USD 150,000",  # Altus factsheet PDF
+        "lock_in_period": "NIL",  # Altus factsheet PDF
+        "exit_load": "NIL",  # Altus factsheet PDF
+        "nav_as_of": "2025-10-10",  # Altus factsheet PDF, "Week 24" NAV date
+    },
+    "Nuvama India EDGE Fund": {
+        "benchmark_index": "Nifty 50 (USD-denominated version, effective June 2025)",  # Nuvama's own official page
+    },
+    "Phillip International Pioneer Portfolio": {
+        "nav_as_of": "2023-05-31",  # Phillip Ventures' own monthly factsheet PDF -- note: this is the most recent date stated on the source at research time; the factsheet itself may not have been refreshed since
+        "nav_currency": "USD",  # same factsheet PDF
+        "benchmark_index": "S&P Global BMI Total Return",  # same factsheet PDF
+    },
+    "Parag Parikh Global Investing Strategy": {
+        "nav_currency": "USD",  # PPFAS factsheet PDF
+        "nav_as_of": "2025-11-30",  # PPFAS factsheet PDF
+        "benchmark_index": "S&P 500 Net TR Index",  # PPFAS factsheet PDF
+    },
+    "Bandhan India Large and Mid-Cap Fund (IFSC)": {
+        "nav_as_of": "2025-10-31",  # Bandhan factsheet PDF
+    },
+    "Marcellus GCP": {
+        "lock_in_period": "No lock-in",  # tequity.co.in fund page
+        "exit_load": "Nil",  # tequity.co.in fund page
+        "benchmark_index": "S&P 500",  # tequity.co.in fund page
+    },
+    "Edelweiss India Multimanager Equity Fund": {
+        "launch_date": "2025-11-20",  # tequity.co.in fund page, Class A1 inception
+        "lock_in_period": "Open-ended -- no lock-in (redemption fees apply instead)",  # tequity.co.in fund page
+        "exit_load": "3% if redeemed <1yr, 2% between 1-2yr, 1% between 2-3yr, Nil after 3yr",  # tequity.co.in fund page
+        "benchmark_index": "Nifty 500",  # tequity.co.in fund page
+    },
+}
+
+
 def run_amc_scrape(config: ScraperConfig = CONFIG) -> dict:
     """Run final-data AMC scrapers and save a single combined raw dataset.
 
@@ -1795,6 +1862,22 @@ def run_amc_scrape(config: ScraperConfig = CONFIG) -> dict:
     for scraper in source_scrapers:
         logger.info("Scraping individual AMC source: %s", scraper.__name__)
         record, audit = scraper()
+        # Apply any manually-researched supplementary facts for this fund
+        # (see TIER1_MANUAL_OVERRIDES above) -- matched with normalized
+        # whitespace/dash comparison so a minor formatting difference in
+        # the extracted fund_name doesn't silently drop real data. Only
+        # fills in fields the override provides; never overwrites a field
+        # the scraper itself already populated.
+        fund_name = record.get("fund_name")
+        if fund_name:
+            normalized_fund_name = re.sub(r"[\s‐-―-]+", " ", fund_name).strip().lower()
+            for override_name, override_data in TIER1_MANUAL_OVERRIDES.items():
+                normalized_override = re.sub(r"[\s‐-―-]+", " ", override_name).strip().lower()
+                if normalized_fund_name == normalized_override:
+                    for key, value in override_data.items():
+                        if record.get(key) in (None, ""):
+                            record[key] = value
+                    break
         records.append(record)
         audits.append(audit)
         logger.info("  -> success=%s | fund=%s", audit["success"], record["fund_name"])

@@ -133,6 +133,18 @@ MANUAL_OVERRIDES = {
     "Rational Asset Management Fund": {
         "amc_name": "Not Publicly Disclosed",  # confirmed via direct check of the fund's own ALTPORT page (19-Aug-2026) -- the AMC/manager name genuinely is not stated anywhere on it, not a scraper miss like the two above
     },
+    "Nippon India ETF Nifty 50 BeES GIFT": {
+        "category": "Category III AIF",  # Nippon India's own GIFT City site: "classified as 'Category III AIF under the IFSCA FM Regulations,' Open-ended, Restricted Scheme" (giftcity.nipponindiaim.com)
+    },
+    "Sage One India Growth GIFT Fund": {
+        "category": "Category III AIF",  # pmsaifworld.com: "Sage One India Growth GIFT Fund -- GIFT City domiciled Category III AIF"
+    },
+    "Valuequest India G.I.F.T. Fund": {
+        "category": "Category III AIF",  # ValueQuest's own site (valuequest.in/gift-fund): "Open-ended Category III AIF Restricted Scheme (Non-Retail)", Registration Number IFSC/AIF3/2024-25/0187
+    },
+    "Sameeksha India Flexicap Equity Fund": {
+        "category": "Category III AIF (Long Only)",  # pmsaifworld.com lists a "Sameeksha India Fund (IFSC AIF) -- GIFT City Domiciled Cat III Long Only AIF"; the manager (Sameeksha Capital) is the same and appears to run only one GIFT City AIF, but the display name differs slightly from this DB entry -- flagged as a probable match, not a byte-exact confirmation
+    },
     "ASKWA India Opportunities Fund": {
         "target_corpus_at_launch": "USD 100 million",  # PMS Bazaar: "ASK Private Wealth Launches $100M India Opportunities Fund"
         "minimum_investment": "USD 150,000",  # IFSCA Fund Management Regulations minimum ticket size for non-retail Cat II/III AIF investors -- regulatory floor, not fund-specific disclosure (none published)
@@ -251,6 +263,10 @@ MANUAL_OVERRIDES = {
     # figures, but that is "Marcellus GCP", a SEPARATE fund already present in this database as its
     # own tier1 row -- same distinction the project already draws between Marcellus Global Equities
     # Fund and Marcellus GCP. Deliberately NOT applied here to avoid conflating two different products.
+    # Its own category field is left NULL (checked 19-Aug-2026): ALTPORT's page has no Fund Snapshot
+    # table or registration number for it, and the only third-party description found describes a
+    # *different* Marcellus GIFT product as "not an AIF, but rather a PMS offering" -- genuinely
+    # ambiguous which structure this specific fund uses, so no category is guessed here.
     "DSP Pre-IPO Fund": {
         "amc_name": "DSP India",  # ALTPORT "Provider Name" row -- amc_name extraction came up empty on this page
         "category": "Category- III AIF",  # ALTPORT Fund Snapshot ("Category" row) -- corrects the generic "Gift City Funds" nav-heading mis-extraction

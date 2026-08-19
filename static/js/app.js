@@ -913,7 +913,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     section.classList.remove('hidden');
 
-    // Funds with at least 2 recorded NAV points actually have a line to draw.
+    // Only funds with at least one recorded NAV snapshot are plotted.
     const plottable = funds
       .map((f, i) => ({ fund: f, history: histories[i] || [] }))
       .filter(x => x.history.length > 0);
@@ -945,25 +945,14 @@ document.addEventListener('DOMContentLoaded', () => {
       return {
         label: `${x.fund.fund_name}${single ? ' (single snapshot)' : ''}`,
         data,
-        borderColor: color,
         backgroundColor: color,
-        // Dataviz palette guidance: only the first 3 categorical slots
-        // validate as CVD-safe when every series is simultaneously visible
-        // (an "all-pairs" chart like this one). The 4th compared fund
-        // (max 4 per the compare limit) gets a dashed line as a secondary,
-        // non-color encoding so it stays distinguishable.
-        borderDash: idx >= 3 ? [6, 4] : undefined,
-        spanGaps: true,
-        tension: 0.3,
-        pointRadius: single ? 5 : 3,
-        pointHoverRadius: 7,
-        showLine: !single || allDates.length > 1,
-        fill: false,
+        borderRadius: 4,
+        maxBarThickness: 40,
       };
     });
 
     state.charts.compareNav = new Chart(canvas, {
-      type: 'line',
+      type: 'bar',
       data: { labels: allDates, datasets },
       options: {
         responsive: true,
@@ -987,7 +976,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const singleCount = plottable.filter(x => x.history.length === 1).length;
     const notes = [];
     if (skipped > 0) notes.push(`${skipped} of ${funds.length} selected fund${skipped === 1 ? '' : 's'} ${skipped === 1 ? 'has' : 'have'} no NAV history yet and ${skipped === 1 ? 'is' : 'are'} omitted from the chart.`);
-    if (singleCount > 0) notes.push(`${singleCount} fund${singleCount === 1 ? '' : 's'} only ${singleCount === 1 ? 'has' : 'have'} a single recorded snapshot so far, shown as a point rather than a trend.`);
+    if (singleCount > 0) notes.push(`${singleCount} fund${singleCount === 1 ? '' : 's'} only ${singleCount === 1 ? 'has' : 'have'} a single recorded snapshot so far, shown as one bar rather than a trend.`);
     note.textContent = notes.join(' ');
   }
 
