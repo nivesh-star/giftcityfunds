@@ -208,11 +208,11 @@ def get_stats():
 
         # AMC breakdown (Top 10)
         amc_rows = conn.execute(
-            """SELECT amc_name, COUNT(*) as count 
-               FROM funds 
-               WHERE amc_name IS NOT NULL 
-               GROUP BY amc_name 
-               ORDER BY count DESC 
+            """SELECT amc_name, COUNT(*) as count
+               FROM funds
+               WHERE amc_name IS NOT NULL AND TRIM(amc_name) != '' AND amc_name != 'Not Publicly Disclosed'
+               GROUP BY amc_name
+               ORDER BY count DESC
                LIMIT 10"""
         ).fetchall()
         amc_distribution = [{"amc": r["amc_name"], "count": r["count"]} for r in amc_rows]

@@ -124,6 +124,15 @@ CANDIDATE_SLUGS = [
 # reported launch-time target is real, attributable data rather than a
 # guess. Every entry here should have a comment citing its source.
 MANUAL_OVERRIDES = {
+    "Marcellus Global Compounders Fund": {
+        "amc_name": "Marcellus Investment Managers Private Limited (IFSC Branch)",  # same manager as Marcellus Global Equities Fund / Marcellus GCP already in this dataset -- amc_name extraction came up empty on this fund's ALTPORT page
+    },
+    "Nuvama Late-Stage Growth Equity Fund 4": {
+        "amc_name": "Nuvama Asset Management Limited",  # same manager as Nuvama India EDGE Fund already in this dataset -- amc_name extraction came up empty on this fund's ALTPORT page
+    },
+    "Rational Asset Management Fund": {
+        "amc_name": "Not Publicly Disclosed",  # confirmed via direct check of the fund's own ALTPORT page (19-Aug-2026) -- the AMC/manager name genuinely is not stated anywhere on it, not a scraper miss like the two above
+    },
     "ASKWA India Opportunities Fund": {
         "target_corpus_at_launch": "USD 100 million",  # PMS Bazaar: "ASK Private Wealth Launches $100M India Opportunities Fund"
         "minimum_investment": "USD 150,000",  # IFSCA Fund Management Regulations minimum ticket size for non-retail Cat II/III AIF investors -- regulatory floor, not fund-specific disclosure (none published)

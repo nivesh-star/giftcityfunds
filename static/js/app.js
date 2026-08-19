@@ -71,6 +71,7 @@ document.addEventListener('DOMContentLoaded', () => {
         state.stats = data;
         renderHeroCounters(data.summary);
         renderCharts(data.charts);
+        renderAmcDirectory(data.charts.amc_distribution);
         renderMarqueeTicker(data);
       }
     } catch (e) {
@@ -104,6 +105,69 @@ document.addEventListener('DOMContentLoaded', () => {
     if (elTier1) elTier1.textContent = summary.tier1_verified;
     if (elLiveNav) elLiveNav.textContent = summary.funds_with_live_nav;
     if (elAmcs) elAmcs.textContent = summary.total_amcs;
+  }
+
+  // Badge accent colors for the AMC Directory cards -- purely decorative
+  // identity avatars (not a data-encoding chart), cycled in a fixed order.
+  const AMC_BADGE_COLORS = [
+    { bg: 'bg-blue-600/10', border: 'border-blue-500/20', text: 'text-blue-400' },
+    { bg: 'bg-emerald-600/10', border: 'border-emerald-500/20', text: 'text-emerald-400' },
+    { bg: 'bg-purple-600/10', border: 'border-purple-500/20', text: 'text-purple-400' },
+    { bg: 'bg-amber-600/10', border: 'border-amber-500/20', text: 'text-amber-400' },
+    { bg: 'bg-rose-600/10', border: 'border-rose-500/20', text: 'text-rose-400' },
+    { bg: 'bg-teal-600/10', border: 'border-teal-500/20', text: 'text-teal-400' },
+  ];
+
+  // Strips common corporate-entity suffixes so AMC names fit a small card
+  // without truncating the part that actually identifies the fund house.
+  function shortenAmcName(name) {
+    if (!name) return 'Unknown AMC';
+    let s = name
+      .replace(/\(IFSC\)/gi, '')
+      .replace(/IFSC\s*Private\s*Limited/gi, '')
+      .replace(/IFSC\s*Branch/gi, '')
+      .replace(/Private\s*Limited/gi, '')
+      .replace(/Pvt\.?\s*Ltd\.?/gi, '')
+      .replace(/\bLimited\b/gi, '')
+      .replace(/International/gi, "Int'l")
+      .replace(/Asset Managers?/gi, 'AMC')
+      .replace(/Investment Managers?/gi, 'AMC')
+      .replace(/\s+/g, ' ')
+      .trim();
+    return truncateLabel(s, 24);
+  }
+
+  // Short badge initials from the first word(s) of a (already-truncated
+  // in the caller's view, but this uses the raw) AMC name.
+  function amcBadgeInitials(name) {
+    const cleaned = (name || '').replace(/\(.*?\)/g, '').trim();
+    const words = cleaned.split(/\s+/).filter(Boolean);
+    if (words.length === 0) return '?';
+    return words[0].slice(0, 6).toUpperCase();
+  }
+
+  // Renders the "Active GIFT City Fund Houses" cards from real
+  // /api/stats amc_distribution data -- previously this section was 6
+  // hardcoded cards with invented fund counts that didn't match the
+  // actual database (e.g. claimed "Kotak Mahindra -- 8 GIFT Funds" when
+  // the real AMC name is "Kotak Mutual Fund" with 10 funds).
+  function renderAmcDirectory(amcDistribution) {
+    const grid = document.getElementById('amcDirectoryGrid');
+    if (!grid || !amcDistribution) return;
+    const top = amcDistribution.slice(0, 6);
+    grid.innerHTML = top.map((a, i) => {
+      const color = AMC_BADGE_COLORS[i % AMC_BADGE_COLORS.length];
+      const shortName = shortenAmcName(a.amc);
+      return `
+        <div class="glass-card rounded-2xl p-4 text-center flex flex-col items-center justify-between" title="${escapeHtml(a.amc)}">
+          <div class="w-12 h-12 rounded-xl ${color.bg} border ${color.border} flex items-center justify-center font-bold ${color.text} text-xs mb-2">
+            ${escapeHtml(amcBadgeInitials(a.amc))}
+          </div>
+          <span class="font-bold text-xs text-[var(--color-text)]">${escapeHtml(shortName)}</span>
+          <span class="text-[10px] text-[var(--color-text-subtle)]">${a.count} GIFT Fund${a.count === 1 ? '' : 's'}</span>
+        </div>
+      `;
+    }).join('');
   }
 
   function renderMarqueeTicker(data) {
@@ -931,6 +995,15 @@ document.addEventListener('DOMContentLoaded', () => {
         gridWrap?.classList.remove('hidden');
         renderFundsList();
       });
+
+      // The wide fund table has no usable mobile layout -- its columns
+      // (NAV, tier, launch date, actions) sit off-screen with no visible
+      // scroll indicator on a phone, so a mobile visitor only ever sees
+      // the fund name column. Cards view has no horizontal overflow and
+      // shows every field, so default to it below the `md` breakpoint.
+      if (window.innerWidth < 768) {
+        btnViewGrid.click();
+      }
     }
 
     // Knowledge Hub Accordion
