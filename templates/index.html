@@ -226,51 +226,51 @@
         </p>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+
         <!-- Chart 1: Category Distribution -->
-        <div class="glass-card rounded-2xl p-4 flex flex-col justify-between">
+        <div class="glass-card rounded-2xl p-5 flex flex-col justify-between">
           <div class="flex items-center justify-between mb-3">
             <h3 class="text-xs font-bold text-[var(--color-text)] uppercase tracking-wider">Fund Categories</h3>
             <span class="text-[10px] text-[var(--color-text-subtle)]">By Type</span>
           </div>
-          <div class="relative h-48 w-full flex items-center justify-center">
+          <div class="relative h-72 w-full flex items-center justify-center">
             <canvas id="chartCategory"></canvas>
           </div>
           <span class="text-[10px] text-[var(--color-text-subtle)] text-center block mt-2">AIF Cat III, Cat II, Retail Feeders & PMS</span>
         </div>
 
         <!-- Chart 2: AMC Distribution -->
-        <div class="glass-card rounded-2xl p-4 flex flex-col justify-between">
+        <div class="glass-card rounded-2xl p-5 flex flex-col justify-between">
           <div class="flex items-center justify-between mb-3">
             <h3 class="text-xs font-bold text-[var(--color-text)] uppercase tracking-wider">Top Asset Managers</h3>
             <span class="text-[10px] text-[var(--color-text-subtle)]">By Count</span>
           </div>
-          <div class="relative h-48 w-full">
+          <div class="relative h-72 w-full">
             <canvas id="chartAmc"></canvas>
           </div>
           <span class="text-[10px] text-[var(--color-text-subtle)] text-center block mt-2">Kotak, DSP, HDFC, PPFAS, Tata, UTI</span>
         </div>
 
         <!-- Chart 3: Registration Timeline -->
-        <div class="glass-card rounded-2xl p-4 flex flex-col justify-between">
+        <div class="glass-card rounded-2xl p-5 flex flex-col justify-between">
           <div class="flex items-center justify-between mb-3">
             <h3 class="text-xs font-bold text-[var(--color-text)] uppercase tracking-wider">Registration Timeline</h3>
             <span class="text-[10px] text-[var(--color-text-subtle)]">2022 - 2026</span>
           </div>
-          <div class="relative h-48 w-full">
+          <div class="relative h-72 w-full">
             <canvas id="chartTimeline"></canvas>
           </div>
           <span class="text-[10px] text-[var(--color-text-subtle)] text-center block mt-2">IFSCA Registration Momentum</span>
         </div>
 
         <!-- Chart 4: Live NAV Performers -->
-        <div class="glass-card rounded-2xl p-4 flex flex-col justify-between">
+        <div class="glass-card rounded-2xl p-5 flex flex-col justify-between">
           <div class="flex items-center justify-between mb-3">
             <h3 class="text-xs font-bold text-[var(--color-text)] uppercase tracking-wider">Active NAV Leaderboard</h3>
             <span class="text-[10px] text-emerald-400 font-mono font-bold">USD</span>
           </div>
-          <div class="relative h-48 w-full">
+          <div class="relative h-72 w-full">
             <canvas id="chartNav"></canvas>
           </div>
           <span class="text-[10px] text-[var(--color-text-subtle)] text-center block mt-2">HDFC Feeder, DSP, Tata, PPFAS</span>

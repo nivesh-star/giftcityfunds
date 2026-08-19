@@ -131,27 +131,53 @@ document.addEventListener('DOMContentLoaded', () => {
   // --------------------------------------------------------------------------
   // Render Visual Analytics (Chart.js)
   // --------------------------------------------------------------------------
+  // Validated categorical order (dataviz skill reference palette) -- fixed
+  // hue order, never cycled/re-sorted. A category beyond this count folds
+  // into a neutral "Other" bucket rather than generating a new hue.
+  const CATEGORICAL_DARK = ['#3987e5', '#d95926', '#199e70', '#c98500', '#d55181', '#008300', '#9085e9'];
+  const CATEGORICAL_LIGHT = ['#2a78d6', '#eb6834', '#1baf7a', '#eda100', '#e87ba4', '#008300', '#4a3aa7'];
+  const OTHER_GRAY_DARK = '#64748b';
+  const OTHER_GRAY_LIGHT = '#94a3b8';
+
+  // Buckets a sorted-by-value list into its top N entries plus a single
+  // "Other" entry summing the remainder -- keeps legends/axes readable
+  // instead of rendering dozens of tiny categorical slices.
+  function bucketTopN(items, n, labelKey, valueKey) {
+    const sorted = [...items].sort((a, b) => b[valueKey] - a[valueKey]);
+    const top = sorted.slice(0, n);
+    const restSum = sorted.slice(n).reduce((sum, item) => sum + item[valueKey], 0);
+    const result = top.map(i => ({ label: i[labelKey], value: i[valueKey] }));
+    if (restSum > 0) result.push({ label: 'Other', value: restSum, isOther: true });
+    return result;
+  }
+
+  // Shortens a long label for axis display while keeping the full text
+  // available for the tooltip -- avoids Chart.js silently clipping/
+  // overlapping long fund/AMC names.
+  function truncateLabel(label, maxLen) {
+    if (!label) return '';
+    return label.length > maxLen ? label.slice(0, maxLen - 1).trim() + '…' : label;
+  }
+
   function renderCharts(chartData) {
     const isLight = document.documentElement.classList.contains('light');
     const textColor = isLight ? '#475569' : '#94a3b8';
     const gridColor = isLight ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.06)';
 
-    // 1. Category Distribution (Doughnut)
+    // 1. Category Distribution (Doughnut) -- top 7 categories + "Other"
     const catCanvas = document.getElementById('chartCategory');
     if (catCanvas && chartData.category_distribution) {
-      const labels = chartData.category_distribution.map(c => c.category);
-      const counts = chartData.category_distribution.map(c => c.count);
+      const bucketed = bucketTopN(chartData.category_distribution, 7, 'category', 'count');
+      const categoricalSet = isLight ? CATEGORICAL_LIGHT : CATEGORICAL_DARK;
+      const otherGray = isLight ? OTHER_GRAY_LIGHT : OTHER_GRAY_DARK;
 
       state.charts.category = new Chart(catCanvas, {
         type: 'doughnut',
         data: {
-          labels: labels,
+          labels: bucketed.map(b => b.label),
           datasets: [{
-            data: counts,
-            backgroundColor: [
-              '#2563eb', '#79fe0c', '#6366f1', '#f59e0b',
-              '#10b981', '#ec4899', '#8b5cf6', '#14b8a6'
-            ],
+            data: bucketed.map(b => b.value),
+            backgroundColor: bucketed.map((b, i) => b.isOther ? otherGray : categoricalSet[i]),
             borderColor: isLight ? '#ffffff' : '#131d31',
             borderWidth: 2,
           }]
@@ -162,10 +188,10 @@ document.addEventListener('DOMContentLoaded', () => {
           plugins: {
             legend: {
               position: 'bottom',
-              labels: { color: textColor, boxWidth: 12, font: { size: 11 } }
+              labels: { color: textColor, boxWidth: 10, padding: 10, font: { size: 11 } }
             }
           },
-          cutout: '68%',
+          cutout: '62%',
         }
       });
     }
@@ -190,8 +216,14 @@ document.addEventListener('DOMContentLoaded', () => {
           indexAxis: 'y',
           responsive: true,
           maintainAspectRatio: false,
+          layout: { padding: { right: 8 } },
           plugins: {
             legend: { display: false },
+            tooltip: {
+              callbacks: {
+                title: (items) => topAmcs[items[0].dataIndex].amc
+              }
+            }
           },
           scales: {
             x: {
@@ -200,7 +232,10 @@ document.addEventListener('DOMContentLoaded', () => {
             },
             y: {
               grid: { display: false },
-              ticks: { color: textColor, font: { size: 10 } }
+              ticks: {
+                color: textColor, font: { size: 10 },
+                callback: function (value) { return truncateLabel(this.getLabelForValue(value), 24); }
+              }
             }
           }
         }
@@ -233,28 +268,45 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     }
 
-    // 4. Top Live NAVs (Bar)
+    // 4. Top Live NAVs (Horizontal Bar) -- fund names read left-to-right on
+    // the y-axis instead of rotated/overlapping on the x-axis.
     const navCanvas = document.getElementById('chartNav');
     if (navCanvas && chartData.nav_performers) {
-      const topNav = chartData.nav_performers.slice(0, 7);
+      const topNav = chartData.nav_performers.slice(0, 8);
       state.charts.nav = new Chart(navCanvas, {
         type: 'bar',
         data: {
-          labels: topNav.map(n => n.fund_name.replace('Fund', '').trim()),
+          labels: topNav.map(n => n.fund_name),
           datasets: [{
             label: 'Current NAV (USD)',
             data: topNav.map(n => n.nav),
-            backgroundColor: '#10b981',
+            backgroundColor: 'rgba(16, 185, 129, 0.85)',
+            hoverBackgroundColor: '#34d399',
             borderRadius: 6,
           }]
         },
         options: {
+          indexAxis: 'y',
           responsive: true,
           maintainAspectRatio: false,
-          plugins: { legend: { display: false } },
+          layout: { padding: { right: 8 } },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                title: (items) => topNav[items[0].dataIndex].fund_name
+              }
+            }
+          },
           scales: {
-            x: { grid: { display: false }, ticks: { color: textColor, font: { size: 9 }, maxRotation: 30 } },
-            y: { grid: { color: gridColor }, ticks: { color: textColor } }
+            x: { grid: { color: gridColor }, ticks: { color: textColor } },
+            y: {
+              grid: { display: false },
+              ticks: {
+                color: textColor, font: { size: 10 },
+                callback: function (value) { return truncateLabel(this.getLabelForValue(value), 26); }
+              }
+            }
           }
         }
       });
@@ -277,11 +329,26 @@ document.addEventListener('DOMContentLoaded', () => {
           if (chart.options.scales.y.grid) chart.options.scales.y.grid.color = gridColor;
         }
       }
-      if (chart.options.plugins && chart.options.plugins.legend) {
+      if (chart.options.plugins && chart.options.plugins.legend && chart.options.plugins.legend.labels) {
         chart.options.plugins.legend.labels.color = textColor;
       }
       chart.update();
     });
+
+    // The category doughnut's slice colors are chosen from a light/dark
+    // categorical set at creation time (including the "Other" gray) --
+    // refresh them here too so a theme toggle doesn't leave stale colors.
+    if (state.charts.category) {
+      const categoricalSet = isLight ? CATEGORICAL_LIGHT : CATEGORICAL_DARK;
+      const otherGray = isLight ? OTHER_GRAY_LIGHT : OTHER_GRAY_DARK;
+      const dataset = state.charts.category.data.datasets[0];
+      dataset.backgroundColor = state.charts.category.data.labels.map((label, i) =>
+        label === 'Other' ? otherGray : categoricalSet[i]
+      );
+      state.charts.category.options.plugins.legend.labels.color = textColor;
+      state.charts.category.data.datasets[0].borderColor = isLight ? '#ffffff' : '#131d31';
+      state.charts.category.update();
+    }
   }
 
   // --------------------------------------------------------------------------
