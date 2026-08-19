@@ -1,0 +1,23 @@
+[
+  {
+    "fund_name": "Mirae Asset India Equity Allocation Fund",
+    "amc_name": "Mirae Asset Investment Managers (India) Private Limited (IFSC Branch)",
+    "category": "Restricted Scheme (Non-Retail), Category III AIF",
+    "launch_date": null,
+    "nav": 10.4508,
+    "nav_currency": "USD",
+    "nav_as_of": "2026-08-17",
+    "expense_ratio": null,
+    "aum": null,
+    "aum_currency": null,
+    "aum_unit": null,
+    "inception_date": null,
+    "minimum_investment": "USD 151,000 (USD 10,000 for Accredited Investors)",
+    "source_name": "Mirae Asset official NAV API (Class A1 Units)",
+    "source_url": "https://giftcity.miraeassetmf.co.in/mirae-asset-india-equity-allocation-fund-ifsc-gift-city.html",
+    "source_tier": "tier1_amc",
+    "scraped_at": "2026-08-19T06:35:51.042090+00:00",
+    "scrape_status": "success",
+    "error_message": null
+  }
+]

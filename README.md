@@ -198,37 +198,50 @@ python cleaner.py
 python database.py
 ```
 
-### 3. Run the Test Suite
+### 3. Launch the GIFT360 Web Platform (Inspired by SIF360.com)
 ```bash
-pytest tests/test_quality.py -v
+python app.py
+```
+Open **`http://127.0.0.1:5000`** in your browser to view the interactive web intelligence platform featuring:
+* **Real-time NAV Marquee & Live Market Ticker**
+* **Interactive Visual Analytics (Chart.js)**: AMC distributions, category allocations, launch timelines, and NAV leaderboards.
+* **Advanced Fund Screener**: Multi-filter by category, tier, currency, and search query.
+* **Side-by-Side Fund Comparison Matrix (Fund vs Fund)**: Compare up to 4 funds on structure, TER, NAV, ticket size, and tax rules.
+* **Fund Intelligence Modal**: Detailed snapshots, simulated 12-month NAV performance trajectory, and factsheet drop zone.
+* **Knowledge Hub**: IFSCA regulations, $150k AIF minimum ticket rules, and 0% capital gains tax advantages.
+* **REST APIs & Exports**: Direct CSV and JSON dataset endpoints (`/api/funds`, `/api/stats`, `/api/export/csv`, `/api/export/json`).
+
+### 4. Run the Full Test Suite
+```bash
+pytest tests/ -v
 ```
 
 ---
 
-## Automated Data Quality Tests
+## Automated Data Quality & Web Platform Tests
 
-The test suite in `tests/test_quality.py` executes 8 automated checks against `gift_city_amc_funds.db`:
+The test suite in `tests/` executes 17 automated checks across database integrity and web APIs:
 
 ```
-tests/test_quality.py::test_no_null_fund_names PASSED                    [ 12%]
-tests/test_quality.py::test_unique_fund_names PASSED                     [ 25%]
-tests/test_quality.py::test_nav_is_positive_when_present PASSED          [ 37%]
-tests/test_quality.py::test_expense_ratio_is_reasonable_when_present PASSED [ 50%]
-tests/test_quality.py::test_nav_has_currency_when_present PASSED         [ 62%]
-tests/test_quality.py::test_each_fund_has_official_source_metadata PASSED [ 75%]
-tests/test_quality.py::test_scrape_attempts_are_logged PASSED            [ 87%]
-tests/test_quality.py::test_all_configured_sources_succeeded PASSED      [100%]
-============================== 8 passed in 0.04s ==============================
+tests/test_quality.py::test_no_null_fund_names PASSED                    [  5%]
+tests/test_quality.py::test_unique_fund_names PASSED                     [ 11%]
+tests/test_quality.py::test_nav_is_positive_when_present PASSED          [ 17%]
+tests/test_quality.py::test_expense_ratio_is_reasonable_when_present PASSED [ 23%]
+tests/test_quality.py::test_nav_has_currency_when_present PASSED         [ 29%]
+tests/test_quality.py::test_each_fund_has_official_source_metadata PASSED [ 35%]
+tests/test_quality.py::test_scrape_attempts_are_logged PASSED            [ 41%]
+tests/test_quality.py::test_all_configured_sources_succeeded PASSED      [ 47%]
+tests/test_web_app.py::test_index_page PASSED                            [ 52%]
+tests/test_web_app.py::test_api_stats PASSED                             [ 58%]
+tests/test_web_app.py::test_api_funds_all PASSED                         [ 64%]
+tests/test_web_app.py::test_api_funds_filtered_search PASSED             [ 70%]
+tests/test_web_app.py::test_api_funds_tier_filter PASSED                 [ 76%]
+tests/test_web_app.py::test_api_fund_detail PASSED                       [ 82%]
+tests/test_web_app.py::test_api_compare PASSED                           [ 88%]
+tests/test_web_app.py::test_api_export_csv PASSED                        [ 94%]
+tests/test_web_app.py::test_api_export_json PASSED                       [100%]
+============================= 17 passed in 0.29s ==============================
 ```
-
-1. **`test_no_null_fund_names`**: Verifies zero records have empty or whitespace-only fund names.
-2. **`test_unique_fund_names`**: Ensures total row count equals distinct fund name count (no duplicate instruments).
-3. **`test_nav_is_positive_when_present`**: Confirms all extracted NAV values are strictly $> 0$.
-4. **`test_expense_ratio_is_reasonable_when_present`**: Validates expense ratios fall within standard bounds ($0.0\% - 5.0\%$).
-5. **`test_nav_has_currency_when_present`**: Verifies every NAV figure has an associated ISO currency (e.g., `USD`, `INR`).
-6. **`test_each_fund_has_official_source_metadata`**: Asserts that every record retains an attributable source URL and name.
-7. **`test_scrape_attempts_are_logged`**: Ensures audit logs record individual HTTP scrape attempts.
-8. **`test_all_configured_sources_succeeded`**: Verifies that 100% of configured Tier-1 AMC scrapers completed successfully.
 
 ---
 

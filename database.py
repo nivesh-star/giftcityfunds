@@ -17,7 +17,9 @@ CREATE TABLE IF NOT EXISTS funds (
     fund_name TEXT NOT NULL UNIQUE, amc_name TEXT NOT NULL, category TEXT,
     launch_date DATE, nav REAL, nav_currency TEXT, nav_as_of DATE,
     expense_ratio REAL, aum REAL, aum_currency TEXT, aum_unit TEXT,
-    inception_date DATE, source_name TEXT NOT NULL, source_url TEXT NOT NULL,
+    inception_date DATE, minimum_investment TEXT, lock_in_period TEXT,
+    exit_load TEXT, benchmark_index TEXT, target_corpus_at_launch TEXT,
+    source_name TEXT NOT NULL, source_url TEXT NOT NULL,
     scraped_at TIMESTAMP NOT NULL, scrape_status TEXT NOT NULL,
     source_tier TEXT NOT NULL DEFAULT 'tier1_amc',
     last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -37,14 +39,30 @@ def nullable_float(value):
 def create_schema(conn):
     conn.executescript(SCHEMA)
     # Migration: the funds table may already exist from an earlier run of
-    # this pipeline (before source_tier existed). CREATE TABLE IF NOT
-    # EXISTS won't add a column to an already-existing table, so add it
-    # explicitly and ignore the error if it's already there.
+    # this pipeline (before these columns existed). CREATE TABLE IF NOT
+    # EXISTS won't add columns to an already-existing table, so add them
+    # explicitly and ignore errors for columns that are already there.
+    new_columns = [
+        ("source_tier", "TEXT NOT NULL DEFAULT 'tier1_amc'"),
+        ("minimum_investment", "TEXT"),
+        ("lock_in_period", "TEXT"),
+        ("exit_load", "TEXT"),
+        ("benchmark_index", "TEXT"),
+        ("target_corpus_at_launch", "TEXT"),
+    ]
+    for col_name, col_type in new_columns:
+        try:
+            conn.execute(f"ALTER TABLE funds ADD COLUMN {col_name} {col_type}")
+        except sqlite3.OperationalError as exc:
+            if "duplicate column name" not in str(exc).lower():
+                raise
+    # Drop exit_load_description -- dropped from the schema since it was
+    # empty for nearly every fund (only HDFC populated it). Safe no-op if
+    # the column was never created (e.g. on a brand-new database).
     try:
-        conn.execute("ALTER TABLE funds ADD COLUMN source_tier TEXT NOT NULL DEFAULT 'tier1_amc'")
-    except sqlite3.OperationalError as exc:
-        if "duplicate column name" not in str(exc).lower():
-            raise
+        conn.execute("ALTER TABLE funds DROP COLUMN exit_load_description")
+    except sqlite3.OperationalError:
+        pass  # column doesn't exist -- fine, nothing to drop
 
 
 def load_funds(conn, csv_path=CSV_PATH):
@@ -60,16 +78,23 @@ def load_funds(conn, csv_path=CSV_PATH):
             """INSERT INTO funds (
                 fund_name, amc_name, category, launch_date, nav, nav_currency,
                 nav_as_of, expense_ratio, aum, aum_currency, aum_unit,
-                inception_date, source_name, source_url, scraped_at, scrape_status,
+                inception_date, minimum_investment, lock_in_period, exit_load,
+                benchmark_index, target_corpus_at_launch,
+                source_name, source_url, scraped_at, scrape_status,
                 source_tier
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ON CONFLICT(fund_name) DO UPDATE SET
                 amc_name=excluded.amc_name, category=excluded.category,
                 launch_date=excluded.launch_date, nav=excluded.nav,
                 nav_currency=excluded.nav_currency, nav_as_of=excluded.nav_as_of,
                 expense_ratio=excluded.expense_ratio, aum=excluded.aum,
                 aum_currency=excluded.aum_currency, aum_unit=excluded.aum_unit,
-                inception_date=excluded.inception_date, source_name=excluded.source_name,
+                inception_date=excluded.inception_date,
+                minimum_investment=excluded.minimum_investment,
+                lock_in_period=excluded.lock_in_period, exit_load=excluded.exit_load,
+                benchmark_index=excluded.benchmark_index,
+                target_corpus_at_launch=excluded.target_corpus_at_launch,
+                source_name=excluded.source_name,
                 source_url=excluded.source_url, scraped_at=excluded.scraped_at,
                 scrape_status=excluded.scrape_status, source_tier=excluded.source_tier,
                 last_updated=CURRENT_TIMESTAMP""",
@@ -77,7 +102,12 @@ def load_funds(conn, csv_path=CSV_PATH):
              row["launch_date"] or None, nullable_float(row["nav"]), row["nav_currency"] or None,
              row["nav_as_of"] or None, nullable_float(row["expense_ratio"]),
              nullable_float(row["aum"]), row["aum_currency"] or None, row["aum_unit"] or None,
-             row["inception_date"] or None, row["source_name"], row["source_url"],
+             row["inception_date"] or None,
+             row.get("minimum_investment") or None, row.get("lock_in_period") or None,
+             row.get("exit_load") or None,
+             row.get("benchmark_index") or None,
+             row.get("target_corpus_at_launch") or None,
+             row["source_name"], row["source_url"],
              row["scraped_at"], row["scrape_status"], row.get("source_tier") or "tier1_amc"),
         )
     return len(rows)

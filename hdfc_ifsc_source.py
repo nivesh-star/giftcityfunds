@@ -92,6 +92,10 @@ def build_fund_records(nfo_end_date: str = "2026-08-21") -> list[dict]:
             "category": "Retail Fund",
             "nav_currency": "USD",
             "expense_ratio": 0.50,  # Direct plan TER
+            "minimum_investment": "USD 5000",  # confirmed from live fundListing API response
+            "lock_in_period": "No Lock-in",
+            "exit_load": "Up to 2.00%",
+            "benchmark_index": "MSCI World Index",
         },
         {
             "fund_name": "HDFC International – Emerging Markets Equity Fund",
@@ -99,6 +103,10 @@ def build_fund_records(nfo_end_date: str = "2026-08-21") -> list[dict]:
             "category": "Retail Fund",
             "nav_currency": "USD",
             "expense_ratio": 0.50,  # Direct plan TER
+            "minimum_investment": "USD 5000",  # confirmed from live fundListing API response
+            "lock_in_period": "No Lock-in",
+            "exit_load": "Up to 2.00%",
+            "benchmark_index": "MSCI Emerging Markets Index",
         },
     ]
     records = []
@@ -116,6 +124,10 @@ def build_fund_records(nfo_end_date: str = "2026-08-21") -> list[dict]:
             "aum_currency": None,
             "aum_unit": None,
             "inception_date": None,
+            "minimum_investment": fund["minimum_investment"],
+            "lock_in_period": fund["lock_in_period"],
+            "exit_load": fund["exit_load"],
+            "benchmark_index": fund["benchmark_index"],
             "source_name": "HDFC AMC IFSC official fundListing API",
             "source_url": PAGE_URL,
             "source_tier": "tier1_amc",

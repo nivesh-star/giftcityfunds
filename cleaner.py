@@ -13,11 +13,14 @@ RAW_PATH = DATA_DIR / "raw_amc_funds.json"
 ALTPORT_PATH = DATA_DIR / "altport_tier2.json"
 HDFC_PATH = DATA_DIR / "hdfc_ifsc_funds.json"
 HDFC_FEEDER_PATH = DATA_DIR / "hdfc_india_feeder_funds.json"
+MIRAE_INDIA_EQUITY_PATH = DATA_DIR / "mirae_india_equity_alloc.json"
 OUTPUT_PATH = DATA_DIR / "funds_cleaned.csv"
 FINAL_COLUMNS = [
     "fund_name", "amc_name", "category", "launch_date", "nav", "nav_currency",
     "nav_as_of", "expense_ratio", "aum", "aum_currency", "aum_unit",
-    "inception_date", "source_name", "source_url", "scraped_at", "scrape_status",
+    "inception_date", "minimum_investment", "lock_in_period", "exit_load",
+    "benchmark_index", "target_corpus_at_launch", "target_corpus_at_launch",
+    "source_name", "source_url", "scraped_at", "scrape_status",
     "source_tier",
 ]
 
@@ -32,7 +35,8 @@ def parse_date(value):
 
 
 def clean_data(raw_path: Path = RAW_PATH, altport_path: Path = ALTPORT_PATH,
-               hdfc_path: Path = HDFC_PATH, hdfc_feeder_path: Path = HDFC_FEEDER_PATH) -> pd.DataFrame:
+               hdfc_path: Path = HDFC_PATH, hdfc_feeder_path: Path = HDFC_FEEDER_PATH,
+               mirae_india_equity_path: Path = MIRAE_INDIA_EQUITY_PATH) -> pd.DataFrame:
     # Tier 1: individually-verified AMC sources (NAV-level verification).
     with raw_path.open(encoding="utf-8") as raw_file:
         tier1_funds = pd.DataFrame(json.load(raw_file))
@@ -58,6 +62,15 @@ def clean_data(raw_path: Path = RAW_PATH, altport_path: Path = ALTPORT_PATH,
     else:
         hdfc_feeder_funds = pd.DataFrame()
 
+    # Mirae Asset India Equity Allocation Fund -- real, live NAV pulled
+    # directly from Mirae's official backend NAV API (found via DevTools,
+    # same technique as HDFC). Genuine Tier 1 quality.
+    if mirae_india_equity_path.exists():
+        with mirae_india_equity_path.open(encoding="utf-8") as mirae_file:
+            mirae_funds = pd.DataFrame(json.load(mirae_file))
+    else:
+        mirae_funds = pd.DataFrame()
+
     # Tier 2: ALTPORT directory sources (existence + category verified via
     # real IFSCA registration numbers where available; NAV not published).
     # Optional -- pipeline still works if this file hasn't been generated.
@@ -67,7 +80,7 @@ def clean_data(raw_path: Path = RAW_PATH, altport_path: Path = ALTPORT_PATH,
     else:
         tier2_funds = pd.DataFrame()
 
-    funds = pd.concat([tier1_funds, hdfc_funds, hdfc_feeder_funds, tier2_funds], ignore_index=True, sort=False)
+    funds = pd.concat([tier1_funds, hdfc_funds, hdfc_feeder_funds, mirae_funds, tier2_funds], ignore_index=True, sort=False)
     if funds.empty:
         return pd.DataFrame(columns=FINAL_COLUMNS)
 

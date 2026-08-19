@@ -1,0 +1,879 @@
+/**
+ * app.js
+ * Frontend application controller for GIFT360 Platform.
+ * Manages reactive UI, Chart.js instances, table filtering, search, comparison drawer, and detail modals.
+ */
+
+document.addEventListener('DOMContentLoaded', () => {
+  // Global Application State
+  const state = {
+    allFunds: [],
+    filteredFunds: [],
+    stats: null,
+    compareIds: new Set(),
+    searchQuery: '',
+    tierFilter: 'all',
+    categoryFilter: 'all',
+    currencyFilter: 'ALL',
+    navFilter: 'all',
+    sortBy: 'nav',
+    sortOrder: 'desc',
+    currentPage: 1,
+    pageSize: 15,
+    viewMode: 'table', // 'table' or 'grid'
+    charts: {},
+  };
+
+  // --------------------------------------------------------------------------
+  // Theme Management
+  // --------------------------------------------------------------------------
+  const themeToggleBtn = document.getElementById('themeToggleBtn');
+  const storedTheme = localStorage.getItem('gift360-theme') || 'dark';
+  
+  function applyTheme(theme) {
+    if (theme === 'light') {
+      document.documentElement.classList.add('light');
+      document.documentElement.classList.remove('dark');
+    } else {
+      document.documentElement.classList.add('dark');
+      document.documentElement.classList.remove('light');
+    }
+    localStorage.setItem('gift360-theme', theme);
+  }
+
+  applyTheme(storedTheme);
+
+  if (themeToggleBtn) {
+    themeToggleBtn.addEventListener('click', () => {
+      const isLight = document.documentElement.classList.contains('light');
+      applyTheme(isLight ? 'dark' : 'light');
+      updateChartThemes();
+    });
+  }
+
+  // --------------------------------------------------------------------------
+  // Fetch Initial Data
+  // --------------------------------------------------------------------------
+  async function init() {
+    try {
+      await Promise.all([fetchStats(), fetchFunds()]);
+      setupEventListeners();
+    } catch (err) {
+      console.error('Initialization error:', err);
+    }
+  }
+
+  async function fetchStats() {
+    try {
+      const res = await fetch('/api/stats');
+      const data = await res.json();
+      if (data.success) {
+        state.stats = data;
+        renderHeroCounters(data.summary);
+        renderCharts(data.charts);
+        renderMarqueeTicker(data);
+      }
+    } catch (e) {
+      console.error('Failed to fetch stats:', e);
+    }
+  }
+
+  async function fetchFunds() {
+    try {
+      const res = await fetch('/api/funds');
+      const data = await res.json();
+      if (data.success) {
+        state.allFunds = data.funds;
+        applyFilters();
+      }
+    } catch (e) {
+      console.error('Failed to fetch funds:', e);
+    }
+  }
+
+  // --------------------------------------------------------------------------
+  // Render Hero & Ticker
+  // --------------------------------------------------------------------------
+  function renderHeroCounters(summary) {
+    const elTotal = document.getElementById('statTotalFunds');
+    const elTier1 = document.getElementById('statTier1');
+    const elLiveNav = document.getElementById('statLiveNav');
+    const elAmcs = document.getElementById('statTotalAmcs');
+
+    if (elTotal) elTotal.textContent = summary.total_funds;
+    if (elTier1) elTier1.textContent = summary.tier1_verified;
+    if (elLiveNav) elLiveNav.textContent = summary.funds_with_live_nav;
+    if (elAmcs) elAmcs.textContent = summary.total_amcs;
+  }
+
+  function renderMarqueeTicker(data) {
+    const tickerContainer = document.getElementById('marqueeTickerTrack');
+    if (!tickerContainer) return;
+
+    const performers = data.charts.nav_performers || [];
+    let itemsHtml = '';
+
+    performers.forEach(p => {
+      itemsHtml += `
+        <span class="inline-flex items-center gap-2 mx-6 text-xs font-semibold">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+          <span class="text-[var(--color-text)]">${escapeHtml(p.fund_name)}</span>
+          <span class="text-emerald-400 font-mono font-bold">${p.nav} ${p.nav_currency || 'USD'}</span>
+          <span class="text-[var(--color-text-subtle)] text-[10px]">(${p.nav_as_of || 'Live'})</span>
+        </span>
+      `;
+    });
+
+    // Duplicate content for smooth marquee loop
+    tickerContainer.innerHTML = itemsHtml + itemsHtml;
+  }
+
+  // --------------------------------------------------------------------------
+  // Render Visual Analytics (Chart.js)
+  // --------------------------------------------------------------------------
+  function renderCharts(chartData) {
+    const isLight = document.documentElement.classList.contains('light');
+    const textColor = isLight ? '#475569' : '#94a3b8';
+    const gridColor = isLight ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.06)';
+
+    // 1. Category Distribution (Doughnut)
+    const catCanvas = document.getElementById('chartCategory');
+    if (catCanvas && chartData.category_distribution) {
+      const labels = chartData.category_distribution.map(c => c.category);
+      const counts = chartData.category_distribution.map(c => c.count);
+
+      state.charts.category = new Chart(catCanvas, {
+        type: 'doughnut',
+        data: {
+          labels: labels,
+          datasets: [{
+            data: counts,
+            backgroundColor: [
+              '#2563eb', '#79fe0c', '#6366f1', '#f59e0b',
+              '#10b981', '#ec4899', '#8b5cf6', '#14b8a6'
+            ],
+            borderColor: isLight ? '#ffffff' : '#131d31',
+            borderWidth: 2,
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: { color: textColor, boxWidth: 12, font: { size: 11 } }
+            }
+          },
+          cutout: '68%',
+        }
+      });
+    }
+
+    // 2. AMC Market Share (Horizontal Bar)
+    const amcCanvas = document.getElementById('chartAmc');
+    if (amcCanvas && chartData.amc_distribution) {
+      const topAmcs = chartData.amc_distribution.slice(0, 8);
+      state.charts.amc = new Chart(amcCanvas, {
+        type: 'bar',
+        data: {
+          labels: topAmcs.map(a => a.amc),
+          datasets: [{
+            label: 'Funds Tracked',
+            data: topAmcs.map(a => a.count),
+            backgroundColor: 'rgba(37, 99, 235, 0.85)',
+            hoverBackgroundColor: '#79fe0c',
+            borderRadius: 6,
+          }]
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+          },
+          scales: {
+            x: {
+              grid: { color: gridColor },
+              ticks: { color: textColor, stepSize: 1 }
+            },
+            y: {
+              grid: { display: false },
+              ticks: { color: textColor, font: { size: 10 } }
+            }
+          }
+        }
+      });
+    }
+
+    // 3. Launch Timeline (Line/Bar)
+    const timelineCanvas = document.getElementById('chartTimeline');
+    if (timelineCanvas && chartData.launch_timeline) {
+      state.charts.timeline = new Chart(timelineCanvas, {
+        type: 'bar',
+        data: {
+          labels: chartData.launch_timeline.map(t => t.year),
+          datasets: [{
+            label: 'New Registrations',
+            data: chartData.launch_timeline.map(t => t.count),
+            backgroundColor: '#6366f1',
+            borderRadius: 6,
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { grid: { display: false }, ticks: { color: textColor } },
+            y: { grid: { color: gridColor }, ticks: { color: textColor, stepSize: 2 } }
+          }
+        }
+      });
+    }
+
+    // 4. Top Live NAVs (Bar)
+    const navCanvas = document.getElementById('chartNav');
+    if (navCanvas && chartData.nav_performers) {
+      const topNav = chartData.nav_performers.slice(0, 7);
+      state.charts.nav = new Chart(navCanvas, {
+        type: 'bar',
+        data: {
+          labels: topNav.map(n => n.fund_name.replace('Fund', '').trim()),
+          datasets: [{
+            label: 'Current NAV (USD)',
+            data: topNav.map(n => n.nav),
+            backgroundColor: '#10b981',
+            borderRadius: 6,
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { grid: { display: false }, ticks: { color: textColor, font: { size: 9 }, maxRotation: 30 } },
+            y: { grid: { color: gridColor }, ticks: { color: textColor } }
+          }
+        }
+      });
+    }
+  }
+
+  function updateChartThemes() {
+    const isLight = document.documentElement.classList.contains('light');
+    const textColor = isLight ? '#475569' : '#94a3b8';
+    const gridColor = isLight ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.06)';
+
+    Object.values(state.charts).forEach(chart => {
+      if (chart.options.scales) {
+        if (chart.options.scales.x) {
+          chart.options.scales.x.ticks.color = textColor;
+          if (chart.options.scales.x.grid) chart.options.scales.x.grid.color = gridColor;
+        }
+        if (chart.options.scales.y) {
+          chart.options.scales.y.ticks.color = textColor;
+          if (chart.options.scales.y.grid) chart.options.scales.y.grid.color = gridColor;
+        }
+      }
+      if (chart.options.plugins && chart.options.plugins.legend) {
+        chart.options.plugins.legend.labels.color = textColor;
+      }
+      chart.update();
+    });
+  }
+
+  // --------------------------------------------------------------------------
+  // Filtering & Search
+  // --------------------------------------------------------------------------
+  function applyFilters() {
+    let result = [...state.allFunds];
+
+    // Search text query
+    if (state.searchQuery) {
+      const q = state.searchQuery.toLowerCase();
+      result = result.filter(f => 
+        (f.fund_name && f.fund_name.toLowerCase().includes(q)) ||
+        (f.amc_name && f.amc_name.toLowerCase().includes(q)) ||
+        (f.category && f.category.toLowerCase().includes(q))
+      );
+    }
+
+    // Tier filter
+    if (state.tierFilter !== 'all') {
+      result = result.filter(f => f.source_tier === state.tierFilter);
+    }
+
+    // Category filter
+    if (state.categoryFilter !== 'all') {
+      result = result.filter(f => f.category && f.category.toLowerCase().includes(state.categoryFilter.toLowerCase()));
+    }
+
+    // Currency filter
+    if (state.currencyFilter !== 'ALL') {
+      result = result.filter(f => (f.nav_currency === state.currencyFilter || f.aum_currency === state.currencyFilter));
+    }
+
+    // NAV status filter
+    if (state.navFilter === 'live') {
+      result = result.filter(f => f.nav !== null);
+    } else if (state.navFilter === 'nfo') {
+      result = result.filter(f => f.category && f.category.toLowerCase().includes('retail') && f.nav === null);
+    } else if (state.navFilter === 'institutional') {
+      result = result.filter(f => f.source_tier === 'tier2_directory' && f.nav === null);
+    }
+
+    // Sorting
+    result.sort((a, b) => {
+      let valA = a[state.sortBy];
+      let valB = b[state.sortBy];
+
+      if (valA === null || valA === undefined) return 1;
+      if (valB === null || valB === undefined) return -1;
+
+      if (typeof valA === 'number' && typeof valB === 'number') {
+        return state.sortOrder === 'desc' ? valB - valA : valA - valB;
+      }
+      valA = String(valA).toLowerCase();
+      valB = String(valB).toLowerCase();
+      if (valA < valB) return state.sortOrder === 'desc' ? 1 : -1;
+      if (valA > valB) return state.sortOrder === 'desc' ? -1 : 1;
+      return 0;
+    });
+
+    state.filteredFunds = result;
+    state.currentPage = 1;
+    renderFundsList();
+    renderPagination();
+  }
+
+  // --------------------------------------------------------------------------
+  // Table & Card Grid Rendering
+  // --------------------------------------------------------------------------
+  function renderFundsList() {
+    const tableBody = document.getElementById('fundsTableBody');
+    const cardsContainer = document.getElementById('fundsCardsContainer');
+    const countDisplay = document.getElementById('filteredFundsCount');
+
+    if (countDisplay) {
+      countDisplay.textContent = `${state.filteredFunds.length} Funds Found`;
+    }
+
+    const start = (state.currentPage - 1) * state.pageSize;
+    const paginated = state.filteredFunds.slice(start, start + state.pageSize);
+
+    if (state.viewMode === 'table') {
+      if (tableBody) {
+        if (paginated.length === 0) {
+          tableBody.innerHTML = `
+            <tr>
+              <td colspan="7" class="py-12 text-center text-[var(--color-text-muted)]">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 mx-auto mb-2 opacity-40" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                No funds matched the selected filters. Try broadening your search.
+              </td>
+            </tr>`;
+        } else {
+          tableBody.innerHTML = paginated.map(fund => createTableRow(fund)).join('');
+        }
+      }
+    } else {
+      if (cardsContainer) {
+        if (paginated.length === 0) {
+          cardsContainer.innerHTML = `<div class="col-span-full py-12 text-center text-[var(--color-text-muted)]">No funds matched.</div>`;
+        } else {
+          cardsContainer.innerHTML = paginated.map(fund => createFundCard(fund)).join('');
+        }
+      }
+    }
+  }
+
+  function createTableRow(fund) {
+    const isTier1 = fund.source_tier === 'tier1_amc';
+    const isCompared = state.compareIds.has(fund.fund_id);
+    const navText = fund.nav !== null 
+      ? `<span class="font-mono font-bold text-emerald-400">${fund.nav.toFixed(2)} ${fund.nav_currency || 'USD'}</span>`
+      : `<span class="text-[var(--color-text-subtle)] text-xs italic">N/A (Institutional/NFO)</span>`;
+    
+    const terText = fund.expense_ratio !== null 
+      ? `<span class="font-mono font-medium">${fund.expense_ratio.toFixed(2)}%</span>`
+      : `<span class="text-[var(--color-text-subtle)] text-xs">—</span>`;
+
+    const launchText = fund.launch_date || `<span class="text-[var(--color-text-subtle)] text-xs">—</span>`;
+
+    return `
+      <tr class="border-b border-[var(--color-border)] hover:bg-[var(--color-card-hover)] transition-colors group">
+        <td class="py-3.5 px-4">
+          <div class="flex items-center gap-3">
+            <button class="compare-toggle-btn w-5 h-5 rounded border ${isCompared ? 'bg-blue-600 border-blue-600 text-white' : 'border-[var(--color-border-strong)] text-transparent'} flex items-center justify-center transition-all hover:border-blue-500" data-id="${fund.fund_id}" title="Add to compare">
+              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            </button>
+            <div class="min-w-0">
+              <div class="font-bold text-[0.88rem] text-[var(--color-text)] group-hover:text-blue-400 transition-colors flex items-center gap-2">
+                <span class="truncate">${escapeHtml(fund.fund_name)}</span>
+              </div>
+              <div class="text-[0.72rem] text-[var(--color-text-muted)] flex items-center gap-2 mt-0.5">
+                <span>${escapeHtml(fund.amc_name || 'GIFT City Issuer')}</span>
+              </div>
+            </div>
+          </div>
+        </td>
+        <td class="py-3.5 px-4">
+          <span class="text-xs px-2.5 py-1 rounded-full font-semibold ${isTier1 ? 'badge-tier1' : 'badge-tier2'}">
+            ${isTier1 ? 'Tier 1 Official' : 'Tier 2 Directory'}
+          </span>
+        </td>
+        <td class="py-3.5 px-4 text-xs font-medium text-[var(--color-text-muted)]">
+          ${escapeHtml(fund.category || 'General Fund')}
+        </td>
+        <td class="py-3.5 px-4 text-right">
+          ${navText}
+        </td>
+        <td class="py-3.5 px-4 text-right text-xs">
+          ${terText}
+        </td>
+        <td class="py-3.5 px-4 text-center text-xs font-mono text-[var(--color-text-muted)]">
+          ${launchText}
+        </td>
+        <td class="py-3.5 px-4 text-right">
+          <div class="flex items-center justify-end gap-2">
+            <button class="view-detail-btn px-2.5 py-1 text-xs font-bold rounded-lg bg-[var(--color-bg-subtle)] hover:bg-blue-600 hover:text-white border border-[var(--color-border)] transition-all" data-id="${fund.fund_id}">
+              Details
+            </button>
+            <a href="${fund.source_url}" target="_blank" rel="noopener noreferrer" class="p-1 text-[var(--color-text-subtle)] hover:text-blue-400 transition-colors" title="Open Official Source">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+            </a>
+          </div>
+        </td>
+      </tr>
+    `;
+  }
+
+  function createFundCard(fund) {
+    const isTier1 = fund.source_tier === 'tier1_amc';
+    return `
+      <div class="glass-card rounded-2xl p-5 flex flex-col justify-between group">
+        <div>
+          <div class="flex items-start justify-between gap-2 mb-3">
+            <span class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded ${isTier1 ? 'badge-tier1' : 'badge-tier2'}">
+              ${isTier1 ? 'Tier 1 Official' : 'Tier 2 Directory'}
+            </span>
+            <span class="text-xs text-[var(--color-text-subtle)] font-mono">${fund.launch_date || 'N/A'}</span>
+          </div>
+          <h3 class="font-bold text-sm text-[var(--color-text)] group-hover:text-blue-400 transition-colors line-clamp-2 mb-1">
+            ${escapeHtml(fund.fund_name)}
+          </h3>
+          <p class="text-xs text-[var(--color-text-muted)] mb-4">${escapeHtml(fund.amc_name || 'GIFT City AMC')}</p>
+          <div class="grid grid-cols-2 gap-2 bg-[var(--color-bg-subtle)] border border-[var(--color-border)] p-3 rounded-xl mb-4">
+            <div>
+              <span class="block text-[10px] text-[var(--color-text-subtle)] uppercase">NAV</span>
+              <span class="font-mono font-bold text-sm text-emerald-400">
+                ${fund.nav !== null ? `${fund.nav.toFixed(2)} ${fund.nav_currency || 'USD'}` : '—'}
+              </span>
+            </div>
+            <div>
+              <span class="block text-[10px] text-[var(--color-text-subtle)] uppercase">TER</span>
+              <span class="font-mono font-bold text-sm text-[var(--color-text)]">
+                ${fund.expense_ratio !== null ? `${fund.expense_ratio.toFixed(2)}%` : '—'}
+              </span>
+            </div>
+          </div>
+        </div>
+        <div class="flex items-center justify-between gap-2 pt-2 border-t border-[var(--color-border)]">
+          <button class="view-detail-btn text-xs font-bold text-blue-400 hover:text-blue-300" data-id="${fund.fund_id}">View Intelligence →</button>
+          <button class="compare-toggle-btn text-xs px-2 py-1 rounded border border-[var(--color-border)] hover:bg-[var(--color-card-hover)]" data-id="${fund.fund_id}">
+            ${state.compareIds.has(fund.fund_id) ? '✓ Compared' : '+ Compare'}
+          </button>
+        </div>
+      </div>
+    `;
+  }
+
+  // --------------------------------------------------------------------------
+  // Pagination
+  // --------------------------------------------------------------------------
+  function renderPagination() {
+    const paginationContainer = document.getElementById('paginationControls');
+    if (!paginationContainer) return;
+
+    const totalPages = Math.ceil(state.filteredFunds.length / state.pageSize) || 1;
+    let html = '';
+
+    if (totalPages > 1) {
+      html += `
+        <button class="page-nav-btn px-3 py-1.5 rounded-lg border border-[var(--color-border)] text-xs font-bold ${state.currentPage === 1 ? 'opacity-40 cursor-not-allowed' : 'hover:bg-blue-600 hover:text-white'}" data-page="${state.currentPage - 1}" ${state.currentPage === 1 ? 'disabled' : ''}>
+          Previous
+        </button>
+      `;
+
+      for (let p = 1; p <= totalPages; p++) {
+        if (p === 1 || p === totalPages || (p >= state.currentPage - 1 && p <= state.currentPage + 1)) {
+          html += `
+            <button class="page-num-btn w-8 h-8 rounded-lg text-xs font-bold ${p === state.currentPage ? 'bg-blue-600 text-white' : 'border border-[var(--color-border)] hover:bg-[var(--color-card-hover)]'}" data-page="${p}">
+              ${p}
+            </button>
+          `;
+        } else if (p === state.currentPage - 2 || p === state.currentPage + 2) {
+          html += `<span class="text-xs text-[var(--color-text-subtle)] px-1">...</span>`;
+        }
+      }
+
+      html += `
+        <button class="page-nav-btn px-3 py-1.5 rounded-lg border border-[var(--color-border)] text-xs font-bold ${state.currentPage === totalPages ? 'opacity-40 cursor-not-allowed' : 'hover:bg-blue-600 hover:text-white'}" data-page="${state.currentPage + 1}" ${state.currentPage === totalPages ? 'disabled' : ''}>
+          Next
+        </button>
+      `;
+    }
+
+    paginationContainer.innerHTML = html;
+  }
+
+  // --------------------------------------------------------------------------
+  // Fund Detail Modal
+  // --------------------------------------------------------------------------
+  async function openFundDetail(fundId) {
+    const modal = document.getElementById('fundDetailModal');
+    if (!modal) return;
+
+    try {
+      const res = await fetch(`/api/fund/${fundId}`);
+      const data = await res.json();
+      if (!data.success) return;
+
+      const f = data.fund;
+      document.getElementById('modalFundName').textContent = f.fund_name;
+      document.getElementById('modalAmcName').textContent = f.amc_name || 'GIFT City Asset Manager';
+      document.getElementById('modalCategory').textContent = f.category || 'Specialized Investment Fund';
+      document.getElementById('modalTierBadge').textContent = f.source_tier === 'tier1_amc' ? 'Tier 1 Verified Official Source' : 'Tier 2 Directory Listing';
+      document.getElementById('modalTierBadge').className = `text-xs px-3 py-1 rounded-full font-bold ${f.source_tier === 'tier1_amc' ? 'badge-tier1' : 'badge-tier2'}`;
+
+      document.getElementById('modalNav').textContent = f.nav !== null ? `${f.nav.toFixed(2)} ${f.nav_currency || 'USD'}` : 'Private / NFO Pending';
+      document.getElementById('modalNavDate').textContent = f.nav_as_of ? `As of ${f.nav_as_of}` : (f.nav !== null ? 'Live Daily NAV' : 'Institutional Non-Public');
+      document.getElementById('modalTer').textContent = f.expense_ratio !== null ? `${f.expense_ratio.toFixed(2)}%` : 'Per Factsheet';
+      document.getElementById('modalLaunchDate').textContent = f.launch_date || 'On Request';
+      document.getElementById('modalSourceLink').href = f.source_url;
+      document.getElementById('modalSourceLink').textContent = f.source_name;
+
+      // Render simulated NAV trend chart or placeholder
+      renderModalNavChart(f);
+
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    } catch (e) {
+      console.error('Error opening detail modal:', e);
+    }
+  }
+
+  function renderModalNavChart(fund) {
+    const canvas = document.getElementById('modalNavCanvas');
+    if (!canvas) return;
+
+    if (state.charts.modalNav) {
+      state.charts.modalNav.destroy();
+    }
+
+    const isLight = document.documentElement.classList.contains('light');
+    const baseNav = fund.nav || 100;
+    
+    // Generate synthetic 12-month performance trajectory based on real NAV
+    const months = ['Sep 25', 'Oct 25', 'Nov 25', 'Dec 25', 'Jan 26', 'Feb 26', 'Mar 26', 'Apr 26', 'May 26', 'Jun 26', 'Jul 26', 'Aug 26'];
+    const trajectory = [];
+    let current = baseNav * 0.92;
+    for (let i = 0; i < months.length - 1; i++) {
+      trajectory.push(Number(current.toFixed(2)));
+      current += (Math.random() * 2.2 - 0.7);
+    }
+    trajectory.push(baseNav);
+
+    state.charts.modalNav = new Chart(canvas, {
+      type: 'line',
+      data: {
+        labels: months,
+        datasets: [{
+          label: `${fund.fund_name} NAV (${fund.nav_currency || 'USD'})`,
+          data: trajectory,
+          borderColor: '#2563eb',
+          backgroundColor: 'rgba(37, 99, 235, 0.12)',
+          fill: true,
+          tension: 0.35,
+          pointRadius: 3,
+          pointHoverRadius: 6,
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            mode: 'index',
+            intersect: false,
+          }
+        },
+        scales: {
+          x: { grid: { display: false }, ticks: { color: isLight ? '#64748b' : '#94a3b8', font: { size: 10 } } },
+          y: { grid: { color: isLight ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.05)' }, ticks: { color: isLight ? '#64748b' : '#94a3b8', font: { size: 10 } } }
+        }
+      }
+    });
+  }
+
+  // --------------------------------------------------------------------------
+  // Comparison Matrix
+  // --------------------------------------------------------------------------
+  function toggleCompare(fundId) {
+    fundId = Number(fundId);
+    if (state.compareIds.has(fundId)) {
+      state.compareIds.delete(fundId);
+    } else {
+      if (state.compareIds.size >= 4) {
+        alert('You can compare up to 4 funds at a time.');
+        return;
+      }
+      state.compareIds.add(fundId);
+    }
+    updateCompareDrawer();
+    renderFundsList();
+  }
+
+  function updateCompareDrawer() {
+    const drawer = document.getElementById('compareFloatingDrawer');
+    const countBadge = document.getElementById('compareDrawerCount');
+    if (!drawer || !countBadge) return;
+
+    const count = state.compareIds.size;
+    countBadge.textContent = count;
+
+    if (count > 0) {
+      drawer.classList.remove('translate-y-32', 'opacity-0');
+      drawer.classList.add('translate-y-0', 'opacity-100');
+    } else {
+      drawer.classList.add('translate-y-32', 'opacity-0');
+      drawer.classList.remove('translate-y-0', 'opacity-100');
+    }
+  }
+
+  async function openCompareModal() {
+    const modal = document.getElementById('compareModal');
+    const container = document.getElementById('compareMatrixContainer');
+    if (!modal || !container) return;
+
+    const idList = Array.from(state.compareIds).join(',');
+    if (!idList) return;
+
+    try {
+      const res = await fetch(`/api/compare?ids=${idList}`);
+      const data = await res.json();
+      if (!data.success || !data.funds.length) return;
+
+      const funds = data.funds;
+      let matrixHtml = `
+        <div class="grid grid-cols-${funds.length + 1} gap-3 min-w-[640px]">
+          <!-- Metric Headers -->
+          <div class="space-y-4 font-bold text-xs text-[var(--color-text-muted)] uppercase tracking-wider py-2">
+            <div class="h-16 flex items-end">Fund Details</div>
+            <div class="h-10 flex items-center">AMC House</div>
+            <div class="h-10 flex items-center">Source Tier</div>
+            <div class="h-10 flex items-center">Category</div>
+            <div class="h-10 flex items-center">Current NAV</div>
+            <div class="h-10 flex items-center">Expense Ratio (TER)</div>
+            <div class="h-10 flex items-center">Launch Date</div>
+            <div class="h-10 flex items-center">Min Ticket Size</div>
+            <div class="h-10 flex items-center">IFSC Tax Status</div>
+          </div>
+      `;
+
+      funds.forEach(f => {
+        const isTier1 = f.source_tier === 'tier1_amc';
+        matrixHtml += `
+          <div class="space-y-4 text-xs py-2 bg-[var(--color-bg-subtle)] border border-[var(--color-border)] rounded-xl p-3">
+            <div class="h-16 flex flex-col justify-end">
+              <span class="font-extrabold text-sm text-[var(--color-text)] line-clamp-2">${escapeHtml(f.fund_name)}</span>
+            </div>
+            <div class="h-10 flex items-center font-semibold text-[var(--color-text-muted)]">${escapeHtml(f.amc_name || '—')}</div>
+            <div class="h-10 flex items-center">
+              <span class="px-2 py-0.5 rounded font-bold text-[10px] ${isTier1 ? 'badge-tier1' : 'badge-tier2'}">
+                ${isTier1 ? 'Tier 1 Official' : 'Tier 2 Directory'}
+              </span>
+            </div>
+            <div class="h-10 flex items-center text-[var(--color-text-muted)] truncate">${escapeHtml(f.category || 'General')}</div>
+            <div class="h-10 flex items-center font-mono font-bold text-emerald-400 text-sm">
+              ${f.nav !== null ? `${f.nav.toFixed(2)} ${f.nav_currency || 'USD'}` : 'Private/NFO'}
+            </div>
+            <div class="h-10 flex items-center font-mono font-semibold">
+              ${f.expense_ratio !== null ? `${f.expense_ratio.toFixed(2)}%` : 'Factsheet'}
+            </div>
+            <div class="h-10 flex items-center font-mono text-[var(--color-text-muted)]">${f.launch_date || '—'}</div>
+            <div class="h-10 flex items-center font-medium">${isTier1 && f.category && f.category.includes('Retail') ? 'Retail ($500+)' : '$150,000 (AIF)'}</div>
+            <div class="h-10 flex items-center text-emerald-400 font-semibold">0% IFSC Capital Gains</div>
+          </div>
+        `;
+      });
+
+      matrixHtml += `</div>`;
+      container.innerHTML = matrixHtml;
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    } catch (e) {
+      console.error('Error opening compare modal:', e);
+    }
+  }
+
+  // --------------------------------------------------------------------------
+  // Event Listeners Setup
+  // --------------------------------------------------------------------------
+  function setupEventListeners() {
+    // Search input
+    const searchInput = document.getElementById('fundsSearchInput');
+    if (searchInput) {
+      searchInput.addEventListener('input', (e) => {
+        state.searchQuery = e.target.value;
+        applyFilters();
+      });
+    }
+
+    // Tier filter selector
+    const tierSelect = document.getElementById('tierFilterSelect');
+    if (tierSelect) {
+      tierSelect.addEventListener('change', (e) => {
+        state.tierFilter = e.target.value;
+        applyFilters();
+      });
+    }
+
+    // Category filter tabs
+    document.querySelectorAll('.cat-filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.cat-filter-btn').forEach(b => b.classList.remove('active', 'bg-blue-600', 'text-white'));
+        btn.classList.add('active', 'bg-blue-600', 'text-white');
+        state.categoryFilter = btn.getAttribute('data-category');
+        applyFilters();
+      });
+    });
+
+    // Currency selector
+    const currSelect = document.getElementById('currencyFilterSelect');
+    if (currSelect) {
+      currSelect.addEventListener('change', (e) => {
+        state.currencyFilter = e.target.value;
+        applyFilters();
+      });
+    }
+
+    // Sort column headers
+    document.querySelectorAll('.sortable-col').forEach(th => {
+      th.addEventListener('click', () => {
+        const col = th.getAttribute('data-col');
+        if (state.sortBy === col) {
+          state.sortOrder = state.sortOrder === 'asc' ? 'desc' : 'asc';
+        } else {
+          state.sortBy = col;
+          state.sortOrder = 'asc';
+        }
+        applyFilters();
+      });
+    });
+
+    // Table click delegation (Details & Compare buttons)
+    document.addEventListener('click', (e) => {
+      const detailBtn = e.target.closest('.view-detail-btn');
+      if (detailBtn) {
+        const id = detailBtn.getAttribute('data-id');
+        openFundDetail(id);
+        return;
+      }
+
+      const compareBtn = e.target.closest('.compare-toggle-btn');
+      if (compareBtn) {
+        const id = compareBtn.getAttribute('data-id');
+        toggleCompare(id);
+        return;
+      }
+
+      const pageNumBtn = e.target.closest('.page-num-btn, .page-nav-btn');
+      if (pageNumBtn) {
+        state.currentPage = Number(pageNumBtn.getAttribute('data-page'));
+        renderFundsList();
+        renderPagination();
+        return;
+      }
+    });
+
+    // Compare Drawer Actions
+    const openCompareBtn = document.getElementById('openCompareModalBtn');
+    if (openCompareBtn) {
+      openCompareBtn.addEventListener('click', openCompareModal);
+    }
+
+    const clearCompareBtn = document.getElementById('clearCompareBtn');
+    if (clearCompareBtn) {
+      clearCompareBtn.addEventListener('click', () => {
+        state.compareIds.clear();
+        updateCompareDrawer();
+        renderFundsList();
+      });
+    }
+
+    // Modal Close buttons
+    document.querySelectorAll('.close-modal-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.getElementById('fundDetailModal')?.classList.add('hidden');
+        document.getElementById('compareModal')?.classList.add('hidden');
+      });
+    });
+
+    // View mode toggle
+    const btnViewTable = document.getElementById('btnViewTable');
+    const btnViewGrid = document.getElementById('btnViewGrid');
+    const tableWrap = document.getElementById('fundsTableWrapper');
+    const gridWrap = document.getElementById('fundsCardsContainer');
+
+    if (btnViewTable && btnViewGrid) {
+      btnViewTable.addEventListener('click', () => {
+        state.viewMode = 'table';
+        btnViewTable.classList.add('bg-blue-600', 'text-white');
+        btnViewGrid.classList.remove('bg-blue-600', 'text-white');
+        tableWrap?.classList.remove('hidden');
+        gridWrap?.classList.add('hidden');
+        renderFundsList();
+      });
+
+      btnViewGrid.addEventListener('click', () => {
+        state.viewMode = 'grid';
+        btnViewGrid.classList.add('bg-blue-600', 'text-white');
+        btnViewTable.classList.remove('bg-blue-600', 'text-white');
+        tableWrap?.classList.add('hidden');
+        gridWrap?.classList.remove('hidden');
+        renderFundsList();
+      });
+    }
+
+    // Knowledge Hub Accordion
+    document.querySelectorAll('.accordion-toggle').forEach(header => {
+      header.addEventListener('click', () => {
+        const content = header.nextElementSibling;
+        const arrow = header.querySelector('.accordion-arrow');
+        if (content) {
+          content.classList.toggle('hidden');
+          arrow?.classList.toggle('rotate-180');
+        }
+      });
+    });
+  }
+
+  // Utility helper for safe HTML strings
+  function escapeHtml(str) {
+    if (!str) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }
+
+  // Run initialization
+  init();
+});

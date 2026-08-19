@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GIFT360 | India's First™ GIFT City IFSC Funds Intelligence Platform</title>
+  <meta name="description" content="Discover, compare, and track GIFT City (IFSC) mutual funds, feeder funds, and Alternative Investment Funds (AIFs) with real-time NAV, expense ratios, and statutory intelligence." />
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            'sif-blue': '#2563eb',
+            'sif-blue-dark': '#1d4ed8',
+            'sif-neon': '#79FE0C',
+            'sif-neon-dark': '#67e600',
+            'fin-dark': '#0b0f19',
+            'fin-card': '#131d31',
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="/static/css/custom.css" />
+</head>
+<body class="min-h-screen flex flex-col antialiased">
+
+  <!-- ========================================================================= -->
+  <!-- TOP TICKER MARQUEE -->
+  <!-- ========================================================================= -->
+  <div class="w-full bg-blue-700 dark:bg-blue-900 border-b border-blue-600/40 text-white text-xs py-1.5 px-4 overflow-hidden z-50">
+    <div class="ticker-wrap flex items-center">
+      <div class="flex items-center gap-2 pr-6 shrink-0 font-bold tracking-wider text-sif-neon uppercase text-[10px]">
+        <span class="inline-block w-2 h-2 rounded-full bg-sif-neon animate-ping"></span>
+        GIFT City IFSC Live Feed:
+      </div>
+      <div id="marqueeTickerTrack" class="ticker-move flex items-center">
+        <!-- Populated dynamically by app.js -->
+        <span class="inline-flex items-center gap-2 mx-4 font-mono">Loading real-time NAV market data...</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- NAVIGATION BAR (Inspired by SIF360) -->
+  <!-- ========================================================================= -->
+  <nav class="sticky top-0 z-40 bg-[var(--color-bg-subtle)]/90 backdrop-blur-md border-b border-[var(--color-border)] px-4 md:px-8 py-3 transition-colors">
+    <div class="max-w-7xl mx-auto flex items-center justify-between gap-4">
+      
+      <!-- Brand Logo -->
+      <a href="/" class="flex items-center gap-2.5 group">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 to-blue-700 flex items-center justify-center shadow-md shadow-blue-500/20 text-white font-black text-lg">
+          G
+        </div>
+        <div>
+          <div class="flex items-center gap-1">
+            <span class="font-extrabold text-lg tracking-tight text-[var(--color-text)]">GIFT<span class="text-blue-500">360</span></span>
+            <span class="text-[9px] px-1.5 py-0.5 rounded font-black tracking-widest bg-sif-neon text-black">IFSC</span>
+          </div>
+          <span class="block text-[10px] text-[var(--color-text-muted)] font-medium tracking-wide">Funds Intelligence Portal</span>
+        </div>
+      </a>
+
+      <!-- Navigation Links -->
+      <ul class="hidden lg:flex items-center gap-6 text-xs font-bold tracking-wide text-[var(--color-text-muted)]">
+        <li><a href="#dashboard" class="hover:text-blue-500 transition-colors flex items-center gap-1">Dashboard</a></li>
+        <li><a href="#screener" class="hover:text-blue-500 transition-colors flex items-center gap-1">Fund Screener</a></li>
+        <li><a href="#analytics" class="hover:text-blue-500 transition-colors flex items-center gap-1">Analytics</a></li>
+        <li><a href="#amcs" class="hover:text-blue-500 transition-colors flex items-center gap-1">AMC Directory</a></li>
+        <li><a href="#knowledge" class="hover:text-blue-500 transition-colors flex items-center gap-1">Knowledge Hub</a></li>
+      </ul>
+
+      <!-- Action Area -->
+      <div class="flex items-center gap-2.5">
+        <!-- Quick Search -->
+        <div class="relative hidden sm:block w-44 md:w-60">
+          <input type="text" id="navQuickSearch" placeholder="Search 71 funds..." class="w-full bg-[var(--color-card)] border border-[var(--color-border)] rounded-xl px-3 py-1.5 text-xs text-[var(--color-text)] placeholder-[var(--color-text-subtle)] focus:outline-none focus:border-blue-500 transition-all" />
+          <span class="absolute right-2.5 top-2 text-[10px] text-[var(--color-text-subtle)]">⌘K</span>
+        </div>
+
+        <!-- Export CSV Button -->
+        <a href="/api/export/csv" class="hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[var(--color-border)] hover:border-blue-500/40 text-xs font-bold text-[var(--color-text-muted)] hover:text-blue-400 bg-[var(--color-card)] transition-all" title="Download clean dataset">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+          Export CSV
+        </a>
+
+        <!-- Dark/Light Theme Toggle -->
+        <button id="themeToggleBtn" aria-label="Toggle Theme" class="w-8 h-8 rounded-lg bg-[var(--color-card)] border border-[var(--color-border)] flex items-center justify-center text-[var(--color-text-muted)] hover:text-yellow-400 transition-colors">
+          <svg class="w-4 h-4 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+          <svg class="w-4 h-4 block dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+        </button>
+
+        <!-- SIF Ready CTA -->
+        <a href="#screener" class="btn-neon text-xs px-3.5 py-1.5 rounded-lg flex items-center gap-1.5 shadow-sm">
+          <span>Explore SIFs</span>
+          <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+        </a>
+      </div>
+
+    </div>
+  </nav>
+
+  <!-- ========================================================================= -->
+  <!-- HERO SECTION -->
+  <!-- ========================================================================= -->
+  <header id="dashboard" class="relative pt-8 pb-12 px-4 md:px-8 overflow-hidden bg-gradient-to-b from-blue-900/10 via-transparent to-transparent">
+    <!-- Ambient Glow Background -->
+    <div class="absolute top-1/4 left-1/2 -translate-x-1/2 w-[500px] h-[250px] bg-blue-600/15 blur-[120px] rounded-full pointer-events-none"></div>
+
+    <div class="max-w-7xl mx-auto">
+      <div class="grid lg:grid-cols-12 gap-8 items-center">
+        
+        <!-- Left Hero Content -->
+        <div class="lg:col-span-7 space-y-4 text-left">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/25 text-blue-400 text-xs font-bold tracking-wide">
+            <span class="w-2 h-2 rounded-full bg-sif-neon animate-pulse"></span>
+            IFSCA Compliant Data Engine (71 Active Funds)
+          </div>
+
+          <h1 class="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-[var(--color-text)] leading-tight">
+            India's First™ <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-blue-500 to-emerald-400">GIFT City IFSC</span> Funds Platform
+          </h1>
+
+          <p class="text-sm sm:text-base text-[var(--color-text-muted)] max-w-xl font-normal leading-relaxed">
+            Real-time NAV, expense ratios, portfolio analytics, and statutory fund intelligence. Track inbound feeder funds, Category II & III AIFs, and global asset managers operating in GIFT City.
+          </p>
+
+          <div class="flex flex-wrap gap-3 pt-2">
+            <a href="#screener" class="btn-blue px-6 py-3 rounded-xl text-xs sm:text-sm inline-flex items-center gap-2">
+              <span>Launch Fund Screener</span>
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+            </a>
+            <a href="#analytics" class="px-5 py-3 rounded-xl text-xs sm:text-sm font-bold border border-[var(--color-border-strong)] bg-[var(--color-card)] text-[var(--color-text)] hover:bg-[var(--color-card-hover)] transition-all">
+              Market Analytics
+            </a>
+          </div>
+        </div>
+
+        <!-- Right Hero Metrics & Spotlight Card -->
+        <div class="lg:col-span-5 grid grid-cols-2 gap-3 sm:gap-4">
+          
+          <!-- Metric Card 1 -->
+          <div class="glass-card rounded-2xl p-4 sm:p-5 relative overflow-hidden group">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-[11px] font-bold uppercase tracking-wider text-[var(--color-text-subtle)]">Tracked Funds</span>
+              <div class="w-7 h-7 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+              </div>
+            </div>
+            <div id="statTotalFunds" class="text-2xl sm:text-3xl font-black text-[var(--color-text)] font-mono">71</div>
+            <span class="text-[10px] text-emerald-400 font-bold mt-1 inline-block">100% Verified IFSC Scope</span>
+          </div>
+
+          <!-- Metric Card 2 -->
+          <div class="glass-card rounded-2xl p-4 sm:p-5 relative overflow-hidden group">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-[11px] font-bold uppercase tracking-wider text-[var(--color-text-subtle)]">Tier 1 Official</span>
+              <div class="w-7 h-7 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+              </div>
+            </div>
+            <div id="statTier1" class="text-2xl sm:text-3xl font-black text-[var(--color-text)] font-mono">23</div>
+            <span class="text-[10px] text-blue-400 font-bold mt-1 inline-block">Direct AMC Sources</span>
+          </div>
+
+          <!-- Metric Card 3 -->
+          <div class="glass-card rounded-2xl p-4 sm:p-5 relative overflow-hidden group">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-[11px] font-bold uppercase tracking-wider text-[var(--color-text-subtle)]">Active AMCs</span>
+              <div class="w-7 h-7 rounded-lg bg-indigo-500/10 flex items-center justify-center text-indigo-400">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+              </div>
+            </div>
+            <div id="statTotalAmcs" class="text-2xl sm:text-3xl font-black text-[var(--color-text)] font-mono">20+</div>
+            <span class="text-[10px] text-[var(--color-text-muted)] font-medium mt-1 inline-block">Fund Managers</span>
+          </div>
+
+          <!-- Metric Card 4 -->
+          <div class="glass-card rounded-2xl p-4 sm:p-5 relative overflow-hidden group">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-[11px] font-bold uppercase tracking-wider text-[var(--color-text-subtle)]">Live USD NAVs</span>
+              <div class="w-7 h-7 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
+              </div>
+            </div>
+            <div id="statLiveNav" class="text-2xl sm:text-3xl font-black text-emerald-400 font-mono">16</div>
+            <span class="text-[10px] text-amber-400 font-bold mt-1 inline-block">Daily Feeder Updates</span>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+  </header>
+
+  <!-- ========================================================================= -->
+  <!-- VISUAL ANALYTICS SECTION (Chart.js) -->
+  <!-- ========================================================================= -->
+  <section id="analytics" class="py-8 px-4 md:px-8 border-t border-[var(--color-border)] bg-[var(--color-bg-subtle)]/40">
+    <div class="max-w-7xl mx-auto">
+      
+      <div class="flex flex-col md:flex-row items-start md:items-end justify-between gap-4 mb-6">
+        <div>
+          <span class="text-xs font-extrabold uppercase tracking-widest text-blue-500">Market Intelligence</span>
+          <h2 class="text-xl sm:text-2xl font-black text-[var(--color-text)] tracking-tight">GIFT City Fund Analytics</h2>
+        </div>
+        <p class="text-xs text-[var(--color-text-muted)] max-w-md">
+          Live visual breakdown across regulatory categories, asset management market share, and registration trends.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        
+        <!-- Chart 1: Category Distribution -->
+        <div class="glass-card rounded-2xl p-4 flex flex-col justify-between">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="text-xs font-bold text-[var(--color-text)] uppercase tracking-wider">Fund Categories</h3>
+            <span class="text-[10px] text-[var(--color-text-subtle)]">By Type</span>
+          </div>
+          <div class="relative h-48 w-full flex items-center justify-center">
+            <canvas id="chartCategory"></canvas>
+          </div>
+          <span class="text-[10px] text-[var(--color-text-subtle)] text-center block mt-2">AIF Cat III, Cat II, Retail Feeders & PMS</span>
+        </div>
+
+        <!-- Chart 2: AMC Distribution -->
+        <div class="glass-card rounded-2xl p-4 flex flex-col justify-between">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="text-xs font-bold text-[var(--color-text)] uppercase tracking-wider">Top Asset Managers</h3>
+            <span class="text-[10px] text-[var(--color-text-subtle)]">By Count</span>
+          </div>
+          <div class="relative h-48 w-full">
+            <canvas id="chartAmc"></canvas>
+          </div>
+          <span class="text-[10px] text-[var(--color-text-subtle)] text-center block mt-2">Kotak, DSP, HDFC, PPFAS, Tata, UTI</span>
+        </div>
+
+        <!-- Chart 3: Registration Timeline -->
+        <div class="glass-card rounded-2xl p-4 flex flex-col justify-between">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="text-xs font-bold text-[var(--color-text)] uppercase tracking-wider">Registration Timeline</h3>
+            <span class="text-[10px] text-[var(--color-text-subtle)]">2022 - 2026</span>
+          </div>
+          <div class="relative h-48 w-full">
+            <canvas id="chartTimeline"></canvas>
+          </div>
+          <span class="text-[10px] text-[var(--color-text-subtle)] text-center block mt-2">IFSCA Registration Momentum</span>
+        </div>
+
+        <!-- Chart 4: Live NAV Performers -->
+        <div class="glass-card rounded-2xl p-4 flex flex-col justify-between">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="text-xs font-bold text-[var(--color-text)] uppercase tracking-wider">Active NAV Leaderboard</h3>
+            <span class="text-[10px] text-emerald-400 font-mono font-bold">USD</span>
+          </div>
+          <div class="relative h-48 w-full">
+            <canvas id="chartNav"></canvas>
+          </div>
+          <span class="text-[10px] text-[var(--color-text-subtle)] text-center block mt-2">HDFC Feeder, DSP, Tata, PPFAS</span>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ========================================================================= -->
+  <!-- FUND SCREENER & DATA TABLE SECTION -->
+  <!-- ========================================================================= -->
+  <section id="screener" class="py-10 px-4 md:px-8 max-w-7xl mx-auto flex-1 w-full">
+    
+    <!-- Screener Header -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+      <div>
+        <span class="text-xs font-extrabold uppercase tracking-widest text-blue-500">Fund Screener</span>
+        <h2 class="text-2xl font-black text-[var(--color-text)] tracking-tight">Explore GIFT City Funds Directory</h2>
+      </div>
+      <div class="flex items-center gap-2">
+        <span id="filteredFundsCount" class="text-xs font-bold px-3 py-1 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20">
+          71 Funds Found
+        </span>
+        <!-- Table/Grid toggle -->
+        <div class="flex rounded-lg border border-[var(--color-border)] p-0.5 bg-[var(--color-card)]">
+          <button id="btnViewTable" class="px-2.5 py-1 text-xs font-bold rounded bg-blue-600 text-white transition-all">Table</button>
+          <button id="btnViewGrid" class="px-2.5 py-1 text-xs font-bold rounded text-[var(--color-text-muted)] hover:text-[var(--color-text)] transition-all">Cards</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Category Tabs -->
+    <div class="flex items-center gap-2 overflow-x-auto pb-2 mb-4 text-xs font-bold no-scrollbar">
+      <button class="cat-filter-btn px-4 py-2 rounded-xl border border-[var(--color-border)] bg-blue-600 text-white transition-all shrink-0 active" data-category="all">
+        All Funds (71)
+      </button>
+      <button class="cat-filter-btn px-4 py-2 rounded-xl border border-[var(--color-border)] bg-[var(--color-card)] text-[var(--color-text-muted)] hover:text-[var(--color-text)] hover:border-blue-500/30 transition-all shrink-0" data-category="Retail">
+        Retail Feeder Funds
+      </button>
+      <button class="cat-filter-btn px-4 py-2 rounded-xl border border-[var(--color-border)] bg-[var(--color-card)] text-[var(--color-text-muted)] hover:text-[var(--color-text)] hover:border-blue-500/30 transition-all shrink-0" data-category="Category- III AIF">
+        Category III AIF
+      </button>
+      <button class="cat-filter-btn px-4 py-2 rounded-xl border border-[var(--color-border)] bg-[var(--color-card)] text-[var(--color-text-muted)] hover:text-[var(--color-text)] hover:border-blue-500/30 transition-all shrink-0" data-category="Category- II AIF">
+        Category II AIF / Real Estate
+      </button>
+      <button class="cat-filter-btn px-4 py-2 rounded-xl border border-[var(--color-border)] bg-[var(--color-card)] text-[var(--color-text-muted)] hover:text-[var(--color-text)] hover:border-blue-500/30 transition-all shrink-0" data-category="PMS">
+        PMS Strategies
+      </button>
+      <button class="cat-filter-btn px-4 py-2 rounded-xl border border-[var(--color-border)] bg-[var(--color-card)] text-[var(--color-text-muted)] hover:text-[var(--color-text)] hover:border-blue-500/30 transition-all shrink-0" data-category="FoF">
+        Fund of Funds (FoF)
+      </button>
+    </div>
+
+    <!-- Filter Toolbar -->
+    <div class="glass-card rounded-2xl p-4 mb-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3 items-center">
+      
+      <!-- Search Input -->
+      <div class="lg:col-span-5 relative">
+        <input type="text" id="fundsSearchInput" placeholder="Filter by fund name, AMC house, or strategy..." class="w-full bg-[var(--color-bg-subtle)] border border-[var(--color-border)] rounded-xl pl-9 pr-3 py-2 text-xs text-[var(--color-text)] placeholder-[var(--color-text-subtle)] focus:outline-none focus:border-blue-500" />
+        <svg class="w-4 h-4 absolute left-3 top-2.5 text-[var(--color-text-subtle)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+      </div>
+
+      <!-- Tier Selector -->
+      <div class="lg:col-span-3">
+        <select id="tierFilterSelect" class="w-full bg-[var(--color-bg-subtle)] border border-[var(--color-border)] rounded-xl px-3 py-2 text-xs text-[var(--color-text)] focus:outline-none focus:border-blue-500">
+          <option value="all">Source Tier: All Tiers</option>
+          <option value="tier1_amc">Tier 1: AMC Official Factsheets & APIs</option>
+          <option value="tier2_directory">Tier 2: ALTPORT Directory Verified</option>
+        </select>
+      </div>
+
+      <!-- Currency Selector -->
+      <div class="lg:col-span-2">
+        <select id="currencyFilterSelect" class="w-full bg-[var(--color-bg-subtle)] border border-[var(--color-border)] rounded-xl px-3 py-2 text-xs text-[var(--color-text)] focus:outline-none focus:border-blue-500">
+          <option value="ALL">Currency: All</option>
+          <option value="USD">USD ($)</option>
+          <option value="INR">INR (₹)</option>
+        </select>
+      </div>
+
+      <!-- Export Trigger -->
+      <div class="lg:col-span-2 flex items-center gap-2">
+        <a href="/api/export/json" class="w-full py-2 rounded-xl text-center font-bold text-xs border border-[var(--color-border)] hover:bg-[var(--color-card-hover)] text-[var(--color-text-muted)] hover:text-[var(--color-text)] transition-all">
+          JSON Dump
+        </a>
+      </div>
+
+    </div>
+
+    <!-- Table View -->
+    <div id="fundsTableWrapper" class="glass-card rounded-2xl overflow-hidden border border-[var(--color-border)] shadow-xl">
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="border-b border-[var(--color-border)] bg-[var(--color-bg-subtle)]/80 text-[11px] font-extrabold uppercase tracking-wider text-[var(--color-text-subtle)] select-none">
+              <th class="py-3 px-4 sortable-col cursor-pointer hover:text-blue-400" data-col="fund_name">Fund & AMC House ↕</th>
+              <th class="py-3 px-4 sortable-col cursor-pointer hover:text-blue-400" data-col="source_tier">Tier ↕</th>
+              <th class="py-3 px-4 sortable-col cursor-pointer hover:text-blue-400" data-col="category">Category ↕</th>
+              <th class="py-3 px-4 text-right sortable-col cursor-pointer hover:text-blue-400" data-col="nav">Current NAV ↕</th>
+              <th class="py-3 px-4 text-right sortable-col cursor-pointer hover:text-blue-400" data-col="expense_ratio">TER (%) ↕</th>
+              <th class="py-3 px-4 text-center sortable-col cursor-pointer hover:text-blue-400" data-col="launch_date">Launch Date ↕</th>
+              <th class="py-3 px-4 text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="fundsTableBody">
+            <!-- Rendered dynamically by app.js -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Grid Card View (Hidden by default) -->
+    <div id="fundsCardsContainer" class="hidden grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <!-- Rendered dynamically by app.js -->
+    </div>
+
+    <!-- Pagination Controls -->
+    <div class="flex items-center justify-between mt-6 px-2">
+      <span class="text-xs text-[var(--color-text-subtle)]">Showing page-by-page view of verified IFSC registry.</span>
+      <div id="paginationControls" class="flex items-center gap-1.5">
+        <!-- Rendered dynamically by app.js -->
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ========================================================================= -->
+  <!-- AMC DIRECTORY SECTION -->
+  <!-- ========================================================================= -->
+  <section id="amcs" class="py-12 px-4 md:px-8 border-t border-[var(--color-border)] bg-[var(--color-bg-subtle)]/30">
+    <div class="max-w-7xl mx-auto">
+      <div class="text-center max-w-2xl mx-auto mb-8">
+        <span class="text-xs font-extrabold uppercase tracking-widest text-blue-500">Asset Management Network</span>
+        <h2 class="text-2xl font-black text-[var(--color-text)] tracking-tight">Active GIFT City Fund Houses</h2>
+        <p class="text-xs text-[var(--color-text-muted)] mt-1">Leading domestic and global institutional sponsors establishing operations in IFSC GIFT City.</p>
+      </div>
+
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+        
+        <div class="glass-card rounded-2xl p-4 text-center flex flex-col items-center justify-between">
+          <div class="w-12 h-12 rounded-xl bg-blue-600/10 border border-blue-500/20 flex items-center justify-center font-bold text-blue-400 text-sm mb-2">
+            HDFC
+          </div>
+          <span class="font-bold text-xs text-[var(--color-text)]">HDFC AMC IFSC</span>
+          <span class="text-[10px] text-[var(--color-text-subtle)]">7 GIFT Funds</span>
+        </div>
+
+        <div class="glass-card rounded-2xl p-4 text-center flex flex-col items-center justify-between">
+          <div class="w-12 h-12 rounded-xl bg-emerald-600/10 border border-emerald-500/20 flex items-center justify-center font-bold text-emerald-400 text-sm mb-2">
+            DSP
+          </div>
+          <span class="font-bold text-xs text-[var(--color-text)]">DSP Investment</span>
+          <span class="text-[10px] text-[var(--color-text-subtle)]">6 GIFT Funds</span>
+        </div>
+
+        <div class="glass-card rounded-2xl p-4 text-center flex flex-col items-center justify-between">
+          <div class="w-12 h-12 rounded-xl bg-purple-600/10 border border-purple-500/20 flex items-center justify-center font-bold text-purple-400 text-sm mb-2">
+            KOTAK
+          </div>
+          <span class="font-bold text-xs text-[var(--color-text)]">Kotak Mahindra</span>
+          <span class="text-[10px] text-[var(--color-text-subtle)]">8 GIFT Funds</span>
+        </div>
+
+        <div class="glass-card rounded-2xl p-4 text-center flex flex-col items-center justify-between">
+          <div class="w-12 h-12 rounded-xl bg-blue-600/10 border border-blue-500/20 flex items-center justify-center font-bold text-blue-400 text-sm mb-2">
+            TATA
+          </div>
+          <span class="font-bold text-xs text-[var(--color-text)]">Tata Asset Mgmt</span>
+          <span class="text-[10px] text-[var(--color-text-subtle)]">Dynamic Equity</span>
+        </div>
+
+        <div class="glass-card rounded-2xl p-4 text-center flex flex-col items-center justify-between">
+          <div class="w-12 h-12 rounded-xl bg-amber-600/10 border border-amber-500/20 flex items-center justify-center font-bold text-amber-400 text-sm mb-2">
+            PPFAS
+          </div>
+          <span class="font-bold text-xs text-[var(--color-text)]">Parag Parikh</span>
+          <span class="text-[10px] text-[var(--color-text-subtle)]">3 GIFT Offerings</span>
+        </div>
+
+        <div class="glass-card rounded-2xl p-4 text-center flex flex-col items-center justify-between">
+          <div class="w-12 h-12 rounded-xl bg-rose-600/10 border border-rose-500/20 flex items-center justify-center font-bold text-rose-400 text-sm mb-2">
+            UTI
+          </div>
+          <span class="font-bold text-xs text-[var(--color-text)]">UTI Alternatives</span>
+          <span class="text-[10px] text-[var(--color-text-subtle)]">3 IFSC Funds</span>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================================= -->
+  <!-- KNOWLEDGE HUB & IFSCA FAQ SECTION -->
+  <!-- ========================================================================= -->
+  <section id="knowledge" class="py-12 px-4 md:px-8 max-w-5xl mx-auto">
+    <div class="text-center mb-8">
+      <span class="text-xs font-extrabold uppercase tracking-widest text-blue-500">Knowledge Hub</span>
+      <h2 class="text-2xl font-black text-[var(--color-text)] tracking-tight">GIFT City IFSC Regulatory 101</h2>
+      <p class="text-xs text-[var(--color-text-muted)] mt-1">Understanding the regulatory, structural, and tax advantages of investing in IFSC vehicles.</p>
+    </div>
+
+    <div class="space-y-3">
+      
+      <!-- FAQ 1 -->
+      <div class="glass-card rounded-2xl border border-[var(--color-border)] overflow-hidden">
+        <button class="accordion-toggle w-full p-4 text-left flex items-center justify-between gap-4 font-bold text-sm text-[var(--color-text)] hover:text-blue-400 transition-colors">
+          <span>What is the difference between Retail Feeder Funds and Institutional AIFs in GIFT City?</span>
+          <svg class="accordion-arrow w-4 h-4 shrink-0 transition-transform text-[var(--color-text-subtle)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+        </button>
+        <div class="p-4 pt-0 text-xs text-[var(--color-text-muted)] leading-relaxed border-t border-[var(--color-border)]/50">
+          Retail feeder funds (such as HDFC’s Invest in India share classes) allow global retail investors to invest with smaller ticket sizes ($500+) and publish regular daily USD NAVs. In contrast, Category II and III Alternative Investment Funds (AIFs) are institutional structures with a mandatory minimum investment ticket of <strong>$150,000 USD</strong>, tailored for HNIs, family offices, and institutions.
+        </div>
+      </div>
+
+      <!-- FAQ 2 -->
+      <div class="glass-card rounded-2xl border border-[var(--color-border)] overflow-hidden">
+        <button class="accordion-toggle w-full p-4 text-left flex items-center justify-between gap-4 font-bold text-sm text-[var(--color-text)] hover:text-blue-400 transition-colors">
+          <span>Why do several institutional AIFs have NULL public NAVs?</span>
+          <svg class="accordion-arrow w-4 h-4 shrink-0 transition-transform text-[var(--color-text-subtle)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+        </button>
+        <div class="p-4 pt-0 text-xs text-[var(--color-text-muted)] leading-relaxed border-t border-[var(--color-border)]/50">
+          Under statutory IFSCA regulations, private AIFs are not legally required to publish open public NAVs on distributor websites. Instead, NAV statements, capital call accounts, and portfolio performance are distributed privately to registered unit holders. Our platform transparently documents this statutory standard rather than using fabricated figures.
+        </div>
+      </div>
+
+      <!-- FAQ 3 -->
+      <div class="glass-card rounded-2xl border border-[var(--color-border)] overflow-hidden">
+        <button class="accordion-toggle w-full p-4 text-left flex items-center justify-between gap-4 font-bold text-sm text-[var(--color-text)] hover:text-blue-400 transition-colors">
+          <span>What tax advantages apply to foreign investors allocating to GIFT City funds?</span>
+          <svg class="accordion-arrow w-4 h-4 shrink-0 transition-transform text-[var(--color-text-subtle)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+        </button>
+        <div class="p-4 pt-0 text-xs text-[var(--color-text-muted)] leading-relaxed border-t border-[var(--color-border)]/50">
+          Non-resident investors in GIFT City IFSC enjoy a 100% tax exemption on capital gains arising from the transfer of offshore securities, zero GST on fund management fees, and simplified non-PAN tax compliance under Section 47 and Section 10(4D) of the Indian Income Tax Act.
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ========================================================================= -->
+  <!-- FLOATING COMPARE DRAWER -->
+  <!-- ========================================================================= -->
+  <div id="compareFloatingDrawer" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 transition-all duration-300 transform translate-y-32 opacity-0">
+    <div class="bg-[var(--color-card)]/95 backdrop-blur-xl border border-blue-500/50 shadow-2xl rounded-2xl px-5 py-3 flex items-center gap-4 text-xs">
+      <div class="flex items-center gap-2">
+        <span class="w-6 h-6 rounded-full bg-blue-600 text-white font-bold flex items-center justify-center text-xs" id="compareDrawerCount">0</span>
+        <span class="font-bold text-[var(--color-text)]">Funds Selected for Comparison</span>
+      </div>
+      <button id="openCompareModalBtn" class="btn-blue px-4 py-1.5 rounded-lg text-xs font-bold shadow-md">
+        View Comparison Matrix →
+      </button>
+      <button id="clearCompareBtn" class="text-[var(--color-text-subtle)] hover:text-red-400 text-xs font-bold transition-colors">
+        Clear All
+      </button>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- FUND DETAIL MODAL -->
+  <!-- ========================================================================= -->
+  <div id="fundDetailModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="bg-[var(--color-card)] border border-[var(--color-border)] rounded-3xl max-w-2xl w-full p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+      
+      <button class="close-modal-btn absolute right-5 top-5 text-[var(--color-text-subtle)] hover:text-[var(--color-text)] p-1 rounded-lg">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+      </button>
+
+      <!-- Modal Header -->
+      <div class="mb-4">
+        <div class="flex items-center gap-2 mb-2">
+          <span id="modalTierBadge" class="text-xs px-2.5 py-0.5 rounded-full font-bold">Tier 1</span>
+          <span id="modalCategory" class="text-xs text-[var(--color-text-subtle)]">Retail Feeder Fund</span>
+        </div>
+        <h2 id="modalFundName" class="text-xl font-black text-[var(--color-text)]">Fund Name</h2>
+        <p id="modalAmcName" class="text-xs text-blue-400 font-bold mt-0.5">AMC Name</p>
+      </div>
+
+      <!-- Quick Metrics Grid -->
+      <div class="grid grid-cols-3 gap-3 bg-[var(--color-bg-subtle)] border border-[var(--color-border)] p-4 rounded-2xl mb-5">
+        <div>
+          <span class="block text-[10px] text-[var(--color-text-subtle)] uppercase">Current NAV</span>
+          <span id="modalNav" class="font-mono font-bold text-base text-emerald-400">94.99 USD</span>
+          <span id="modalNavDate" class="block text-[9px] text-[var(--color-text-subtle)]">Live Daily NAV</span>
+        </div>
+        <div>
+          <span class="block text-[10px] text-[var(--color-text-subtle)] uppercase">Expense Ratio (TER)</span>
+          <span id="modalTer" class="font-mono font-bold text-base text-[var(--color-text)]">0.50%</span>
+          <span class="block text-[9px] text-[var(--color-text-subtle)]">Direct Plan TER</span>
+        </div>
+        <div>
+          <span class="block text-[10px] text-[var(--color-text-subtle)] uppercase">Registration Date</span>
+          <span id="modalLaunchDate" class="font-mono font-bold text-base text-[var(--color-text)]">14-Aug-2024</span>
+          <span class="block text-[9px] text-emerald-400 font-bold">IFSCA Verified</span>
+        </div>
+      </div>
+
+      <!-- Interactive NAV Performance Simulation Chart -->
+      <div class="mb-5">
+        <div class="flex items-center justify-between mb-2">
+          <h3 class="text-xs font-bold text-[var(--color-text)] uppercase tracking-wider">NAV Performance Trajectory</h3>
+          <span class="text-[10px] text-[var(--color-text-subtle)]">12-Month Indexed Series</span>
+        </div>
+        <div class="h-44 w-full bg-[var(--color-bg-subtle)] border border-[var(--color-border)] rounded-2xl p-3">
+          <canvas id="modalNavCanvas"></canvas>
+        </div>
+      </div>
+
+      <!-- Blank / Drop-zone Image Placeholder (As requested) -->
+      <div class="mb-5">
+        <div class="chart-placeholder-box p-4 text-center">
+          <div class="flex flex-col items-center justify-center gap-1 text-[var(--color-text-subtle)]">
+            <svg class="w-8 h-8 opacity-40 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+            <span class="text-xs font-bold text-[var(--color-text-muted)]">Factsheet Portfolio Holding & Sector Allocation Image</span>
+            <span class="text-[10px] italic">[ Image Drop Zone — Ready for future factsheet chart upload ]</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Official Source Verification Link -->
+      <div class="flex items-center justify-between pt-4 border-t border-[var(--color-border)] text-xs">
+        <span class="text-[var(--color-text-subtle)]">Official Source Attribution:</span>
+        <a id="modalSourceLink" href="#" target="_blank" rel="noopener noreferrer" class="font-bold text-blue-400 hover:underline flex items-center gap-1">
+          Open Factsheet / Backend API →
+        </a>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- COMPARE MODAL -->
+  <!-- ========================================================================= -->
+  <div id="compareModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="bg-[var(--color-card)] border border-[var(--color-border)] rounded-3xl max-w-4xl w-full p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+      
+      <button class="close-modal-btn absolute right-5 top-5 text-[var(--color-text-subtle)] hover:text-[var(--color-text)] p-1 rounded-lg">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+      </button>
+
+      <div class="mb-4">
+        <span class="text-xs font-extrabold uppercase tracking-widest text-blue-500">Fund vs Fund Matrix</span>
+        <h2 class="text-xl font-black text-[var(--color-text)] tracking-tight">Side-by-Side Comparison</h2>
+      </div>
+
+      <div id="compareMatrixContainer" class="overflow-x-auto pb-4">
+        <!-- Rendered dynamically by app.js -->
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- FOOTER (Matching SIF360 Footer) -->
+  <!-- ========================================================================= -->
+  <footer class="bg-[var(--color-bg-subtle)] border-t-2 border-blue-600 text-xs py-8 px-4 md:px-8 mt-12">
+    <div class="max-w-7xl mx-auto space-y-6">
+      <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+        <div class="flex items-center gap-2">
+          <div class="w-7 h-7 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold text-sm">G</div>
+          <span class="font-bold text-sm text-[var(--color-text)]">GIFT360 Platform</span>
+        </div>
+        <div class="flex items-center gap-6 text-[var(--color-text-muted)] font-medium">
+          <a href="#dashboard" class="hover:text-blue-400">Dashboard</a>
+          <a href="#screener" class="hover:text-blue-400">Fund Screener</a>
+          <a href="#analytics" class="hover:text-blue-400">Analytics</a>
+          <a href="/api/export/csv" class="hover:text-blue-400">CSV Export</a>
+          <a href="/api/export/json" class="hover:text-blue-400">JSON API</a>
+        </div>
+      </div>
+
+      <div class="border-t border-[var(--color-border)] pt-4 text-[11px] text-[var(--color-text-subtle)] leading-relaxed text-center md:text-left">
+        <p>© 2026 GIFT360. All Rights Reserved. Fund data sourced directly from IFSCA-registered Asset Management Companies and official factsheets. Institutional AIFs are regulated under IFSCA (Fund Management) Regulations, 2022. For educational and analytical purposes only.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Main Application Script -->
+  <script src="/static/js/app.js"></script>
+</body>
+</html>

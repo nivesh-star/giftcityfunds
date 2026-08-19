@@ -1,0 +1,196 @@
+/* custom.css - GIFT360 Styling inspired by sif360.com */
+
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+:root {
+  --font-sans: 'Plus Jakarta Sans', 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  /* SIF360 Brand Colors */
+  --sif-blue: #2563eb;
+  --sif-blue-dark: #1d4ed8;
+  --sif-neon: #79FE0C;
+  --sif-neon-dark: #67e600;
+
+  /* Theme Defaults (Dark by default for sleek fintech look, toggleable to light) */
+  --color-bg: #0b0f19;
+  --color-bg-subtle: #0f172a;
+  --color-card: #131d31;
+  --color-card-hover: #192642;
+  --color-border: #1e293b;
+  --color-border-strong: #334155;
+  --color-text: #f8fafc;
+  --color-text-muted: #94a3b8;
+  --color-text-subtle: #64748b;
+  --color-badge-tier1-bg: rgba(37, 99, 235, 0.15);
+  --color-badge-tier1-text: #60a5fa;
+  --color-badge-tier1-border: rgba(96, 165, 250, 0.3);
+  --color-badge-tier2-bg: rgba(148, 163, 184, 0.12);
+  --color-badge-tier2-text: #cbd5e1;
+  --color-badge-tier2-border: rgba(148, 163, 184, 0.25);
+}
+
+html.light {
+  --color-bg: #f8fafc;
+  --color-bg-subtle: #ffffff;
+  --color-card: #ffffff;
+  --color-card-hover: #f1f5f9;
+  --color-border: #e2e8f0;
+  --color-border-strong: #cbd5e1;
+  --color-text: #0f172a;
+  --color-text-muted: #475569;
+  --color-text-subtle: #64748b;
+  --color-badge-tier1-bg: rgba(37, 99, 235, 0.1);
+  --color-badge-tier1-text: #1d4ed8;
+  --color-badge-tier1-border: rgba(37, 99, 235, 0.25);
+  --color-badge-tier2-bg: rgba(100, 116, 139, 0.08);
+  --color-badge-tier2-text: #334155;
+  --color-badge-tier2-border: rgba(100, 116, 139, 0.2);
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  transition: background-color 0.25s ease, color 0.25s ease;
+  overflow-x: hidden;
+}
+
+/* Shine Sweep Animation (SIF360 brand effect) */
+@keyframes shineSweep {
+  0% { transform: translateX(-150%) skewX(-20deg); }
+  100% { transform: translateX(200%) skewX(-20deg); }
+}
+
+.animate-shine {
+  animation: shineSweep 3s ease-in-out infinite;
+}
+
+@keyframes pulseGlow {
+  0%, 100% { opacity: 0.4; transform: scale(1); }
+  50% { opacity: 0.8; transform: scale(1.05); }
+}
+
+.animate-pulse-glow {
+  animation: pulseGlow 4s ease-in-out infinite;
+}
+
+/* Glassmorphic card styling */
+.glass-card {
+  background-color: var(--color-card);
+  border: 1px solid var(--color-border);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-card:hover {
+  background-color: var(--color-card-hover);
+  border-color: var(--color-border-strong);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px -10px rgba(0, 0, 0, 0.3);
+}
+
+/* Neon Gradient CTA */
+.btn-neon {
+  background: linear-gradient(135deg, #67e600 0%, #79FE0C 45%, #9cff4c 65%, #69e900 100%);
+  color: #0b0f19;
+  font-weight: 800;
+  box-shadow: 0 0 15px rgba(121, 254, 12, 0.3);
+  transition: all 0.25s ease;
+}
+
+.btn-neon:hover {
+  box-shadow: 0 0 25px rgba(121, 254, 12, 0.6);
+  transform: translateY(-1px) scale(1.02);
+}
+
+/* Blue Brand CTA */
+.btn-blue {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  color: #ffffff;
+  font-weight: 700;
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3);
+  transition: all 0.25s ease;
+}
+
+.btn-blue:hover {
+  background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.5);
+  transform: translateY(-1px);
+}
+
+/* Drop Zone / Image Placeholder Styling */
+.chart-placeholder-box {
+  border: 2px dashed var(--color-border-strong);
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.02);
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.chart-placeholder-box:hover {
+  border-color: var(--sif-blue);
+  background: rgba(37, 99, 235, 0.04);
+}
+
+/* Table scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-bg);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-border-strong);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--sif-blue);
+}
+
+/* Ticker Marquee */
+.ticker-wrap {
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.ticker-move {
+  display: inline-block;
+  animation: tickerScroll 35s linear infinite;
+}
+
+.ticker-move:hover {
+  animation-play-state: paused;
+}
+
+@keyframes tickerScroll {
+  0% { transform: translate3d(0, 0, 0); }
+  100% { transform: translate3d(-50%, 0, 0); }
+}
+
+/* Tab Active styling */
+.tab-btn.active {
+  background-color: var(--sif-blue);
+  color: #ffffff;
+  border-color: var(--sif-blue);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+}
+
+/* Badge styles */
+.badge-tier1 {
+  background-color: var(--color-badge-tier1-bg);
+  color: var(--color-badge-tier1-text);
+  border: 1px solid var(--color-badge-tier1-border);
+}
+
+.badge-tier2 {
+  background-color: var(--color-badge-tier2-bg);
+  color: var(--color-badge-tier2-text);
+  border: 1px solid var(--color-badge-tier2-border);
+}
