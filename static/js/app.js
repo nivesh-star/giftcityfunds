@@ -792,12 +792,28 @@ document.addEventListener('DOMContentLoaded', () => {
   // Event Listeners Setup
   // --------------------------------------------------------------------------
   function setupEventListeners() {
-    // Search input
+    // Search input (Fund Screener section)
     const searchInput = document.getElementById('fundsSearchInput');
     if (searchInput) {
       searchInput.addEventListener('input', (e) => {
         state.searchQuery = e.target.value;
         applyFilters();
+      });
+    }
+
+    // Quick search (top nav bar) -- was previously unwired and did nothing
+    // when typed into. Mirrors the screener search box and scrolls the
+    // screener into view so the filtered results are actually visible.
+    const navSearchInput = document.getElementById('navQuickSearch');
+    if (navSearchInput) {
+      navSearchInput.addEventListener('input', (e) => {
+        state.searchQuery = e.target.value;
+        if (searchInput) searchInput.value = e.target.value;
+        applyFilters();
+        const screener = document.getElementById('screener');
+        if (screener && e.target.value.trim().length > 0) {
+          screener.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
       });
     }
 
