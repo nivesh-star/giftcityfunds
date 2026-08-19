@@ -37,15 +37,23 @@
   <!-- ========================================================================= -->
   <!-- TOP TICKER MARQUEE -->
   <!-- ========================================================================= -->
-  <div class="w-full bg-blue-700 dark:bg-blue-900 border-b border-blue-600/40 text-white text-xs py-1.5 px-4 overflow-hidden z-50">
-    <div class="ticker-wrap flex items-center">
-      <div class="flex items-center gap-2 pr-6 shrink-0 font-bold tracking-wider text-sif-neon uppercase text-[10px]">
-        <span class="inline-block w-2 h-2 rounded-full bg-sif-neon animate-ping"></span>
-        GIFT City IFSC Live Feed:
-      </div>
-      <div id="marqueeTickerTrack" class="ticker-move flex items-center">
+  <div class="w-full bg-[#0a1128] dark:bg-[#070d1e] border-b border-blue-600/30 text-white text-xs py-1.5 px-0 overflow-hidden z-50 flex items-center shadow-inner">
+    <!-- Static Badge with solid background & border so ticker scrolls cleanly behind/beside it without overlapping -->
+    <div class="relative z-20 shrink-0 bg-[#0a1128] dark:bg-[#070d1e] pl-4 pr-3 py-0.5 border-r border-blue-500/30 flex items-center gap-2 shadow-[6px_0_15px_rgba(0,0,0,0.6)]">
+      <span class="relative flex h-2 w-2">
+        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-sif-neon opacity-75"></span>
+        <span class="relative inline-flex rounded-full h-2 w-2 bg-sif-neon"></span>
+      </span>
+      <span class="font-extrabold tracking-wider text-sif-neon uppercase text-[10px] whitespace-nowrap">
+        GIFT City Live Feed:
+      </span>
+    </div>
+    
+    <!-- Scrolling Track Container with its own overflow-hidden -->
+    <div class="ticker-container relative overflow-hidden flex-1 w-full">
+      <div id="marqueeTickerTrack" class="ticker-track inline-flex items-center">
         <!-- Populated dynamically by app.js -->
-        <span class="inline-flex items-center gap-2 mx-4 font-mono">Loading real-time NAV market data...</span>
+        <span class="inline-flex items-center gap-2 mx-4 font-mono text-xs text-slate-300">Loading real-time NAV market data...</span>
       </div>
     </div>
   </div>

@@ -155,23 +155,27 @@ body {
 }
 
 /* Ticker Marquee */
-.ticker-wrap {
+.ticker-container {
   overflow: hidden;
   white-space: nowrap;
+  mask-image: linear-gradient(to right, transparent, black 16px, black calc(100% - 16px), transparent);
+  -webkit-mask-image: linear-gradient(to right, transparent, black 16px, black calc(100% - 16px), transparent);
 }
 
-.ticker-move {
-  display: inline-block;
-  animation: tickerScroll 35s linear infinite;
+.ticker-track {
+  display: inline-flex;
+  white-space: nowrap;
+  will-change: transform;
+  animation: tickerScroll 45s linear infinite;
 }
 
-.ticker-move:hover {
+.ticker-track:hover {
   animation-play-state: paused;
 }
 
 @keyframes tickerScroll {
-  0% { transform: translate3d(0, 0, 0); }
-  100% { transform: translate3d(-50%, 0, 0); }
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
 }
 
 /* Tab Active styling */
