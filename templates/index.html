@@ -172,13 +172,13 @@
           <!-- Metric Card 2 -->
           <div class="glass-card rounded-2xl p-4 sm:p-5 relative overflow-hidden group">
             <div class="flex items-center justify-between mb-2">
-              <span class="text-[11px] font-bold uppercase tracking-wider text-[var(--color-text-subtle)]">Tier 1 Official</span>
+              <span class="text-[11px] font-bold uppercase tracking-wider text-[var(--color-text-subtle)]">Flow Classified</span>
               <div class="w-7 h-7 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
               </div>
             </div>
             <div id="statTier1" class="text-2xl sm:text-3xl font-black text-[var(--color-text)] font-mono">23</div>
-            <span class="text-[10px] text-blue-400 font-bold mt-1 inline-block">Direct AMC Sources</span>
+            <span class="text-[10px] text-blue-400 font-bold mt-1 inline-block">Outbound / Inbound</span>
           </div>
 
           <!-- Metric Card 3 -->
@@ -336,12 +336,13 @@
         <svg class="w-4 h-4 absolute left-3 top-2.5 text-[var(--color-text-subtle)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
       </div>
 
-      <!-- Tier Selector -->
+      <!-- Flow Type Selector -->
       <div class="lg:col-span-3">
         <select id="tierFilterSelect" class="w-full bg-[var(--color-bg-subtle)] border border-[var(--color-border)] rounded-xl px-3 py-2 text-xs text-[var(--color-text)] focus:outline-none focus:border-blue-500">
-          <option value="all">Source Tier: All Tiers</option>
-          <option value="tier1_amc">Tier 1: AMC Official Factsheets & APIs</option>
-          <option value="tier2_directory">Tier 2: ALTPORT Directory Verified</option>
+          <option value="all">Flow Type: All Funds</option>
+          <option value="outbound">Outbound: India/GIFT Capital → Global</option>
+          <option value="inbound">Inbound: Foreign/NRI Capital → India</option>
+          <option value="unclassified">Not Yet Classified</option>
         </select>
       </div>
 
@@ -370,7 +371,7 @@
           <thead>
             <tr class="border-b border-[var(--color-border)] bg-[var(--color-bg-subtle)]/80 text-[11px] font-extrabold uppercase tracking-wider text-[var(--color-text-subtle)] select-none">
               <th class="py-3 px-4 sortable-col cursor-pointer hover:text-blue-400" data-col="fund_name">Fund & AMC House ↕</th>
-              <th class="py-3 px-4 sortable-col cursor-pointer hover:text-blue-400" data-col="source_tier">Tier ↕</th>
+              <th class="py-3 px-4 sortable-col cursor-pointer hover:text-blue-400" data-col="fund_flow_type">Flow ↕</th>
               <th class="py-3 px-4 sortable-col cursor-pointer hover:text-blue-400" data-col="category">Category ↕</th>
               <th class="py-3 px-4 text-right sortable-col cursor-pointer hover:text-blue-400" data-col="nav">Current NAV ↕</th>
               <th class="py-3 px-4 text-right sortable-col cursor-pointer hover:text-blue-400" data-col="expense_ratio">TER (%) ↕</th>

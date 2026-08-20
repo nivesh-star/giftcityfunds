@@ -28,6 +28,12 @@
   --color-badge-tier2-bg: rgba(148, 163, 184, 0.12);
   --color-badge-tier2-text: #cbd5e1;
   --color-badge-tier2-border: rgba(148, 163, 184, 0.25);
+  --color-badge-outbound-bg: rgba(249, 115, 22, 0.15);
+  --color-badge-outbound-text: #fb923c;
+  --color-badge-outbound-border: rgba(251, 146, 60, 0.3);
+  --color-badge-inbound-bg: rgba(16, 185, 129, 0.15);
+  --color-badge-inbound-text: #34d399;
+  --color-badge-inbound-border: rgba(52, 211, 153, 0.3);
 }
 
 html.light {
@@ -46,6 +52,12 @@ html.light {
   --color-badge-tier2-bg: rgba(100, 116, 139, 0.08);
   --color-badge-tier2-text: #334155;
   --color-badge-tier2-border: rgba(100, 116, 139, 0.2);
+  --color-badge-outbound-bg: rgba(249, 115, 22, 0.1);
+  --color-badge-outbound-text: #c2410c;
+  --color-badge-outbound-border: rgba(249, 115, 22, 0.25);
+  --color-badge-inbound-bg: rgba(16, 185, 129, 0.1);
+  --color-badge-inbound-text: #047857;
+  --color-badge-inbound-border: rgba(16, 185, 129, 0.25);
 }
 
 body {
@@ -197,4 +209,16 @@ body {
   background-color: var(--color-badge-tier2-bg);
   color: var(--color-badge-tier2-text);
   border: 1px solid var(--color-badge-tier2-border);
+}
+
+.badge-outbound {
+  background-color: var(--color-badge-outbound-bg);
+  color: var(--color-badge-outbound-text);
+  border: 1px solid var(--color-badge-outbound-border);
+}
+
+.badge-inbound {
+  background-color: var(--color-badge-inbound-bg);
+  color: var(--color-badge-inbound-text);
+  border: 1px solid var(--color-badge-inbound-border);
 }

@@ -1901,6 +1901,120 @@ TIER1_MANUAL_OVERRIDES = {
     "Mirae Asset India Equity Allocation Fund": {
         "fund_flow_type": "inbound",  # listed as "Mirae" (Multi-Fund, largely within AMC) on thefynprint's Inbound Funds Tracker
     },
+    "Baroda BNP Paribas Gift Multicap Fund": {
+        "fund_flow_type": "inbound",  # own category text: "inbound feeder into domestic Baroda BNP Paribas Multicap Fund"
+    },
+    "Edelweiss India Opportunities Fund": {
+        "fund_flow_type": "inbound",  # own category text: "inbound feeder"
+    },
+    "Parag Parikh India Flexi Cap Fund": {
+        "fund_flow_type": "inbound",  # own category text: "inbound feeder into domestic PPFAS Flexi Cap Fund"
+    },
+    "HDFC International – Developed Markets Equity Fund": {
+        "fund_flow_type": "outbound",  # hdfcinternational.com/invest-globally; benchmark MSCI World Index
+    },
+    "HDFC International – Emerging Markets Equity Fund": {
+        "fund_flow_type": "outbound",  # hdfcinternational.com/invest-globally; benchmark MSCI Emerging Markets Index
+    },
+    "Bandhan India Small Cap Fund (IFSC)": {
+        "fund_flow_type": "inbound",  # own factsheet: invests in Bandhan Small Cap Fund (BSE 250 Small Cap TRI), Indian equities
+    },
+    "Nippon India Large Cap Fund GIFT": {
+        "fund_flow_type": "inbound",  # own factsheet: invests in Nippon India Large Cap Fund (BSE 100 TRI), Indian equities
+    },
+    "Quant Algorithmic Strategies Fund": {
+        "fund_flow_type": "outbound",  # altusifsc.com: "algorithmic trading across equities, currencies, and commodities ... in global markets"
+    },
+    "Nuvama India EDGE Fund": {
+        "fund_flow_type": "inbound",  # benchmarked to Nifty 50 (USD), Indian equity market
+    },
+    "Bandhan India Large and Mid-Cap Fund (IFSC)": {
+        "fund_flow_type": "inbound",  # own factsheet: NIFTY Large Midcap 250 TRI, Indian large/mid-cap equities
+    },
+    "ASKWA India Opportunities Fund": {
+        "fund_flow_type": "inbound",  # altport page: "focuses on India as its primary investment market"
+    },
+    "ABSL Global Emerging Market Equity Fund (IFSC)": {
+        "fund_flow_type": "outbound",  # altport page: invests in EM companies "unavailable in India", LRS-based international diversification
+    },
+    "Axis India Multicap Fund": {
+        "fund_flow_type": "inbound",  # altport page: NIFTY 500 Multicap TRI benchmark, Indian large/mid/small-cap equities
+    },
+    "Carnelian India Multi Strategy Fund": {
+        "fund_flow_type": "inbound",  # altport page: "India's structural growth story", domestic Indian businesses
+    },
+    "Nippon India ETF Nifty 50 BeES GIFT": {
+        "fund_flow_type": "inbound",  # own benchmark: Nifty 50, Indian index
+    },
+    "ABSL MSCI India Fund (IFSC)": {
+        "fund_flow_type": "inbound",  # underlying fund is Aditya Birla Sun Life MSCI India ETF (domestic Indian ETF)
+    },
+    "DSP India Absolute Return Fund": {
+        "fund_flow_type": "inbound",  # giftcity.dspim.com/product: "Invests in India" (distinguished from the separately-listed DSP Global Equity Fund)
+    },
+    "DSP India Equity Opportunities Fund": {
+        "fund_flow_type": "inbound",  # giftcity.dspim.com/product: "DSP India Equity Opps Fund - Invests in India"
+    },
+    "DSP India IFSC Fund": {
+        "fund_flow_type": "inbound",  # giftcity.dspim.com/product: "DSP India Fund IFSC - Invests in India"
+    },
+    "Bandhan India Government Securities Fund (IFSC)": {
+        "fund_flow_type": "inbound",  # Bandhan AMC press release: "3 India-Focused Funds for Global Investors" (all 3 GIFT launches, incl. this one)
+    },
+    "ValueQuest India G.I.F.T. Fund": {
+        "fund_flow_type": "inbound",  # valuequest.in/gift-fund/: offshore Cat III AIF investing in India
+    },
+    "Sage One India Growth GIFT Fund": {
+        "fund_flow_type": "inbound",  # pmsaifworld.com: Indian equities (~2,500 listed cos.), designed for NRIs/international investors
+    },
+    "DSP INDIA T.I.G.E.R. FUND": {
+        "fund_flow_type": "inbound",  # own factsheet PDF: invests in Indian companies benefiting from govt infra/reform policy
+    },
+    "Aikyam India Discovery Fund": {
+        "fund_flow_type": "inbound",  # aikyamcap.com: "gateway for global investors to access Indian equity markets via the GIFT City-based AIDF"
+    },
+    "Kotak Equity India Fund of Fund IFSC": {
+        "fund_flow_type": "inbound",  # own name: India equity fund-of-fund, feeder structure
+    },
+    "Kotak Iconic India Equity Feeder Fund": {
+        "fund_flow_type": "inbound",  # own name: India equity feeder fund
+    },
+    "Kotak Real Estate Fund- X IFSC": {
+        "fund_flow_type": "inbound",  # kotakalternateasset.com: Kotak's realty platform is domestic-India-only; IFSC suffix = feeder into that same strategy
+    },
+    "Kotak Real Estate Fund XII – IFSC I": {
+        "fund_flow_type": "inbound",  # same basis as other Kotak realty IFSC funds
+    },
+    "Kotak Real Estate Fund XII – IFSC II": {
+        "fund_flow_type": "inbound",  # same basis as other Kotak realty IFSC funds
+    },
+    "Kotak Strategic Situations Fund – II IFSC": {
+        "fund_flow_type": "inbound",  # same basis as other Kotak realty/credit IFSC funds
+    },
+    "Kotak Real Estate Investment Fund – IFSC": {
+        "fund_flow_type": "inbound",  # same basis as other Kotak realty IFSC funds
+    },
+    "Kotak Real Estate Investment Fund II – IFSC": {
+        "fund_flow_type": "inbound",  # same basis as other Kotak realty IFSC funds
+    },
+    "Kotak Performing RE Credit Strategy Fund II IFSC": {
+        "fund_flow_type": "inbound",  # same basis as other Kotak realty/credit IFSC funds
+    },
+    "Kotak India Commercial Real Estate Fund IFSC": {
+        "fund_flow_type": "inbound",  # own name explicitly says India; same basis as other Kotak realty IFSC funds
+    },
+    "Bandhan India Small Cap Fund (IFSC)": {
+        "underlying_fund_name": "Bandhan Small Cap Fund",  # own factsheet: 99.81% invested in this domestic fund
+    },
+    "Bandhan India Large and Mid-Cap Fund (IFSC)": {
+        "underlying_fund_name": "Bandhan Large & Mid Cap Fund",  # own factsheet: 99.89% invested in this domestic fund
+    },
+    "Nippon India Large Cap Fund GIFT": {
+        "underlying_fund_name": "Nippon India Large Cap Fund",  # own factsheet: 98.89% invested in this domestic fund
+    },
+    "ValueQuest India G.I.F.T. Fund": {
+        "benchmark_index": "MSCI India",  # valuequest.in/gift-fund/: "15-25 stocks portfolio benchmarked against MSCI India"
+    },
 }
 
 

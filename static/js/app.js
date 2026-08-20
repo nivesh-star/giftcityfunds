@@ -102,7 +102,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const elAmcs = document.getElementById('statTotalAmcs');
 
     if (elTotal) elTotal.textContent = summary.total_funds;
-    if (elTier1) elTier1.textContent = summary.tier1_verified;
+    if (elTier1) elTier1.textContent = (summary.outbound_funds || 0) + (summary.inbound_funds || 0);
     if (elLiveNav) elLiveNav.textContent = summary.funds_with_live_nav;
     if (elAmcs) elAmcs.textContent = summary.total_amcs;
   }
@@ -431,9 +431,13 @@ document.addEventListener('DOMContentLoaded', () => {
       );
     }
 
-    // Tier filter
+    // Flow type filter (Outbound / Inbound / Not Yet Classified)
     if (state.tierFilter !== 'all') {
-      result = result.filter(f => f.source_tier === state.tierFilter);
+      if (state.tierFilter === 'unclassified') {
+        result = result.filter(f => !f.fund_flow_type);
+      } else {
+        result = result.filter(f => f.fund_flow_type === state.tierFilter);
+      }
     }
 
     // Category filter
@@ -522,7 +526,6 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function createTableRow(fund) {
-    const isTier1 = fund.source_tier === 'tier1_amc';
     const isCompared = state.compareIds.has(fund.fund_id);
     const navText = fund.nav !== null 
       ? `<span class="font-mono font-bold text-emerald-400">${fund.nav.toFixed(2)} ${fund.nav_currency || 'USD'}</span>`
@@ -552,9 +555,7 @@ document.addEventListener('DOMContentLoaded', () => {
           </div>
         </td>
         <td class="py-3.5 px-4">
-          <span class="text-xs px-2.5 py-1 rounded-full font-semibold ${isTier1 ? 'badge-tier1' : 'badge-tier2'}">
-            ${isTier1 ? 'Tier 1 Official' : 'Tier 2 Directory'}
-          </span>
+          ${flowBadgeHtml(fund, 'text-xs px-2.5 py-1 font-semibold')}
         </td>
         <td class="py-3.5 px-4 text-xs font-medium text-[var(--color-text-muted)]">
           ${escapeHtml(fund.category || 'General Fund')}
@@ -583,14 +584,11 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function createFundCard(fund) {
-    const isTier1 = fund.source_tier === 'tier1_amc';
     return `
       <div class="glass-card rounded-2xl p-5 flex flex-col justify-between group">
         <div>
           <div class="flex items-start justify-between gap-2 mb-3">
-            <span class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded ${isTier1 ? 'badge-tier1' : 'badge-tier2'}">
-              ${isTier1 ? 'Tier 1 Official' : 'Tier 2 Directory'}
-            </span>
+            ${flowBadgeHtml(fund, 'text-[10px] uppercase px-2 py-0.5')}
             <span class="text-xs text-[var(--color-text-subtle)] font-mono">${fund.launch_date || 'N/A'}</span>
           </div>
           <h3 class="font-bold text-sm text-[var(--color-text)] group-hover:text-blue-400 transition-colors line-clamp-2 mb-1">
@@ -677,8 +675,20 @@ document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('modalFundName').textContent = f.fund_name;
       document.getElementById('modalAmcName').textContent = f.amc_name || 'GIFT City Asset Manager';
       document.getElementById('modalCategory').textContent = f.category || 'Specialized Investment Fund';
-      document.getElementById('modalTierBadge').textContent = f.source_tier === 'tier1_amc' ? 'Tier 1 Verified Official Source' : 'Tier 2 Directory Listing';
-      document.getElementById('modalTierBadge').className = `text-xs px-3 py-1 rounded-full font-bold ${f.source_tier === 'tier1_amc' ? 'badge-tier1' : 'badge-tier2'}`;
+      // Primary classification badge is now Outbound/Inbound (source_tier
+      // moved to a smaller supporting-provenance line -- see modalFlowBadge
+      // below, which is repurposed to show that instead of a second flow badge).
+      const tierBadgeEl = document.getElementById('modalTierBadge');
+      if (f.fund_flow_type === 'outbound') {
+        tierBadgeEl.textContent = 'Outbound Fund';
+        tierBadgeEl.className = 'text-xs px-3 py-1 rounded-full font-bold badge-outbound';
+      } else if (f.fund_flow_type === 'inbound') {
+        tierBadgeEl.textContent = 'Inbound Fund';
+        tierBadgeEl.className = 'text-xs px-3 py-1 rounded-full font-bold badge-inbound';
+      } else {
+        tierBadgeEl.textContent = 'Not Yet Classified';
+        tierBadgeEl.className = 'text-xs px-3 py-1 rounded-full font-bold badge-tier2';
+      }
 
       document.getElementById('modalNav').textContent = f.nav !== null ? `${f.nav.toFixed(2)} ${f.nav_currency || 'USD'}` : 'Private / NFO Pending';
       document.getElementById('modalNavDate').textContent = f.nav_as_of ? `As of ${f.nav_as_of}` : (f.nav !== null ? 'Live Daily NAV' : 'Institutional Non-Public');
@@ -701,15 +711,14 @@ document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('modalSourceLink').href = f.source_url;
       document.getElementById('modalSourceLink').textContent = f.source_name;
 
-      // Outbound / Inbound flow badge -- only shown when explicitly classified
+      // Source-tier provenance note -- repurposed from the old secondary
+      // flow badge slot; shows how verified the data is, now as
+      // supporting text rather than the headline classification.
       const flowBadge = document.getElementById('modalFlowBadge');
       if (flowBadge) {
-        if (f.fund_flow_type === 'outbound' || f.fund_flow_type === 'inbound') {
-          flowBadge.textContent = f.fund_flow_type === 'outbound' ? 'Outbound (India → Global)' : 'Inbound (Global → India)';
-          flowBadge.className = `text-xs px-2.5 py-0.5 rounded-full font-bold ${f.fund_flow_type === 'outbound' ? 'bg-indigo-500/15 text-indigo-400' : 'bg-orange-500/15 text-orange-400'}`;
-        } else {
-          flowBadge.classList.add('hidden');
-        }
+        flowBadge.textContent = f.source_tier === 'tier1_amc' ? 'Verified from official AMC source' : 'Sourced from fund directory listing';
+        flowBadge.className = 'text-xs px-2.5 py-0.5 rounded-full font-bold badge-tier2';
+        flowBadge.classList.remove('hidden');
       }
 
       // Fund manager name -- only shown when captured from a real source
@@ -1013,7 +1022,7 @@ document.addEventListener('DOMContentLoaded', () => {
           <div class="space-y-4 font-bold text-xs text-[var(--color-text-muted)] uppercase tracking-wider py-2">
             <div class="h-16 flex items-end">Fund Details</div>
             <div class="h-10 flex items-center">AMC House</div>
-            <div class="h-10 flex items-center">Source Tier</div>
+            <div class="h-10 flex items-center">Flow Type</div>
             <div class="h-10 flex items-center">Category</div>
             <div class="h-10 flex items-center">Current NAV</div>
             <div class="h-10 flex items-center">Expense Ratio (TER)</div>
@@ -1024,7 +1033,6 @@ document.addEventListener('DOMContentLoaded', () => {
       `;
 
       funds.forEach(f => {
-        const isTier1 = f.source_tier === 'tier1_amc';
         matrixHtml += `
           <div class="space-y-4 text-xs py-2 bg-[var(--color-bg-subtle)] border border-[var(--color-border)] rounded-xl p-3">
             <div class="h-16 flex flex-col justify-end">
@@ -1032,9 +1040,7 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
             <div class="h-10 flex items-center font-semibold text-[var(--color-text-muted)]">${escapeHtml(f.amc_name || '—')}</div>
             <div class="h-10 flex items-center">
-              <span class="px-2 py-0.5 rounded font-bold text-[10px] ${isTier1 ? 'badge-tier1' : 'badge-tier2'}">
-                ${isTier1 ? 'Tier 1 Official' : 'Tier 2 Directory'}
-              </span>
+              ${flowBadgeHtml(f, 'px-2 py-0.5 text-[10px]')}
             </div>
             <div class="h-10 flex items-center text-[var(--color-text-muted)] truncate">${escapeHtml(f.category || 'General')}</div>
             <div class="h-10 flex items-center font-mono font-bold text-emerald-400 text-sm">
@@ -1322,6 +1328,21 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       });
     });
+  }
+
+  // Primary classification badge: Outbound / Inbound (replaces the old
+  // Tier 1 / Tier 2 badge as the headline classification -- source_tier
+  // still exists on the record as backend provenance metadata, surfaced
+  // as smaller supporting text, never as the main badge).
+  function flowBadgeHtml(fund, sizeClass) {
+    const size = sizeClass || 'text-xs px-2.5 py-1';
+    if (fund.fund_flow_type === 'outbound') {
+      return `<span class="${size} rounded-full font-bold badge-outbound">Outbound</span>`;
+    }
+    if (fund.fund_flow_type === 'inbound') {
+      return `<span class="${size} rounded-full font-bold badge-inbound">Inbound</span>`;
+    }
+    return `<span class="${size} rounded-full font-bold badge-tier2">Unclassified</span>`;
   }
 
   // Utility helper for safe HTML strings
