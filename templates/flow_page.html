@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{ page_title }} | GIFT360</title>
+  <meta name="description" content="{{ page_subtitle }}" />
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            'sif-blue': '#2563eb',
+            'sif-blue-dark': '#1d4ed8',
+            'sif-neon': '#79FE0C',
+            'sif-neon-dark': '#67e600',
+            'fin-dark': '#0b0f19',
+            'fin-card': '#131d31',
+          }
+        }
+      }
+    }
+  </script>
+
+  <link rel="stylesheet" href="/static/css/custom.css" />
+</head>
+<body class="min-h-screen flex flex-col antialiased">
+
+  <!-- ========================================================================= -->
+  <!-- NAVIGATION BAR -->
+  <!-- ========================================================================= -->
+  <nav class="sticky top-0 z-40 bg-[var(--color-bg-subtle)]/90 backdrop-blur-md border-b border-[var(--color-border)] px-4 md:px-8 py-3 transition-colors">
+    <div class="max-w-7xl mx-auto flex items-center justify-between gap-4">
+      <a href="/" class="flex items-center gap-2.5 group">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 to-blue-700 flex items-center justify-center shadow-md shadow-blue-500/20 text-white font-black text-lg">
+          G
+        </div>
+        <div>
+          <div class="flex items-center gap-1">
+            <span class="font-extrabold text-lg tracking-tight text-[var(--color-text)]">GIFT<span class="text-blue-500">360</span></span>
+            <span class="text-[9px] px-1.5 py-0.5 rounded font-black tracking-widest bg-sif-neon text-black">IFSC</span>
+          </div>
+          <span class="block text-[10px] text-[var(--color-text-muted)] font-medium tracking-wide">Funds Intelligence Portal</span>
+        </div>
+      </a>
+
+      <ul class="hidden md:flex items-center gap-6 text-xs font-bold tracking-wide text-[var(--color-text-muted)]">
+        <li><a href="/" class="hover:text-blue-500 transition-colors">Dashboard</a></li>
+        <li>
+          <a href="/gift-city-outbound" class="transition-colors {{ 'text-blue-500' if flow_type == 'outbound' else 'hover:text-blue-500' }}">Outbound Funds</a>
+        </li>
+        <li>
+          <a href="/gift-city-inbound" class="transition-colors {{ 'text-blue-500' if flow_type == 'inbound' else 'hover:text-blue-500' }}">Inbound Funds</a>
+        </li>
+      </ul>
+
+      <div class="flex items-center gap-2.5">
+        <button id="themeToggleBtn" aria-label="Toggle Theme" class="w-8 h-8 rounded-lg bg-[var(--color-card)] border border-[var(--color-border)] flex items-center justify-center text-[var(--color-text-muted)] hover:text-yellow-400 transition-colors">
+          <svg class="w-4 h-4 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+          <svg class="w-4 h-4 block dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ========================================================================= -->
+  <!-- HERO -->
+  <!-- ========================================================================= -->
+  <header class="relative pt-10 pb-8 px-4 md:px-8 overflow-hidden bg-gradient-to-b from-blue-900/10 via-transparent to-transparent">
+    <div class="absolute top-1/4 left-1/2 -translate-x-1/2 w-[500px] h-[250px] bg-blue-600/15 blur-[120px] rounded-full pointer-events-none"></div>
+    <div class="max-w-7xl mx-auto relative">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/25 text-blue-400 text-xs font-bold tracking-wide mb-4">
+        <span class="w-2 h-2 rounded-full bg-sif-neon animate-pulse"></span>
+        GIFT CITY IFSC — {{ 'OUTBOUND' if flow_type == 'outbound' else 'INBOUND' }}
+      </div>
+      <h1 class="text-3xl sm:text-4xl font-black tracking-tight text-[var(--color-text)] leading-tight mb-3">
+        {{ page_title }}
+      </h1>
+      <p class="text-sm md:text-base text-[var(--color-text-muted)] max-w-3xl">{{ page_subtitle }}</p>
+      <div class="mt-5">
+        <a href="{{ other_flow_url }}" class="inline-flex items-center gap-1.5 text-xs font-bold text-blue-400 hover:text-blue-300 transition-colors">
+          Looking for {{ other_flow_label }}? →
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ========================================================================= -->
+  <!-- FUND LIST -->
+  <!-- ========================================================================= -->
+  <main class="flex-1 px-4 md:px-8 pb-16">
+    <div class="max-w-7xl mx-auto">
+
+      {% if funds %}
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-lg font-black text-[var(--color-text)]">{{ funds|length }} Fund{{ 's' if funds|length != 1 else '' }}</h2>
+        <span class="text-[11px] text-[var(--color-text-subtle)]">Classified as {{ flow_type }} from verified factsheet sources or corroborating trackers</span>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-4 mb-14">
+        {% for f in funds %}
+        <div class="bg-[var(--color-card)] border border-[var(--color-border)] rounded-2xl p-5 hover:border-blue-500/30 transition-colors">
+          <div class="flex items-start justify-between gap-2 mb-2">
+            <div>
+              <span class="text-[10px] px-2 py-0.5 rounded-full font-bold {{ 'badge-tier1' if f.source_tier == 'tier1_amc' else 'badge-tier2' }}">
+                {{ 'Tier 1 Verified' if f.source_tier == 'tier1_amc' else 'Tier 2 Directory' }}
+              </span>
+              <h3 class="text-base font-bold text-[var(--color-text)] mt-1.5">{{ f.fund_name }}</h3>
+              <p class="text-xs text-blue-400 font-semibold">{{ f.amc_name }}</p>
+            </div>
+          </div>
+
+          {% if f.fund_manager_name %}
+          <p class="text-[11px] text-[var(--color-text-subtle)] mb-2">Fund Manager: {{ f.fund_manager_name }}</p>
+          {% endif %}
+
+          {% if f.underlying_fund_name %}
+          <p class="text-[11px] text-[var(--color-text-subtle)] mb-2">Feeds into: <span class="text-[var(--color-text-muted)]">{{ f.underlying_fund_name }}</span>{% if f.underlying_fund_domicile %} ({{ f.underlying_fund_domicile }}){% endif %}</p>
+          {% endif %}
+
+          <div class="grid grid-cols-3 gap-2 mt-3 pt-3 border-t border-[var(--color-border)] text-center">
+            <div>
+              <span class="block text-[9px] text-[var(--color-text-subtle)] uppercase">NAV</span>
+              <span class="block text-xs font-mono font-bold text-[var(--color-text)]">{{ '%.2f'|format(f.nav) ~ ' ' ~ (f.nav_currency or 'USD') if f.nav is not none else '—' }}</span>
+            </div>
+            <div>
+              <span class="block text-[9px] text-[var(--color-text-subtle)] uppercase">TER</span>
+              <span class="block text-xs font-mono font-bold text-[var(--color-text)]">{{ '%.2f'|format(f.expense_ratio) ~ '%' if f.expense_ratio is not none else '—' }}</span>
+            </div>
+            <div>
+              <span class="block text-[9px] text-[var(--color-text-subtle)] uppercase">Min. Investment</span>
+              <span class="block text-xs font-mono font-bold text-[var(--color-text)]">{{ f.minimum_investment or '—' }}</span>
+            </div>
+          </div>
+
+          <a href="{{ f.source_url }}" target="_blank" rel="noopener noreferrer" class="mt-3 inline-flex items-center gap-1 text-[11px] font-bold text-blue-400 hover:underline">
+            Open Official Source →
+          </a>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="chart-placeholder-box p-8 text-center mb-14">
+        <span class="text-sm font-bold text-[var(--color-text-muted)]">No {{ flow_type }} funds classified yet</span>
+        <p class="text-xs text-[var(--color-text-subtle)] mt-1">Funds only appear here once their flow direction is confirmed against a real source — none has been verified for this category yet.</p>
+      </div>
+      {% endif %}
+
+      <!-- ===================================================================== -->
+      <!-- FAQ -->
+      <!-- ===================================================================== -->
+      <div class="max-w-3xl">
+        <span class="text-[11px] font-bold text-blue-400 uppercase tracking-wide">FAQ</span>
+        <h2 class="text-2xl font-black text-[var(--color-text)] mt-1 mb-1">Your Guide to {{ page_title }}</h2>
+        <p class="text-sm text-[var(--color-text-muted)] mb-6">Everything you need to know about {{ 'global investing' if flow_type == 'outbound' else 'investing' }} through India's IFSC.</p>
+
+        <div class="space-y-3">
+          {% for item in faqs %}
+          <details class="bg-[var(--color-card)] border border-[var(--color-border)] rounded-xl p-4 group">
+            <summary class="cursor-pointer list-none flex items-center justify-between text-sm font-bold text-[var(--color-text)]">
+              {{ item.question }}
+              <svg class="w-4 h-4 text-[var(--color-text-subtle)] group-open:rotate-180 transition-transform shrink-0 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+            </summary>
+            <ul class="mt-3 space-y-1.5 text-xs text-[var(--color-text-muted)] list-disc list-inside">
+              {% for line in item.answer %}
+              <li>{{ line }}</li>
+              {% endfor %}
+            </ul>
+          </details>
+          {% endfor %}
+        </div>
+
+        <p class="text-[10px] text-[var(--color-text-subtle)] mt-4 italic">{{ faq_source }}</p>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- ========================================================================= -->
+  <!-- FOOTER -->
+  <!-- ========================================================================= -->
+  <footer class="border-t border-[var(--color-border)] px-4 md:px-8 py-6">
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3 text-[11px] text-[var(--color-text-subtle)]">
+      <span>© 2026 GIFT360. Data sourced from fund house disclosures and public trackers; verify with the fund house before investing. Not investment advice.</span>
+      <a href="/" class="font-bold text-blue-400 hover:underline">← Back to Full Dashboard</a>
+    </div>
+  </footer>
+
+  <script>
+    // Minimal standalone theme toggle (this page doesn't load the full app.js)
+    (function () {
+      const root = document.documentElement;
+      const btn = document.getElementById('themeToggleBtn');
+      const stored = null; // no localStorage per policy; defaults to dark each load
+      if (btn) {
+        btn.addEventListener('click', function () {
+          root.classList.toggle('light');
+          root.classList.toggle('dark');
+        });
+      }
+    })();
+  </script>
+</body>
+</html>

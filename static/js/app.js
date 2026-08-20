@@ -682,10 +682,48 @@ document.addEventListener('DOMContentLoaded', () => {
 
       document.getElementById('modalNav').textContent = f.nav !== null ? `${f.nav.toFixed(2)} ${f.nav_currency || 'USD'}` : 'Private / NFO Pending';
       document.getElementById('modalNavDate').textContent = f.nav_as_of ? `As of ${f.nav_as_of}` : (f.nav !== null ? 'Live Daily NAV' : 'Institutional Non-Public');
-      document.getElementById('modalTer').textContent = f.expense_ratio !== null ? `${f.expense_ratio.toFixed(2)}%` : 'Not Publicly Disclosed';
+      const terEl = document.getElementById('modalTer');
+      const terSubtitleEl = document.getElementById('modalTerSubtitle');
+      if (f.expense_ratio !== null) {
+        terEl.textContent = `${f.expense_ratio.toFixed(2)}%`;
+        if (terSubtitleEl) terSubtitleEl.textContent = 'Direct Plan TER';
+      } else if (f.fee_notes) {
+        // No single TER figure, but a real fee structure was found and
+        // verified (e.g. management fee + performance fee) -- show that
+        // instead of a flat "not disclosed", never a fabricated TER number.
+        terEl.textContent = 'See Fee Schedule';
+        if (terSubtitleEl) terSubtitleEl.textContent = 'TER not separately disclosed';
+      } else {
+        terEl.textContent = 'Not Publicly Disclosed';
+        if (terSubtitleEl) terSubtitleEl.textContent = 'Direct Plan TER';
+      }
       document.getElementById('modalLaunchDate').textContent = f.launch_date || 'Not Publicly Disclosed';
       document.getElementById('modalSourceLink').href = f.source_url;
       document.getElementById('modalSourceLink').textContent = f.source_name;
+
+      // Outbound / Inbound flow badge -- only shown when explicitly classified
+      const flowBadge = document.getElementById('modalFlowBadge');
+      if (flowBadge) {
+        if (f.fund_flow_type === 'outbound' || f.fund_flow_type === 'inbound') {
+          flowBadge.textContent = f.fund_flow_type === 'outbound' ? 'Outbound (India → Global)' : 'Inbound (Global → India)';
+          flowBadge.className = `text-xs px-2.5 py-0.5 rounded-full font-bold ${f.fund_flow_type === 'outbound' ? 'bg-indigo-500/15 text-indigo-400' : 'bg-orange-500/15 text-orange-400'}`;
+        } else {
+          flowBadge.classList.add('hidden');
+        }
+      }
+
+      // Fund manager name -- only shown when captured from a real source
+      const managerEl = document.getElementById('modalFundManager');
+      if (managerEl) {
+        if (f.fund_manager_name) {
+          managerEl.textContent = `Fund Manager: ${f.fund_manager_name}`;
+          managerEl.classList.remove('hidden');
+        } else {
+          managerEl.classList.add('hidden');
+        }
+      }
+
+      renderModalDataSections(f);
 
       // Render real NAV trend chart (or an honest "no history yet" note) --
       // previously this generated a fake Math.random() trajectory that
@@ -706,6 +744,145 @@ document.addEventListener('DOMContentLoaded', () => {
     } catch (e) {
       console.error('Error opening detail modal:', e);
     }
+  }
+
+  // Renders Underlying Fund / Holdings / Geographic / Sector / Taxation
+  // sections from the expanded /api/fund/<id> response. Each section only
+  // renders (and is un-hidden) when real captured data exists for it -- no
+  // fabricated numbers or blanket claims, consistent with the rest of the
+  // dashboard. If nothing at all has been captured yet, a single honest
+  // "not yet captured" placeholder is shown instead.
+  function renderModalDataSections(f) {
+    const feeNotesSection = document.getElementById('modalFeeNotesSection');
+    const feeNotesBody = document.getElementById('modalFeeNotesBody');
+    const underlyingSection = document.getElementById('modalUnderlyingSection');
+    const underlyingBody = document.getElementById('modalUnderlyingBody');
+    const holdingsSection = document.getElementById('modalHoldingsSection');
+    const holdingsBody = document.getElementById('modalHoldingsBody');
+    const holdingsBasisNote = document.getElementById('modalHoldingsBasisNote');
+    const geoSection = document.getElementById('modalGeoSection');
+    const geoBody = document.getElementById('modalGeoBody');
+    const sectorSection = document.getElementById('modalSectorSection');
+    const sectorBody = document.getElementById('modalSectorBody');
+    const taxSection = document.getElementById('modalTaxSection');
+    const taxBody = document.getElementById('modalTaxBody');
+    const pendingSection = document.getElementById('modalDataPendingSection');
+
+    let anyRendered = false;
+
+    // Fee schedule -- only when captured, and only as a supplement to
+    // (never a substitute for) an actual TER figure.
+    if (feeNotesSection && feeNotesBody) {
+      if (f.fee_notes) {
+        anyRendered = true;
+        feeNotesBody.textContent = f.fee_notes;
+        feeNotesSection.classList.remove('hidden');
+      } else {
+        feeNotesSection.classList.add('hidden');
+      }
+    }
+
+    // Underlying fund (feeder-structure funds only)
+    if (underlyingSection && underlyingBody) {
+      if (f.underlying_fund_name) {
+        anyRendered = true;
+        underlyingBody.innerHTML = `
+          <div><span class="text-[var(--color-text-subtle)]">Fund:</span> <span class="font-semibold text-[var(--color-text)]">${escapeHtml(f.underlying_fund_name)}</span></div>
+          ${f.underlying_fund_manager ? `<div><span class="text-[var(--color-text-subtle)]">Manager:</span> ${escapeHtml(f.underlying_fund_manager)}</div>` : ''}
+          ${f.underlying_fund_domicile ? `<div><span class="text-[var(--color-text-subtle)]">Domicile:</span> ${escapeHtml(f.underlying_fund_domicile)}</div>` : ''}
+        `;
+        underlyingSection.classList.remove('hidden');
+      } else {
+        underlyingSection.classList.add('hidden');
+      }
+    }
+
+    // Top holdings
+    if (holdingsSection && holdingsBody) {
+      const holdings = Array.isArray(f.holdings) ? f.holdings : [];
+      if (holdings.length > 0) {
+        anyRendered = true;
+        const isUnderlyingBasis = holdings[0].holdings_basis === 'underlying_fund';
+        if (holdingsBasisNote) {
+          holdingsBasisNote.textContent = isUnderlyingBasis ? 'Holdings of underlying fund (feeder structure)' : '';
+        }
+        const maxWeight = Math.max(...holdings.map(h => h.weight_pct || 0), 1);
+        holdingsBody.innerHTML = holdings.map(h => `
+          <div class="flex items-center gap-2 mb-1.5 last:mb-0">
+            <span class="text-[11px] text-[var(--color-text-muted)] w-1/2 truncate">${escapeHtml(h.holding_name)}</span>
+            <div class="flex-1 h-2 bg-[var(--color-border)] rounded-full overflow-hidden">
+              <div class="h-full bg-blue-400 rounded-full" style="width:${((h.weight_pct || 0) / maxWeight * 100).toFixed(1)}%"></div>
+            </div>
+            <span class="text-[11px] font-mono text-[var(--color-text)] w-12 text-right">${h.weight_pct != null ? h.weight_pct.toFixed(1) + '%' : '—'}</span>
+          </div>
+        `).join('');
+        holdingsSection.classList.remove('hidden');
+      } else {
+        holdingsSection.classList.add('hidden');
+      }
+    }
+
+    // Geographic allocation
+    if (geoSection && geoBody) {
+      const geo = Array.isArray(f.geographic_allocation) ? f.geographic_allocation : [];
+      if (geo.length > 0) {
+        anyRendered = true;
+        geoBody.innerHTML = renderAllocationBars(geo);
+        geoSection.classList.remove('hidden');
+      } else {
+        geoSection.classList.add('hidden');
+      }
+    }
+
+    // Sector allocation
+    if (sectorSection && sectorBody) {
+      const sector = Array.isArray(f.sector_allocation) ? f.sector_allocation : [];
+      if (sector.length > 0) {
+        anyRendered = true;
+        sectorBody.innerHTML = renderAllocationBars(sector);
+        sectorSection.classList.remove('hidden');
+      } else {
+        sectorSection.classList.add('hidden');
+      }
+    }
+
+    // Taxation -- show explicit rates when disclosed, otherwise descriptive
+    // notes only. Never render a fabricated percentage.
+    if (taxSection && taxBody) {
+      const tax = f.taxation;
+      if (tax && (tax.ltcg_rate || tax.stcg_rate || tax.dividend_rate || tax.tax_notes)) {
+        anyRendered = true;
+        const rateRows = [];
+        if (tax.ltcg_rate) rateRows.push(`<div><span class="text-[var(--color-text-subtle)]">LTCG:</span> <span class="font-mono font-semibold text-[var(--color-text)]">${escapeHtml(tax.ltcg_rate)}</span></div>`);
+        if (tax.stcg_rate) rateRows.push(`<div><span class="text-[var(--color-text-subtle)]">STCG:</span> <span class="font-mono font-semibold text-[var(--color-text)]">${escapeHtml(tax.stcg_rate)}</span></div>`);
+        if (tax.dividend_rate) rateRows.push(`<div><span class="text-[var(--color-text-subtle)]">Dividend:</span> <span class="font-mono font-semibold text-[var(--color-text)]">${escapeHtml(tax.dividend_rate)}</span></div>`);
+        taxBody.innerHTML = `
+          ${rateRows.length ? `<div class="grid grid-cols-3 gap-2 mb-2">${rateRows.join('')}</div>` : ''}
+          ${tax.tax_notes ? `<div class="text-[var(--color-text-subtle)] italic">${escapeHtml(tax.tax_notes)}</div>` : ''}
+        `;
+        taxSection.classList.remove('hidden');
+      } else {
+        taxSection.classList.add('hidden');
+      }
+    }
+
+    if (pendingSection) {
+      pendingSection.classList.toggle('hidden', anyRendered);
+    }
+  }
+
+  function renderAllocationBars(items) {
+    const sorted = [...items].sort((a, b) => (b.weight_pct || 0) - (a.weight_pct || 0));
+    const maxWeight = Math.max(...sorted.map(i => i.weight_pct || 0), 1);
+    return sorted.map(i => `
+      <div class="flex items-center gap-2">
+        <span class="text-[11px] text-[var(--color-text-muted)] w-1/3 truncate">${escapeHtml(i.category)}</span>
+        <div class="flex-1 h-2 bg-[var(--color-border)] rounded-full overflow-hidden">
+          <div class="h-full bg-emerald-400 rounded-full" style="width:${((i.weight_pct || 0) / maxWeight * 100).toFixed(1)}%"></div>
+        </div>
+        <span class="text-[11px] font-mono text-[var(--color-text)] w-12 text-right">${i.weight_pct != null ? i.weight_pct.toFixed(1) + '%' : '—'}</span>
+      </div>
+    `).join('');
   }
 
   function renderModalNavChart(fund, history) {

@@ -1766,20 +1766,34 @@ def scrape_sundaram_india_midcap_fund() -> tuple[dict, dict]:
 # by fund_name match in run_amc_scrape() below, so a future re-scrape keeps
 # these instead of silently reverting to NULL.
 TIER1_MANUAL_OVERRIDES = {
+    "DSP Global Equity Fund": {
+        "aum": 32.0, "aum_currency": "USD", "aum_unit": "million",  # DSP's own factsheet, "FUND AUM" box, as of 29-May-2026
+        "fund_flow_type": "outbound",  # factsheet's own label: "Outbound Retail Fund from Gift City"
+        "fund_manager_name": "Giriraj Bassa",  # factsheet's Portfolio Management Team section
+    },
     "Tata India Dynamic Equity Fund": {
         "benchmark_index": "Nifty 500 (TRI)",  # Tata factsheet PDF, "Benchmark" row
+        "fund_flow_type": "inbound",  # listed as "Tata" on thefynprint's Inbound Funds Tracker -- feeds foreign/NRI capital into Tata's India schemes
     },
     "Edelweiss Greater China Equity Fund": {
         "exit_load": "1% on or before 25 months",  # Edelweiss's own GIFT City fund datasheet PDF
+        "fund_flow_type": "outbound",  # listed on thefynprint's Outbound Funds Tracker as "Edelweiss Greater China Fund" -- feeds into JP Morgan China Fund
     },
     "Sundaram India Mid Cap - GIFT": {
         "lock_in_period": "None (Open Ended Retail Scheme)",  # factsheet
         "exit_load": "Within 12 months of allotment: 2% of NAV; 12-24 months: 1% of NAV; after 24 months: Nil",  # factsheet
+        "fund_flow_type": "inbound",  # listed as "Sundaram" on thefynprint's Inbound Funds Tracker -- feeds into its own domestic midcap fund
     },
     "Marcellus Global Equities Fund": {
         "benchmark_index": "S&P 500 NTR (primary); S&P World NTR (secondary)",  # factsheet PDF
+        "fund_flow_type": "outbound",  # listed as "Marcellus Global Equity Fund" on thefynprint's Outbound Funds Tracker
     },
     "Baroda BNP Paribas GIFT US Small Cap Fund": {
+        "fund_flow_type": "outbound",  # GIFT wrapper investing Indian/eligible-investor capital into a Luxembourg-domiciled fund
+        "fund_manager_name": "Baroda BNP Paribas Asset Management LTD (IFSC Branch)",  # NFO presentation, "Tax Applicability" diagram
+        "underlying_fund_name": "BNP Paribas US Small Cap Fund",  # NFO presentation, "Underlying Fund Details"
+        "underlying_fund_manager": "BNP Paribas Asset Management USA, Inc / BNP Paribas Asset Management UK, Limited",  # same section
+        "underlying_fund_domicile": "Luxembourg",  # same section -- Sub-fund of SICAV BNP PARIBAS FUNDS
         "benchmark_index": "Russell 2000",  # fund's own official page
         "lock_in_period": "Varies by share class: Class U -- 2 years (no redemptions in first 2 years); Class T -- none; Class I -- none",  # fund's own official page
         "exit_load": "Class U: Nil; Class T: 1% for 1 year; Class I: Nil",  # fund's own official page
@@ -1792,6 +1806,11 @@ TIER1_MANUAL_OVERRIDES = {
         "lock_in_period": "NIL",  # Altus factsheet PDF
         "exit_load": "NIL",  # Altus factsheet PDF
         "nav_as_of": "2025-10-10",  # Altus factsheet PDF, "Week 24" NAV date
+        "fee_notes": (
+            "TER not separately disclosed. Management fee 2% p.a., charged weekly on a "
+            "pro-rata basis; performance fee 20%, charged weekly on incremental NAV. "
+            "NAV is stated net of all expenses, management fees, and performance fees."
+        ),  # Altus weekly factsheet PDF -- explicit fee schedule, not a single TER figure
     },
     "Nuvama India EDGE Fund": {
         "benchmark_index": "Nifty 50 (USD-denominated version, effective June 2025)",  # Nuvama's own official page
@@ -1800,11 +1819,13 @@ TIER1_MANUAL_OVERRIDES = {
         "nav_as_of": "2023-05-31",  # Phillip Ventures' own monthly factsheet PDF -- note: this is the most recent date stated on the source at research time; the factsheet itself may not have been refreshed since
         "nav_currency": "USD",  # same factsheet PDF
         "benchmark_index": "S&P Global BMI Total Return",  # same factsheet PDF
+        "fund_flow_type": "outbound",  # listed as "Phillip Int. Pioneer Portfolio" (PMS) on thefynprint's Outbound Funds Tracker
     },
     "Parag Parikh Global Investing Strategy": {
         "nav_currency": "USD",  # PPFAS factsheet PDF
         "nav_as_of": "2025-11-30",  # PPFAS factsheet PDF
         "benchmark_index": "S&P 500 Net TR Index",  # PPFAS factsheet PDF
+        "fund_flow_type": "outbound",  # listed as "PPFAS Global Investing Strategy PMS" on thefynprint's Outbound Funds Tracker
     },
     "Bandhan India Large and Mid-Cap Fund (IFSC)": {
         "nav_as_of": "2025-10-31",  # Bandhan factsheet PDF
@@ -1813,12 +1834,72 @@ TIER1_MANUAL_OVERRIDES = {
         "lock_in_period": "No lock-in",  # tequity.co.in fund page
         "exit_load": "Nil",  # tequity.co.in fund page
         "benchmark_index": "S&P 500",  # tequity.co.in fund page
+        "fund_flow_type": "outbound",  # listed as "Marcellus GCP Fund" (AIF) on thefynprint's Outbound Funds Tracker
     },
     "Edelweiss India Multimanager Equity Fund": {
         "launch_date": "2025-11-20",  # tequity.co.in fund page, Class A1 inception
         "lock_in_period": "Open-ended -- no lock-in (redemption fees apply instead)",  # tequity.co.in fund page
         "exit_load": "3% if redeemed <1yr, 2% between 1-2yr, 1% between 2-3yr, Nil after 3yr",  # tequity.co.in fund page
         "benchmark_index": "Nifty 500",  # tequity.co.in fund page
+        "expense_ratio": 0.30,  # Edelweiss's own GIFT City "Series I" factsheet PDF, "Operating Expenses 0.30% Per Annum of NAV"
+        "fund_flow_type": "inbound",  # listed as "Edelweiss" (Open-Architecture Multi-Manager) on thefynprint's Inbound Funds Tracker
+    },
+    # -- The following entries were added after cross-referencing thefynprint's
+    # Outbound and Inbound Funds Trackers (thefynprint.com/gift-city-outbound,
+    # thefynprint.com/gift-city-inbound) against our existing fund list by name.
+    # Only fund_flow_type is set here since that tracker's own fund cards were
+    # the source; other fields on these funds are left for future research.
+    "Parag Parikh IFSC Nasdaq 100 Fund of Fund": {
+        "fund_flow_type": "outbound",  # listed as "PPFAS Nasdaq 100 Fund" on thefynprint's Outbound Funds Tracker
+    },
+    "Parag Parikh IFSC S&P 500 Fund of Fund": {
+        "fund_flow_type": "outbound",  # listed as "PPFAS S&P 500 Fund" on thefynprint's Outbound Funds Tracker
+    },
+    "Mirae Asset Global Allocation Fund": {
+        "fund_flow_type": "outbound",  # listed as "Mirae Asset Global Allocation Fund" (AIF) on thefynprint's Outbound Funds Tracker
+    },
+    "ABSL Global Bluechip Equity Fund (IFSC)": {
+        "fund_flow_type": "outbound",  # listed as "ABSL Global Bluechip Equity Fund" (AIF) on thefynprint's Outbound Funds Tracker
+    },
+    "HDFC India Balanced Advantage Fund": {
+        "fund_flow_type": "inbound",  # part of "HDFC Feeder Funds" on thefynprint's Inbound Funds Tracker -- feeds into HDFC's own domestic schemes
+    },
+    "HDFC India Flexi Cap Fund": {
+        "fund_flow_type": "inbound",  # part of "HDFC Feeder Funds" on thefynprint's Inbound Funds Tracker
+    },
+    "HDFC India Mid-cap Opportunities Fund": {
+        "fund_flow_type": "inbound",  # part of "HDFC Feeder Funds" on thefynprint's Inbound Funds Tracker
+    },
+    "HDFC India NIFTY 50 Fund": {
+        "fund_flow_type": "inbound",  # part of "HDFC Feeder Funds" on thefynprint's Inbound Funds Tracker
+    },
+    "HDFC India Small Cap Fund": {
+        "fund_flow_type": "inbound",  # part of "HDFC Feeder Funds" on thefynprint's Inbound Funds Tracker
+    },
+    "Motilal Oswal GIFT City India Equity Fund of Funds Trust": {
+        "fund_flow_type": "inbound",  # listed as "Motilal Gift City Fund" on thefynprint's Inbound Funds Tracker
+    },
+    "Alchemy India Long Term Fund": {
+        "fund_flow_type": "inbound",  # listed as "Alchemy India long-term Fund" on thefynprint's Inbound Funds Tracker
+    },
+    "Carnelian India Amritkaal Fund": {
+        "fund_flow_type": "inbound",  # listed on thefynprint's Inbound Funds Tracker
+    },
+    "ABSL India Flexicap Fund (IFSC)": {
+        "fund_flow_type": "inbound",  # listed as "ABSL India Flexicap Fund" on thefynprint's Inbound Funds Tracker
+        "underlying_fund_name": "Aditya Birla Sun Life Flexi Cap Fund",  # ABSL's own Fund Comparison PDF (user-provided, 21 Aug 2026, REF 1787262916059)
+    },
+    "ABSL MSCI India Fund (IFSC)": {
+        # No fund_flow_type given here -- not stated in ABSL's Fund Comparison PDF, do not guess.
+        "underlying_fund_name": "Aditya Birla Sun Life MSCI India ETF",  # ABSL Fund Comparison PDF (user-provided, 21 Aug 2026, REF 1787262916059)
+        "minimum_investment": "Rs 50 Lakhs",  # same source
+        "category": "Category III AIF, GIFT City",  # same source (extracted there as "Cat III, Open-Ended")
+    },
+    "Rangoli India Fund": {
+        "fund_flow_type": "inbound",  # listed as "Unifi Rangoli India Fund" on thefynprint's Inbound Funds Tracker
+    },
+    "Mirae Asset India Equity Allocation Fund": {
+        "fund_flow_type": "inbound",  # listed as "Mirae" (Multi-Fund, largely within AMC) on thefynprint's Inbound Funds Tracker
     },
 }
 

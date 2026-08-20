@@ -82,7 +82,8 @@
       <ul class="hidden lg:flex items-center gap-6 text-xs font-bold tracking-wide text-[var(--color-text-muted)]">
         <li><a href="#dashboard" class="hover:text-blue-500 transition-colors flex items-center gap-1">Dashboard</a></li>
         <li><a href="#screener" class="hover:text-blue-500 transition-colors flex items-center gap-1">Fund Screener</a></li>
-        <li><a href="#analytics" class="hover:text-blue-500 transition-colors flex items-center gap-1">Analytics</a></li>
+        <li><a href="/gift-city-outbound" class="hover:text-blue-500 transition-colors flex items-center gap-1">Outbound Funds</a></li>
+        <li><a href="/gift-city-inbound" class="hover:text-blue-500 transition-colors flex items-center gap-1">Inbound Funds</a></li>
         <li><a href="#amcs" class="hover:text-blue-500 transition-colors flex items-center gap-1">AMC Directory</a></li>
         <li><a href="#knowledge" class="hover:text-blue-500 transition-colors flex items-center gap-1">Knowledge Hub</a></li>
       </ul>
@@ -494,12 +495,14 @@
 
       <!-- Modal Header -->
       <div class="mb-4">
-        <div class="flex items-center gap-2 mb-2">
+        <div class="flex items-center gap-2 mb-2 flex-wrap">
           <span id="modalTierBadge" class="text-xs px-2.5 py-0.5 rounded-full font-bold">Tier 1</span>
+          <span id="modalFlowBadge" class="text-xs px-2.5 py-0.5 rounded-full font-bold hidden"></span>
           <span id="modalCategory" class="text-xs text-[var(--color-text-subtle)]">Retail Feeder Fund</span>
         </div>
         <h2 id="modalFundName" class="text-xl font-black text-[var(--color-text)]">Fund Name</h2>
         <p id="modalAmcName" class="text-xs text-blue-400 font-bold mt-0.5">AMC Name</p>
+        <p id="modalFundManager" class="text-[11px] text-[var(--color-text-subtle)] mt-0.5 hidden"></p>
       </div>
 
       <!-- Quick Metrics Grid -->
@@ -512,7 +515,7 @@
         <div>
           <span class="block text-[10px] text-[var(--color-text-subtle)] uppercase">Expense Ratio (TER)</span>
           <span id="modalTer" class="font-mono font-bold text-base text-[var(--color-text)]">0.50%</span>
-          <span class="block text-[9px] text-[var(--color-text-subtle)]">Direct Plan TER</span>
+          <span id="modalTerSubtitle" class="block text-[9px] text-[var(--color-text-subtle)]">Direct Plan TER</span>
         </div>
         <div>
           <span class="block text-[10px] text-[var(--color-text-subtle)] uppercase">Registration Date</span>
@@ -532,13 +535,53 @@
         </div>
       </div>
 
-      <!-- Blank / Drop-zone Image Placeholder (As requested) -->
-      <div class="mb-5">
+      <!-- Fee Schedule (funds where no single TER is disclosed, but a fee
+           structure -- e.g. management fee + performance fee -- is) -->
+      <div id="modalFeeNotesSection" class="mb-5 hidden">
+        <h3 class="text-xs font-bold text-[var(--color-text)] uppercase tracking-wider mb-2">Fee Schedule</h3>
+        <div id="modalFeeNotesBody" class="bg-[var(--color-bg-subtle)] border border-[var(--color-border)] rounded-2xl p-3 text-xs text-[var(--color-text-muted)]"></div>
+      </div>
+
+      <!-- Underlying Fund (feeder-structure funds only) -->
+      <div id="modalUnderlyingSection" class="mb-5 hidden">
+        <h3 class="text-xs font-bold text-[var(--color-text)] uppercase tracking-wider mb-2">Underlying Fund</h3>
+        <div id="modalUnderlyingBody" class="bg-[var(--color-bg-subtle)] border border-[var(--color-border)] rounded-2xl p-3 text-xs text-[var(--color-text-muted)] space-y-1"></div>
+      </div>
+
+      <!-- Top Holdings -->
+      <div id="modalHoldingsSection" class="mb-5 hidden">
+        <div class="flex items-center justify-between mb-2">
+          <h3 class="text-xs font-bold text-[var(--color-text)] uppercase tracking-wider">Top Holdings</h3>
+          <span id="modalHoldingsBasisNote" class="text-[10px] text-[var(--color-text-subtle)]"></span>
+        </div>
+        <div id="modalHoldingsBody" class="bg-[var(--color-bg-subtle)] border border-[var(--color-border)] rounded-2xl p-3"></div>
+      </div>
+
+      <!-- Geographic Allocation -->
+      <div id="modalGeoSection" class="mb-5 hidden">
+        <h3 class="text-xs font-bold text-[var(--color-text)] uppercase tracking-wider mb-2">Geographic Allocation</h3>
+        <div id="modalGeoBody" class="bg-[var(--color-bg-subtle)] border border-[var(--color-border)] rounded-2xl p-3 space-y-1.5"></div>
+      </div>
+
+      <!-- Sector Allocation -->
+      <div id="modalSectorSection" class="mb-5 hidden">
+        <h3 class="text-xs font-bold text-[var(--color-text)] uppercase tracking-wider mb-2">Sector Allocation</h3>
+        <div id="modalSectorBody" class="bg-[var(--color-bg-subtle)] border border-[var(--color-border)] rounded-2xl p-3 space-y-1.5"></div>
+      </div>
+
+      <!-- Taxation -->
+      <div id="modalTaxSection" class="mb-5 hidden">
+        <h3 class="text-xs font-bold text-[var(--color-text)] uppercase tracking-wider mb-2">Taxation</h3>
+        <div id="modalTaxBody" class="bg-[var(--color-bg-subtle)] border border-[var(--color-border)] rounded-2xl p-3 text-xs space-y-1"></div>
+      </div>
+
+      <!-- Fallback when none of the above data has been captured for this fund yet -->
+      <div id="modalDataPendingSection" class="mb-5 hidden">
         <div class="chart-placeholder-box p-4 text-center">
           <div class="flex flex-col items-center justify-center gap-1 text-[var(--color-text-subtle)]">
             <svg class="w-8 h-8 opacity-40 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-            <span class="text-xs font-bold text-[var(--color-text-muted)]">Factsheet Portfolio Holding & Sector Allocation Image</span>
-            <span class="text-[10px] italic">[ Image Drop Zone — Ready for future factsheet chart upload ]</span>
+            <span class="text-xs font-bold text-[var(--color-text-muted)]">Holdings, allocation & taxation not yet captured</span>
+            <span class="text-[10px] italic">This fund's detailed factsheet data hasn't been parsed and verified yet.</span>
           </div>
         </div>
       </div>
