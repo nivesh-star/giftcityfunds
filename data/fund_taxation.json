@@ -1,0 +1,20 @@
+[
+  {
+    "fund_name": "DSP Global Equity Fund",
+    "ltcg_rate": "14.95%",
+    "stcg_rate": "42.74%",
+    "dividend_rate": "35.88%",
+    "tax_notes": "Tax paid at the Fund level on income arising to the Fund (>24 months = long-term). There should not be any tax in the hands of investors on gains at redemption in India. Tax implications in the investor's country of residence depend on that country's laws.",
+    "as_of_date": "2026-05-29",
+    "source_name": "DSP Global Equity Fund factsheet"
+  },
+  {
+    "fund_name": "Baroda BNP Paribas GIFT US Small Cap Fund",
+    "ltcg_rate": null,
+    "stcg_rate": null,
+    "dividend_rate": null,
+    "tax_notes": "No specific LTCG/STCG/dividend percentage disclosed in the NFO presentation. Mechanism described: for resident Indian investors, gains are exempt from tax at the investor level under the AIF unit/agreement structure; the AIF (as GIFT-based Fund Manager) deducts applicable capital gains tax before paying out redemption proceeds to individual investors. Investors in the fund are not subject to TDS on the underlying Luxembourg fund investment.",
+    "as_of_date": "2025-09-30",
+    "source_name": "BBNPP GIFT US Small Cap Fund NFO presentation (Source: IFSCA.GOV.IN, dated 30 Sept 2025)"
+  }
+]

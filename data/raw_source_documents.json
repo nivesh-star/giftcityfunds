@@ -1,0 +1,119 @@
+[
+  {
+    "fund_name": "DSP Global Equity Fund",
+    "source_name": "DSP Global Equity Fund factsheet PDF",
+    "source_url": "https://giftcity.dspim.com/product",
+    "captured_at": "2026-08-20T00:00:00Z",
+    "raw_json": {
+      "fund_label": "Outbound Retail Fund from Gift City",
+      "description": "DSP Global Equity Fund is an open-ended Retail Fund investing in global equity and equity related instruments. It is an actively managed, valuation-first portfolio of global businesses, built without the constraints of geography, sector, or benchmark.",
+      "nav": {"as_of": "2026-05-29", "currency": "USD", "direct": {"purchase": 9.56, "withdrawal": 9.56}, "regular": {"purchase": 9.511, "withdrawal": 9.511}},
+      "fund_aum": {"value": 32, "unit": "million", "currency": "USD", "as_of": "2026-05-29"},
+      "benchmark": "MSCI ACWI",
+      "investment_horizon": "5+ Years (Recommended)",
+      "liquidity": "Daily (No lock-in period)",
+      "investment_details": {
+        "expense_ratio": {"direct": "Upto 1%", "regular": "Upto 1.75%"},
+        "minimum_investment": {"initial": "USD 5,000", "step_up": "USD 500"},
+        "exit_load": "1% if redeemed within 24 months"
+      },
+      "top_10_holdings": [
+        {"rank": 1, "name": "Amazon.com Inc", "weight_pct": 6.4},
+        {"rank": 2, "name": "TSMC", "weight_pct": 5.8},
+        {"rank": 3, "name": "Adyen NV", "weight_pct": 5.0},
+        {"rank": 4, "name": "Meta Platform", "weight_pct": 4.7},
+        {"rank": 5, "name": "Alphabet Inc", "weight_pct": 4.0},
+        {"rank": 6, "name": "Tencent Holdings", "weight_pct": 3.9},
+        {"rank": 7, "name": "Constellation Software Inc", "weight_pct": 3.9},
+        {"rank": 8, "name": "Berkshire Hathaway", "weight_pct": 3.3},
+        {"rank": 9, "name": "Fairfax India Holdings Corporation", "weight_pct": 3.2},
+        {"rank": 10, "name": "Nexans SA", "weight_pct": 3.0}
+      ],
+      "top_10_weight_approx_pct": 43,
+      "geographic_allocation": {"North America": 30.8, "Europe": 17.7, "China & Hong Kong": 15.2, "Taiwan": 5.8, "UK": 3.8, "Japan": 2.0, "Cash": 24.8},
+      "sector_allocation": {"Media & Entertainment": 17.3, "Financial Services": 15.2, "Consumer Durables & Apparel": 8.7, "Consumer Discretionary": 8.0, "Semiconductors": 5.8, "Capital Goods": 5.1, "Consumer Services": 4.8, "Software & Services": 3.9, "Automobiles & Components": 2.7, "Materials": 1.9, "Insurance": 1.8, "Cash": 22.1},
+      "fund_performance_annualised": {
+        "since_inception": {"period_label": "Sept 18, 2025", "regular": "-4.9%", "direct": "-4.4%", "benchmark_msci_acwi": "16.6%"},
+        "6_months": {"regular": "-3.6%", "direct": "-3.2%", "benchmark_msci_acwi": "13.3%"},
+        "3_months": {"regular": "1.6%", "direct": "1.8%", "benchmark_msci_acwi": "7.5%"},
+        "1_month": {"regular": "0.3%", "direct": "0.3%", "benchmark_msci_acwi": "5.2%"},
+        "as_of": "2026-05-29"
+      },
+      "taxation_at_fund_level": {
+        "long_term_gains_over_24_months": "14.95%",
+        "short_term_gains_under_24_months": "42.74%",
+        "dividend_applicable_rate": "35.88%",
+        "notes": "Tax paid at Fund level on income arising to the Fund. No tax in hands of investors on gains at redemption in India. Investor country-of-residence tax implications determined by that country's laws."
+      },
+      "portfolio_management_team": [
+        {"name": "Giriraj Bassa", "role": "Fund Manager", "entity": "DSP Asset Managers Private Limited"},
+        {"name": "Natraj Sankaranarayanan", "role": "Advisor - Investments", "entity": "DSP Asset Managers Private Limited"},
+        {"name": "Jayesh Jain", "role": "Advisor - Investments", "entity": "DSP Asset Managers Private Limited"}
+      ],
+      "registration": "Registered as Retail Fund with IFSCA, Gift City. DSP Fund Managers IFSC Private Limited registered with IFSCA as a Registered FME (Retail), acting as Fund Management Entity."
+    }
+  },
+  {
+    "fund_name": "Baroda BNP Paribas GIFT US Small Cap Fund",
+    "source_name": "BBNPP GIFT US Small Cap Fund NFO presentation",
+    "source_url": "https://www.barodabnpparibasmf.in/gift-us-small-cap-fund",
+    "captured_at": "2026-08-20T00:00:00Z",
+    "raw_json": {
+      "fund_label": "A Non-Retail Category-III AIF",
+      "tagline": "Delivering alpha through focus on high quality, high conviction portfolio of US Small Cap Companies.",
+      "initial_offer_opens": "2025-11-14",
+      "highlights": {
+        "category": "Alternative Investment Fund (AIF)",
+        "structure": "Open Ended Category III AIF",
+        "minimum_investment_and_management_fees": {
+          "class_T": {"minimum_investment": "USD 175,000 per application", "management_fee": "upto 1.65% p.a."},
+          "class_U": {"minimum_investment": "USD 150,000 per application", "management_fee": "upto 1.75% p.a."},
+          "class_I": {"minimum_investment": "USD 250,000 per application", "management_fee": "upto 0.75% p.a."}
+        },
+        "exit_load": {
+          "class_U": "No redemptions allowed for first 2 years (Lock In); Nil thereafter",
+          "class_T": "1% for 1 Year; No lock in",
+          "class_I": "NIL; No lock in"
+        },
+        "investment_strategy": "Investing into units of BNP Paribas US Small Cap Fund",
+        "target_investors": "Resident Indians, Non-Resident Indians and other eligible investors",
+        "trustee_company": "Vistra ITCL Limited"
+      },
+      "underlying_fund_details": {
+        "underlying_fund": "BNP Paribas US Small Cap Fund",
+        "investment_manager": ["BNP Paribas Asset Management USA, Inc", "BNP Paribas Asset Management UK, Limited"],
+        "fund_structure": "Sub-fund of SICAV BNP PARIBAS FUNDS",
+        "domicile": "Luxembourg",
+        "currency": "USD"
+      },
+      "gift_fund_manager": {"entity": "Baroda BNP Paribas Asset Management LTD (IFSC Branch)", "name": null},
+      "tax_applicability": {
+        "resident_indian_investors": "Units/agreement structure -- any income AIF exempt from tax at investor level",
+        "aif_level": "AIF pays out redemption proceeds after deducting capital gains tax for individual investors",
+        "underlying_fund_investment": "Investors (Baroda BNP Paribas GIFT US Small Cap Fund) are not subject to TDS for their investments in the Underlying Fund",
+        "source": "IFSCA.GOV.IN, dated 30 September 2025",
+        "explicit_rates_disclosed": false
+      },
+      "underlying_fund_holdings_and_sector_breakdown": {
+        "as_of": "2025-09-30",
+        "number_of_holdings_in_portfolio": 83,
+        "main_holdings": [
+          {"rank": 1, "name": "Herc Holdings", "weight_pct": 1.9},
+          {"rank": 2, "name": "Watts Water Technologies", "weight_pct": 1.8},
+          {"rank": 3, "name": "Hexcel Corp", "weight_pct": 1.8},
+          {"rank": 4, "name": "Casella Waste Systems", "weight_pct": 1.8},
+          {"rank": 5, "name": "Advanced Energy Industries", "weight_pct": 1.8},
+          {"rank": 6, "name": "nVent Electric", "weight_pct": 1.8},
+          {"rank": 7, "name": "Ciena Corp", "weight_pct": 1.8},
+          {"rank": 8, "name": "Plexus Corp", "weight_pct": 1.8},
+          {"rank": 9, "name": "MSA Safety", "weight_pct": 1.6},
+          {"rank": 10, "name": "Axcelis Technologies", "weight_pct": 1.6}
+        ],
+        "sector_exposure_pct": {"Health Care": 19.4, "Financials": 17.8, "Industrials": 16.7, "Information Technology": 14.5, "Consumer Discretionary": 7.8, "Real Estate": 5.6, "Materials": 4.7, "Energy": 3.7, "Utilities": 2.9, "Consumer Staples": 1.4, "Communication Services": 1.3, "Cash": 4.2},
+        "source": "BNP Paribas Asset Management, as of 30 September / 31 October 2025",
+        "disclaimer": "Companies listed are for illustrative purposes only, not a solicitation or investment recommendation."
+      },
+      "underlying_fund_team_stats": {"aum_usd_billion": 14.2, "team_members": 12, "outperformed_benchmark_years": "10 of last decade (per source claim)"}
+    }
+  }
+]
