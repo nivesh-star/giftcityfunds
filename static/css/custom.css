@@ -1,4 +1,4 @@
-/* custom.css - GIFT360 Styling inspired by sif360.com */
+/* custom.css - GIFT360 Styling inspired by gift360.com */
 
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 
@@ -6,11 +6,11 @@
   --font-sans: 'Plus Jakarta Sans', 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
 
-  /* SIF360 Brand Colors */
-  --sif-blue: #2563eb;
-  --sif-blue-dark: #1d4ed8;
-  --sif-neon: #79FE0C;
-  --sif-neon-dark: #67e600;
+  /* GIFT360 Brand Colors */
+  --gcf-blue: #2563eb;
+  --gcf-blue-dark: #1d4ed8;
+  --gcf-neon: #79FE0C;
+  --gcf-neon-dark: #67e600;
 
   /* Theme Defaults (Dark by default for sleek fintech look, toggleable to light) */
   --color-bg: #0b0f19;
@@ -68,7 +68,7 @@ body {
   overflow-x: hidden;
 }
 
-/* Shine Sweep Animation (SIF360 brand effect) */
+/* Shine Sweep Animation (GIFT360 brand effect) */
 @keyframes shineSweep {
   0% { transform: translateX(-150%) skewX(-20deg); }
   100% { transform: translateX(200%) skewX(-20deg); }
@@ -143,7 +143,7 @@ body {
 }
 
 .chart-placeholder-box:hover {
-  border-color: var(--sif-blue);
+  border-color: var(--gcf-blue);
   background: rgba(37, 99, 235, 0.04);
 }
 
@@ -163,7 +163,7 @@ body {
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--sif-blue);
+  background: var(--gcf-blue);
 }
 
 /* Ticker Marquee */
@@ -192,9 +192,9 @@ body {
 
 /* Tab Active styling */
 .tab-btn.active {
-  background-color: var(--sif-blue);
+  background-color: var(--gcf-blue);
   color: #ffffff;
-  border-color: var(--sif-blue);
+  border-color: var(--gcf-blue);
   box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
 }
 

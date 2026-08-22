@@ -14,10 +14,10 @@
       theme: {
         extend: {
           colors: {
-            'sif-blue': '#2563eb',
-            'sif-blue-dark': '#1d4ed8',
-            'sif-neon': '#79FE0C',
-            'sif-neon-dark': '#67e600',
+            'gcf-blue': '#2563eb',
+            'gcf-blue-dark': '#1d4ed8',
+            'gcf-neon': '#79FE0C',
+            'gcf-neon-dark': '#67e600',
             'fin-dark': '#0b0f19',
             'fin-card': '#131d31',
           }
@@ -41,10 +41,10 @@
     <!-- Static Badge with solid background & border so ticker scrolls cleanly behind/beside it without overlapping -->
     <div class="relative z-20 shrink-0 bg-[#0a1128] dark:bg-[#070d1e] pl-4 pr-3 py-0.5 border-r border-blue-500/30 flex items-center gap-2 shadow-[6px_0_15px_rgba(0,0,0,0.6)]">
       <span class="relative flex h-2 w-2">
-        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-sif-neon opacity-75"></span>
-        <span class="relative inline-flex rounded-full h-2 w-2 bg-sif-neon"></span>
+        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-gcf-neon opacity-75"></span>
+        <span class="relative inline-flex rounded-full h-2 w-2 bg-gcf-neon"></span>
       </span>
-      <span class="font-extrabold tracking-wider text-sif-neon uppercase text-[10px] whitespace-nowrap">
+      <span class="font-extrabold tracking-wider text-gcf-neon uppercase text-[10px] whitespace-nowrap">
         GIFT City Live Feed:
       </span>
     </div>
@@ -59,7 +59,7 @@
   </div>
 
   <!-- ========================================================================= -->
-  <!-- NAVIGATION BAR (Inspired by SIF360) -->
+  <!-- NAVIGATION BAR (Inspired by GIFT360) -->
   <!-- ========================================================================= -->
   <nav class="sticky top-0 z-40 bg-[var(--color-bg-subtle)]/90 backdrop-blur-md border-b border-[var(--color-border)] px-4 md:px-8 py-3 transition-colors">
     <div class="max-w-7xl mx-auto flex items-center justify-between gap-4">
@@ -72,7 +72,7 @@
         <div>
           <div class="flex items-center gap-1">
             <span class="font-extrabold text-lg tracking-tight text-[var(--color-text)]">GIFT<span class="text-blue-500">360</span></span>
-            <span class="text-[9px] px-1.5 py-0.5 rounded font-black tracking-widest bg-sif-neon text-black">IFSC</span>
+            <span class="text-[9px] px-1.5 py-0.5 rounded font-black tracking-widest bg-gcf-neon text-black">IFSC</span>
           </div>
           <span class="block text-[10px] text-[var(--color-text-muted)] font-medium tracking-wide">Funds Intelligence Portal</span>
         </div>
@@ -108,9 +108,9 @@
           <svg class="w-4 h-4 block dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
         </button>
 
-        <!-- SIF Ready CTA -->
+        <!-- GIFT City Funds CTA -->
         <a href="#screener" class="btn-neon text-xs px-3.5 py-1.5 rounded-lg flex items-center gap-1.5 shadow-sm">
-          <span>Explore SIFs</span>
+          <span>Explore GIFT City Funds</span>
           <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
         </a>
       </div>
@@ -131,7 +131,7 @@
         <!-- Left Hero Content -->
         <div class="lg:col-span-7 space-y-4 text-left">
           <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/25 text-blue-400 text-xs font-bold tracking-wide">
-            <span class="w-2 h-2 rounded-full bg-sif-neon animate-pulse"></span>
+            <span class="w-2 h-2 rounded-full bg-gcf-neon animate-pulse"></span>
             IFSCA Compliant Data Engine (75 Active Funds)
           </div>
 
@@ -355,13 +355,6 @@
         </select>
       </div>
 
-      <!-- Export Trigger -->
-      <div class="lg:col-span-2 flex items-center gap-2">
-        <a href="/api/export/json" class="w-full py-2 rounded-xl text-center font-bold text-xs border border-[var(--color-border)] hover:bg-[var(--color-card-hover)] text-[var(--color-text-muted)] hover:text-[var(--color-text)] transition-all">
-          JSON Dump
-        </a>
-      </div>
-
     </div>
 
     <!-- Table View -->
@@ -504,6 +497,7 @@
         <h2 id="modalFundName" class="text-xl font-black text-[var(--color-text)]">Fund Name</h2>
         <p id="modalAmcName" class="text-xs text-blue-400 font-bold mt-0.5">AMC Name</p>
         <p id="modalFundManager" class="text-[11px] text-[var(--color-text-subtle)] mt-0.5 hidden"></p>
+        <p id="modalBenchmark" class="text-[11px] text-[var(--color-text-subtle)] mt-0.5 hidden"></p>
       </div>
 
       <!-- Quick Metrics Grid -->
@@ -570,10 +564,40 @@
         <div id="modalSectorBody" class="bg-[var(--color-bg-subtle)] border border-[var(--color-border)] rounded-2xl p-3 space-y-1.5"></div>
       </div>
 
+      <!-- Market Capitalisation Allocation -->
+      <div id="modalMarketCapSection" class="mb-5 hidden">
+        <h3 class="text-xs font-bold text-[var(--color-text)] uppercase tracking-wider mb-2">Market Capitalisation</h3>
+        <div id="modalMarketCapBody" class="bg-[var(--color-bg-subtle)] border border-[var(--color-border)] rounded-2xl p-3 space-y-1.5"></div>
+      </div>
+
+      <!-- Asset Allocation -->
+      <div id="modalAssetClassSection" class="mb-5 hidden">
+        <h3 class="text-xs font-bold text-[var(--color-text)] uppercase tracking-wider mb-2">Asset Allocation</h3>
+        <div id="modalAssetClassBody" class="bg-[var(--color-bg-subtle)] border border-[var(--color-border)] rounded-2xl p-3 space-y-1.5"></div>
+      </div>
+
       <!-- Taxation -->
       <div id="modalTaxSection" class="mb-5 hidden">
         <h3 class="text-xs font-bold text-[var(--color-text)] uppercase tracking-wider mb-2">Taxation</h3>
         <div id="modalTaxBody" class="bg-[var(--color-bg-subtle)] border border-[var(--color-border)] rounded-2xl p-3 text-xs space-y-1"></div>
+      </div>
+
+      <!-- Share Classes -->
+      <div id="modalShareClassSection" class="mb-5 hidden">
+        <h3 class="text-xs font-bold text-[var(--color-text)] uppercase tracking-wider mb-2">Share Classes</h3>
+        <div id="modalShareClassBody" class="bg-[var(--color-bg-subtle)] border border-[var(--color-border)] rounded-2xl p-3 text-xs overflow-x-auto"></div>
+      </div>
+
+      <!-- Performance / Returns -->
+      <div id="modalPerformanceSection" class="mb-5 hidden">
+        <h3 class="text-xs font-bold text-[var(--color-text)] uppercase tracking-wider mb-2">Performance vs. Benchmark</h3>
+        <div id="modalPerformanceBody" class="bg-[var(--color-bg-subtle)] border border-[var(--color-border)] rounded-2xl p-3 text-xs overflow-x-auto"></div>
+      </div>
+
+      <!-- Risk Metrics -->
+      <div id="modalRiskMetricsSection" class="mb-5 hidden">
+        <h3 class="text-xs font-bold text-[var(--color-text)] uppercase tracking-wider mb-2">Risk Metrics</h3>
+        <div id="modalRiskMetricsBody" class="bg-[var(--color-bg-subtle)] border border-[var(--color-border)] rounded-2xl p-3 text-xs grid grid-cols-2 sm:grid-cols-3 gap-2"></div>
       </div>
 
       <!-- Fallback when none of the above data has been captured for this fund yet -->
@@ -632,7 +656,7 @@
   </div>
 
   <!-- ========================================================================= -->
-  <!-- FOOTER (Matching SIF360 Footer) -->
+  <!-- FOOTER (Matching GIFT360 Footer) -->
   <!-- ========================================================================= -->
   <footer class="bg-[var(--color-bg-subtle)] border-t-2 border-blue-600 text-xs py-8 px-4 md:px-8 mt-12">
     <div class="max-w-7xl mx-auto space-y-6">
@@ -646,7 +670,6 @@
           <a href="#screener" class="hover:text-blue-400">Fund Screener</a>
           <a href="#analytics" class="hover:text-blue-400">Analytics</a>
           <a href="/api/export/csv" class="hover:text-blue-400">CSV Export</a>
-          <a href="/api/export/json" class="hover:text-blue-400">JSON API</a>
         </div>
       </div>
 

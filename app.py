@@ -302,16 +302,20 @@ def get_fund_detail(fund_id: int):
         # whose official factsheet actually discloses individual security
         # names (see portfolio_holdings schema comment in database.py).
         # Empty list, not an error, for every other fund.
+        # Order fund-direct holdings before look-through/underlying-fund holdings
+        # (both groups restart their own rank at 1) so the two layers of a
+        # feeder-fund structure never interleave in the UI.
         holdings_rows = conn.execute(
             """SELECT holding_name, weight_pct, rank, as_of_date, source_name, holdings_basis
-               FROM portfolio_holdings WHERE fund_id = ? ORDER BY rank ASC""",
+               FROM portfolio_holdings WHERE fund_id = ?
+               ORDER BY CASE holdings_basis WHEN 'fund_direct' THEN 0 ELSE 1 END, rank ASC""",
             (fund_id,)
         ).fetchall()
         fund_dict["holdings"] = [dict(r) for r in holdings_rows]
 
-        # Geographic/sector allocation -- only populated where a factsheet
-        # actually publishes the breakdown (see fund_allocation schema
-        # comment in database.py). Split into two lists by breakdown_type.
+        # Geographic/sector/market-cap/asset-class allocation -- only populated
+        # where a factsheet actually publishes the breakdown (see fund_allocation
+        # schema comment in database.py). Split into lists by breakdown_type.
         allocation_rows = conn.execute(
             """SELECT breakdown_type, category, weight_pct, as_of_date, source_name, holdings_basis
                FROM fund_allocation WHERE fund_id = ? ORDER BY weight_pct DESC""",
@@ -319,6 +323,9 @@ def get_fund_detail(fund_id: int):
         ).fetchall()
         fund_dict["geographic_allocation"] = [dict(r) for r in allocation_rows if r["breakdown_type"] == "geographic"]
         fund_dict["sector_allocation"] = [dict(r) for r in allocation_rows if r["breakdown_type"] == "sector"]
+        fund_dict["market_cap_allocation"] = [dict(r) for r in allocation_rows if r["breakdown_type"] == "market_cap"]
+        fund_dict["asset_class_allocation"] = [dict(r) for r in allocation_rows if r["breakdown_type"] == "asset_class"]
+        fund_dict["credit_quality_allocation"] = [dict(r) for r in allocation_rows if r["breakdown_type"] == "credit_quality"]
 
         # Taxation as actually disclosed on the source -- see fund_taxation
         # schema comment. None (not fabricated defaults) when not captured.
@@ -328,6 +335,40 @@ def get_fund_detail(fund_id: int):
             (fund_id,)
         ).fetchone()
         fund_dict["taxation"] = dict(tax_row) if tax_row else None
+
+        # Performance / returns series -- only populated where a factsheet
+        # actually discloses period-by-period fund vs. benchmark returns.
+        # Empty list, not an error, for every other fund.
+        performance_rows = conn.execute(
+            """SELECT period, fund_return_pct, benchmark_return_pct, excess_return_pct,
+                      share_class, currency, is_annualized, as_of_date, source_name
+               FROM fund_performance WHERE fund_id = ? ORDER BY share_class, performance_id""",
+            (fund_id,)
+        ).fetchall()
+        fund_dict["performance"] = [dict(r) for r in performance_rows]
+
+        # Risk metrics (alpha/beta/Sharpe/etc.) -- rare; most factsheets
+        # don't disclose these at all.
+        risk_rows = conn.execute(
+            """SELECT period, alpha_pct, beta, r_squared, tracking_error_pct, information_ratio,
+                      sharpe_ratio, upside_capture_pct, downside_capture_pct, active_share_pct,
+                      batting_average_pct, as_of_date, source_name
+               FROM fund_risk_metrics WHERE fund_id = ?""",
+            (fund_id,)
+        ).fetchall()
+        fund_dict["risk_metrics"] = [dict(r) for r in risk_rows]
+
+        # Share-class detail -- multiple NAV classes per fund (Direct/Regular,
+        # Class A1/A5/etc.), each potentially with its own fee/exit-load terms.
+        share_class_rows = conn.execute(
+            """SELECT class_name, investor_type, min_investment_usd, management_fee_pct,
+                      performance_fee_pct, hurdle_rate_pct, ter_pct, nav, nav_date,
+                      subscription_nav, redemption_nav_long_term, redemption_nav_short_term,
+                      exit_load_pct, exit_load_months, lock_in_months, isin, source_name
+               FROM fund_share_classes WHERE fund_id = ? ORDER BY share_class_id""",
+            (fund_id,)
+        ).fetchall()
+        fund_dict["share_classes"] = [dict(r) for r in share_class_rows]
 
     return jsonify({"success": True, "fund": fund_dict})
 

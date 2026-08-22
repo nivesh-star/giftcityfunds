@@ -1,5 +1,5 @@
 """
-Integrate Girish's parsed factsheet output (parsed_output.json) into our
+Integrate parsed factsheet output (parsed_output.json) into our
 SQLite DB. Rules:
   - NEVER overwrite a field that already has a non-null value in our DB --
     only fill genuine gaps.
@@ -135,7 +135,7 @@ for slug, fund_id in MATCHES.items():
                    (fund_id, holding_name, weight_pct, as_of_date, source_name, holdings_basis)
                    VALUES (?,?,?,?,?,?)""",
                 (fund_id, h["holding_name"], h["weight_pct"], h.get("as_of_date"),
-                 "Factsheet PDF (Girish, gift_city parser branch)", "fund_direct"),
+                 "Factsheet PDF (parsed via internal GIFT City parser pipeline)", "fund_direct"),
             )
 
     # Allocations -- our schema's breakdown_type only allows 'geographic'/'sector';
@@ -156,7 +156,7 @@ for slug, fund_id in MATCHES.items():
                    (fund_id, breakdown_type, category, weight_pct, as_of_date, source_name)
                    VALUES (?,?,?,?,?,?)""",
                 (fund_id, breakdown_type, a["category"], a["weight_pct"], a.get("as_of_date"),
-                 "Factsheet PDF (Girish, gift_city parser branch)"),
+                 "Factsheet PDF (parsed via internal GIFT City parser pipeline)"),
             )
 
     # Taxation
@@ -167,7 +167,7 @@ for slug, fund_id in MATCHES.items():
                 """INSERT INTO fund_taxation (fund_id, ltcg_rate, stcg_rate, as_of_date, source_name)
                    VALUES (?,?,?,?,?)""",
                 (fund_id, fi.get("ltcg_tax_pct"), fi.get("stcg_tax_pct"), fi.get("factsheet_date"),
-                 "Factsheet PDF (Girish, gift_city parser branch)"),
+                 "Factsheet PDF (parsed via internal GIFT City parser pipeline)"),
             )
 
 conn.commit()

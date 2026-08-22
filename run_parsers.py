@@ -1,6 +1,6 @@
 """
-Run Girish's gift_city parsers directly against the factsheet PDFs,
-bypassing his load_to_db.py (which targets a Postgres DB we don't have).
+Run the gift_city parsers directly against the factsheet PDFs,
+bypassing load_to_db.py (which targets a Postgres DB we don't have).
 Dumps each parser's ParsedFactsheet as JSON for inspection/manual review
 before anything gets applied to our SQLite DB.
 """

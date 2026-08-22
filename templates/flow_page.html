@@ -14,10 +14,10 @@
       theme: {
         extend: {
           colors: {
-            'sif-blue': '#2563eb',
-            'sif-blue-dark': '#1d4ed8',
-            'sif-neon': '#79FE0C',
-            'sif-neon-dark': '#67e600',
+            'gcf-blue': '#2563eb',
+            'gcf-blue-dark': '#1d4ed8',
+            'gcf-neon': '#79FE0C',
+            'gcf-neon-dark': '#67e600',
             'fin-dark': '#0b0f19',
             'fin-card': '#131d31',
           }
@@ -42,7 +42,7 @@
         <div>
           <div class="flex items-center gap-1">
             <span class="font-extrabold text-lg tracking-tight text-[var(--color-text)]">GIFT<span class="text-blue-500">360</span></span>
-            <span class="text-[9px] px-1.5 py-0.5 rounded font-black tracking-widest bg-sif-neon text-black">IFSC</span>
+            <span class="text-[9px] px-1.5 py-0.5 rounded font-black tracking-widest bg-gcf-neon text-black">IFSC</span>
           </div>
           <span class="block text-[10px] text-[var(--color-text-muted)] font-medium tracking-wide">Funds Intelligence Portal</span>
         </div>
@@ -74,7 +74,7 @@
     <div class="absolute top-1/4 left-1/2 -translate-x-1/2 w-[500px] h-[250px] bg-blue-600/15 blur-[120px] rounded-full pointer-events-none"></div>
     <div class="max-w-7xl mx-auto relative">
       <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/25 text-blue-400 text-xs font-bold tracking-wide mb-4">
-        <span class="w-2 h-2 rounded-full bg-sif-neon animate-pulse"></span>
+        <span class="w-2 h-2 rounded-full bg-gcf-neon animate-pulse"></span>
         GIFT CITY IFSC — {{ 'OUTBOUND' if flow_type == 'outbound' else 'INBOUND' }}
       </div>
       <h1 class="text-3xl sm:text-4xl font-black tracking-tight text-[var(--color-text)] leading-tight mb-3">

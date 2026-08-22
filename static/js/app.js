@@ -732,6 +732,17 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       }
 
+      // Benchmark index -- only shown when captured from a real source
+      const benchmarkEl = document.getElementById('modalBenchmark');
+      if (benchmarkEl) {
+        if (f.benchmark_index) {
+          benchmarkEl.textContent = `Benchmark: ${f.benchmark_index}`;
+          benchmarkEl.classList.remove('hidden');
+        } else {
+          benchmarkEl.classList.add('hidden');
+        }
+      }
+
       renderModalDataSections(f);
 
       // Render real NAV trend chart (or an honest "no history yet" note) --
@@ -773,8 +784,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const geoBody = document.getElementById('modalGeoBody');
     const sectorSection = document.getElementById('modalSectorSection');
     const sectorBody = document.getElementById('modalSectorBody');
+    const marketCapSection = document.getElementById('modalMarketCapSection');
+    const marketCapBody = document.getElementById('modalMarketCapBody');
+    const assetClassSection = document.getElementById('modalAssetClassSection');
+    const assetClassBody = document.getElementById('modalAssetClassBody');
     const taxSection = document.getElementById('modalTaxSection');
     const taxBody = document.getElementById('modalTaxBody');
+    const shareClassSection = document.getElementById('modalShareClassSection');
+    const shareClassBody = document.getElementById('modalShareClassBody');
+    const performanceSection = document.getElementById('modalPerformanceSection');
+    const performanceBody = document.getElementById('modalPerformanceBody');
+    const riskMetricsSection = document.getElementById('modalRiskMetricsSection');
+    const riskMetricsBody = document.getElementById('modalRiskMetricsBody');
     const pendingSection = document.getElementById('modalDataPendingSection');
 
     let anyRendered = false;
@@ -806,25 +827,56 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
 
-    // Top holdings
+    // Top holdings -- rendered as one or two groups (fund-direct holdings,
+    // and look-through/underlying-fund holdings for feeder structures), each
+    // with its own "Show all" toggle so a long list isn't silently truncated.
     if (holdingsSection && holdingsBody) {
       const holdings = Array.isArray(f.holdings) ? f.holdings : [];
       if (holdings.length > 0) {
         anyRendered = true;
-        const isUnderlyingBasis = holdings[0].holdings_basis === 'underlying_fund';
         if (holdingsBasisNote) {
-          holdingsBasisNote.textContent = isUnderlyingBasis ? 'Holdings of underlying fund (feeder structure)' : '';
+          holdingsBasisNote.textContent = '';
         }
-        const maxWeight = Math.max(...holdings.map(h => h.weight_pct || 0), 1);
-        holdingsBody.innerHTML = holdings.map(h => `
-          <div class="flex items-center gap-2 mb-1.5 last:mb-0">
-            <span class="text-[11px] text-[var(--color-text-muted)] w-1/2 truncate">${escapeHtml(h.holding_name)}</span>
-            <div class="flex-1 h-2 bg-[var(--color-border)] rounded-full overflow-hidden">
-              <div class="h-full bg-blue-400 rounded-full" style="width:${((h.weight_pct || 0) / maxWeight * 100).toFixed(1)}%"></div>
+        const directHoldings = holdings.filter(h => h.holdings_basis !== 'underlying_fund');
+        const underlyingHoldings = holdings.filter(h => h.holdings_basis === 'underlying_fund');
+        const groups = [];
+        if (directHoldings.length) groups.push({ label: 'Direct Holdings', rows: directHoldings, id: 'direct' });
+        if (underlyingHoldings.length) groups.push({ label: 'Look-through: Underlying Fund Holdings', rows: underlyingHoldings, id: 'underlying' });
+
+        const INITIAL_SHOW = 10;
+        holdingsBody.innerHTML = groups.map(g => {
+          const maxWeight = Math.max(...g.rows.map(h => h.weight_pct || 0), 1);
+          const rowHtml = (h) => `
+            <div class="flex items-center gap-2 mb-1.5 last:mb-0">
+              <span class="text-[11px] text-[var(--color-text-muted)] w-1/2 truncate">${escapeHtml(h.holding_name)}</span>
+              <div class="flex-1 h-2 bg-[var(--color-border)] rounded-full overflow-hidden">
+                <div class="h-full bg-blue-400 rounded-full" style="width:${((h.weight_pct || 0) / maxWeight * 100).toFixed(1)}%"></div>
+              </div>
+              <span class="text-[11px] font-mono text-[var(--color-text)] w-12 text-right">${h.weight_pct != null ? h.weight_pct.toFixed(1) + '%' : '—'}</span>
             </div>
-            <span class="text-[11px] font-mono text-[var(--color-text)] w-12 text-right">${h.weight_pct != null ? h.weight_pct.toFixed(1) + '%' : '—'}</span>
-          </div>
-        `).join('');
+          `;
+          const visibleRows = g.rows.slice(0, INITIAL_SHOW).map(rowHtml).join('');
+          const hiddenRows = g.rows.slice(INITIAL_SHOW).map(rowHtml).join('');
+          const groupHeader = groups.length > 1
+            ? `<div class="text-[10px] font-semibold text-[var(--color-text-subtle)] uppercase tracking-wide mb-1.5 ${g.id === 'underlying' ? 'mt-3' : ''}">${escapeHtml(g.label)}</div>`
+            : '';
+          const toggleId = `holdings-more-${g.id}`;
+          const toggleBtn = hiddenRows
+            ? `<button type="button" onclick="
+                 const box = document.getElementById('${toggleId}');
+                 const expanded = box.classList.toggle('hidden');
+                 this.textContent = expanded ? 'Show all ${g.rows.length} holdings' : 'Show less';
+               " class="text-[10px] text-blue-400 hover:underline mt-1">Show all ${g.rows.length} holdings</button>`
+            : '';
+          return `
+            <div class="mb-2 last:mb-0">
+              ${groupHeader}
+              ${visibleRows}
+              <div id="${toggleId}" class="hidden">${hiddenRows}</div>
+              ${toggleBtn}
+            </div>
+          `;
+        }).join('');
         holdingsSection.classList.remove('hidden');
       } else {
         holdingsSection.classList.add('hidden');
@@ -855,6 +907,30 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
 
+    // Market capitalisation allocation
+    if (marketCapSection && marketCapBody) {
+      const mcap = Array.isArray(f.market_cap_allocation) ? f.market_cap_allocation : [];
+      if (mcap.length > 0) {
+        anyRendered = true;
+        marketCapBody.innerHTML = renderAllocationBars(mcap);
+        marketCapSection.classList.remove('hidden');
+      } else {
+        marketCapSection.classList.add('hidden');
+      }
+    }
+
+    // Asset class allocation (e.g. Equity vs. Cash & Cash Equivalents)
+    if (assetClassSection && assetClassBody) {
+      const assetClass = Array.isArray(f.asset_class_allocation) ? f.asset_class_allocation : [];
+      if (assetClass.length > 0) {
+        anyRendered = true;
+        assetClassBody.innerHTML = renderAllocationBars(assetClass);
+        assetClassSection.classList.remove('hidden');
+      } else {
+        assetClassSection.classList.add('hidden');
+      }
+    }
+
     // Taxation -- show explicit rates when disclosed, otherwise descriptive
     // notes only. Never render a fabricated percentage.
     if (taxSection && taxBody) {
@@ -872,6 +948,128 @@ document.addEventListener('DOMContentLoaded', () => {
         taxSection.classList.remove('hidden');
       } else {
         taxSection.classList.add('hidden');
+      }
+    }
+
+    // Share classes -- multiple NAV classes per fund, each with its own
+    // fee/exit-load terms where disclosed.
+    if (shareClassSection && shareClassBody) {
+      const classes = Array.isArray(f.share_classes) ? f.share_classes : [];
+      if (classes.length > 0) {
+        anyRendered = true;
+        shareClassBody.innerHTML = `
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="text-[10px] text-[var(--color-text-subtle)] uppercase tracking-wide">
+                <th class="pb-1.5 pr-3">Class</th>
+                <th class="pb-1.5 pr-3">NAV</th>
+                <th class="pb-1.5 pr-3">Mgmt Fee</th>
+                <th class="pb-1.5 pr-3">TER</th>
+                <th class="pb-1.5 pr-3">Min. Investment</th>
+                <th class="pb-1.5">Exit Load</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${classes.map(c => {
+                let navCell;
+                if (c.subscription_nav != null || c.redemption_nav_long_term != null || c.redemption_nav_short_term != null) {
+                  // Fund discloses separate subscription vs. redemption NAVs (e.g. Direct/Regular
+                  // classes on gift.ppfas.com) -- show all three rather than collapsing to one number.
+                  navCell = `
+                    <div class="leading-tight">
+                      <div>Sub: ${c.subscription_nav != null ? c.subscription_nav : '—'}</div>
+                      <div>Redeem (LT): ${c.redemption_nav_long_term != null ? c.redemption_nav_long_term : '—'}</div>
+                      <div>Redeem (ST): ${c.redemption_nav_short_term != null ? c.redemption_nav_short_term : '—'}</div>
+                    </div>
+                  `;
+                } else {
+                  navCell = c.nav != null ? c.nav : '—';
+                }
+                return `
+                <tr class="border-t border-[var(--color-border)]">
+                  <td class="py-1.5 pr-3 font-semibold text-[var(--color-text)]">${escapeHtml(c.class_name || '—')}</td>
+                  <td class="py-1.5 pr-3 font-mono">${navCell}</td>
+                  <td class="py-1.5 pr-3 font-mono">${c.management_fee_pct != null ? c.management_fee_pct + '%' : '—'}</td>
+                  <td class="py-1.5 pr-3 font-mono">${c.ter_pct != null ? c.ter_pct + '%' : '—'}</td>
+                  <td class="py-1.5 pr-3 font-mono">${c.min_investment_usd != null ? '$' + c.min_investment_usd.toLocaleString() : '—'}</td>
+                  <td class="py-1.5 font-mono">${c.exit_load_pct != null ? c.exit_load_pct + '%' + (c.exit_load_months ? ' (' + c.exit_load_months + 'mo)' : '') : '—'}</td>
+                </tr>
+              `;
+              }).join('')}
+            </tbody>
+          </table>
+        `;
+        shareClassSection.classList.remove('hidden');
+      } else {
+        shareClassSection.classList.add('hidden');
+      }
+    }
+
+    // Performance / returns series -- grouped by share class where present.
+    if (performanceSection && performanceBody) {
+      const perf = Array.isArray(f.performance) ? f.performance : [];
+      if (perf.length > 0) {
+        anyRendered = true;
+        performanceBody.innerHTML = `
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="text-[10px] text-[var(--color-text-subtle)] uppercase tracking-wide">
+                <th class="pb-1.5 pr-3">Period</th>
+                <th class="pb-1.5 pr-3">Class</th>
+                <th class="pb-1.5 pr-3">Fund</th>
+                <th class="pb-1.5 pr-3">Benchmark</th>
+                <th class="pb-1.5">Excess</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${perf.map(p => `
+                <tr class="border-t border-[var(--color-border)]">
+                  <td class="py-1.5 pr-3 font-semibold text-[var(--color-text)]">${escapeHtml(p.period || '—')}</td>
+                  <td class="py-1.5 pr-3">${escapeHtml(p.share_class || '—')}</td>
+                  <td class="py-1.5 pr-3 font-mono">${p.fund_return_pct != null ? p.fund_return_pct + '%' : '—'}</td>
+                  <td class="py-1.5 pr-3 font-mono">${p.benchmark_return_pct != null ? p.benchmark_return_pct + '%' : '—'}</td>
+                  <td class="py-1.5 font-mono ${p.excess_return_pct > 0 ? 'text-emerald-400' : p.excess_return_pct < 0 ? 'text-red-400' : ''}">${p.excess_return_pct != null ? p.excess_return_pct + '%' : '—'}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        `;
+        performanceSection.classList.remove('hidden');
+      } else {
+        performanceSection.classList.add('hidden');
+      }
+    }
+
+    // Risk metrics -- rare; render whichever fields are actually populated.
+    if (riskMetricsSection && riskMetricsBody) {
+      const risk = Array.isArray(f.risk_metrics) ? f.risk_metrics : [];
+      const metricLabels = {
+        alpha_pct: 'Alpha', beta: 'Beta', r_squared: 'R²',
+        tracking_error_pct: 'Tracking Error', information_ratio: 'Info. Ratio',
+        sharpe_ratio: 'Sharpe', upside_capture_pct: 'Upside Capture',
+        downside_capture_pct: 'Downside Capture', active_share_pct: 'Active Share',
+        batting_average_pct: 'Batting Avg.',
+      };
+      const tiles = [];
+      risk.forEach(rm => {
+        Object.keys(metricLabels).forEach(key => {
+          if (rm[key] != null) {
+            const isPct = key.endsWith('_pct');
+            tiles.push(`
+              <div class="bg-[var(--color-card)] border border-[var(--color-border)] rounded-xl px-2.5 py-2">
+                <div class="text-[9px] text-[var(--color-text-subtle)] uppercase tracking-wide">${metricLabels[key]}${rm.period ? ' (' + escapeHtml(rm.period) + ')' : ''}</div>
+                <div class="text-sm font-mono font-semibold text-[var(--color-text)]">${rm[key]}${isPct ? '%' : ''}</div>
+              </div>
+            `);
+          }
+        });
+      });
+      if (tiles.length > 0) {
+        anyRendered = true;
+        riskMetricsBody.innerHTML = tiles.join('');
+        riskMetricsSection.classList.remove('hidden');
+      } else {
+        riskMetricsSection.classList.add('hidden');
       }
     }
 
