@@ -666,12 +666,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const loggedOutEl = document.getElementById('modalBuyLoggedOut');
     const noNavEl = document.getElementById('modalBuyNoNav');
     const formEl = document.getElementById('modalBuyForm');
+    const summaryEl = document.getElementById('modalBuySummary');
     const successEl = document.getElementById('modalBuySuccess');
     const errorEl = document.getElementById('modalBuyError');
     if (!loggedOutEl || !formEl) return;
 
     // Reset to a clean state every time the modal opens for a fund
-    [loggedOutEl, noNavEl, formEl, successEl].forEach(el => el.classList.add('hidden'));
+    [loggedOutEl, noNavEl, formEl, summaryEl, successEl].forEach(el => el.classList.add('hidden'));
     if (errorEl) { errorEl.classList.add('hidden'); errorEl.textContent = ''; }
     const amountInput = document.getElementById('modalBuyAmount');
     if (amountInput) amountInput.value = '';
@@ -685,43 +686,51 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  async function submitBuyOrder() {
+  function fmtUsd(n) { return '$' + Number(n).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+  function fmtInr(n) { return '₹' + Number(n).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+
+  // Step 1 -> Step 2: fetch a Payment Summary quote (no commit yet)
+  async function requestBuyQuote() {
     const fund = state.currentModalFund;
     if (!fund) return;
     const amountInput = document.getElementById('modalBuyAmount');
     const errorEl = document.getElementById('modalBuyError');
     const amount = parseFloat(amountInput ? amountInput.value : '');
 
-    if (!amount || amount <= 0) {
-      if (errorEl) { errorEl.textContent = 'Enter a valid amount to invest.'; errorEl.classList.remove('hidden'); }
+    if (!amount || amount < 500) {
+      if (errorEl) { errorEl.textContent = 'Minimum investment is $500.'; errorEl.classList.remove('hidden'); }
       return;
     }
     if (errorEl) errorEl.classList.add('hidden');
 
-    const btn = document.getElementById('modalBuyBtn');
+    const btn = document.getElementById('modalBuyProceedBtn');
     const originalText = btn ? btn.textContent : '';
-    if (btn) { btn.disabled = true; btn.textContent = 'Processing…'; }
+    if (btn) { btn.disabled = true; btn.textContent = 'Loading…'; }
 
     try {
-      const res = await fetch('/api/buy', {
+      const res = await fetch('/api/buy/quote', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ fund_id: fund.id, amount: amount }),
       });
       const data = await res.json();
-
       if (!data.success) {
-        if (errorEl) { errorEl.textContent = data.error || 'Purchase failed. Please try again.'; errorEl.classList.remove('hidden'); }
+        if (errorEl) { errorEl.textContent = data.error || 'Could not fetch quote.'; errorEl.classList.remove('hidden'); }
         return;
       }
 
+      const q = data.quote;
+      state.currentBuyQuote = q;
+      document.getElementById('sumAmount').textContent = fmtUsd(q.amount);
+      document.getElementById('sumFee').textContent = fmtUsd(q.transaction_fee);
+      document.getElementById('sumSubtotal').textContent = fmtUsd(q.subtotal_usd);
+      document.getElementById('sumFx').textContent = `~${q.fx_rate} → ${fmtInr(q.subtotal_inr)}`;
+      document.getElementById('sumGst').textContent = fmtInr(q.gst_inr);
+      document.getElementById('sumPayable').textContent = fmtInr(q.payable_inr);
+      document.getElementById('sumBank').textContent = `From: ${q.linked_bank} · Folio ${q.folio}`;
+
       document.getElementById('modalBuyForm').classList.add('hidden');
-      const successEl = document.getElementById('modalBuySuccess');
-      const detailEl = document.getElementById('modalBuySuccessDetail');
-      if (detailEl) {
-        detailEl.textContent = `${data.order.units} units of ${data.order.fund_name} allotted at NAV ${data.order.nav} ${data.order.currency}`;
-      }
-      successEl.classList.remove('hidden');
+      document.getElementById('modalBuySummary').classList.remove('hidden');
     } catch (e) {
       if (errorEl) { errorEl.textContent = 'Network error — please try again.'; errorEl.classList.remove('hidden'); }
     } finally {
@@ -729,10 +738,59 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  const modalBuyBtnEl = document.getElementById('modalBuyBtn');
-  if (modalBuyBtnEl) {
-    modalBuyBtnEl.addEventListener('click', submitBuyOrder);
+  // Step 2 -> Step 3: "Notify for Payment" -- commits the demo order
+  async function submitBuyOrder() {
+    const fund = state.currentModalFund;
+    const quote = state.currentBuyQuote;
+    if (!fund || !quote) return;
+
+    const btn = document.getElementById('modalBuyNotifyBtn');
+    const originalText = btn ? btn.textContent : '';
+    if (btn) { btn.disabled = true; btn.textContent = 'Processing…'; }
+
+    try {
+      const res = await fetch('/api/buy', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fund_id: fund.id, amount: quote.amount }),
+      });
+      const data = await res.json();
+
+      if (!data.success) {
+        document.getElementById('modalBuySummary').classList.add('hidden');
+        document.getElementById('modalBuyForm').classList.remove('hidden');
+        const errorEl = document.getElementById('modalBuyError');
+        if (errorEl) { errorEl.textContent = data.error || 'Purchase failed. Please try again.'; errorEl.classList.remove('hidden'); }
+        return;
+      }
+
+      document.getElementById('modalBuySummary').classList.add('hidden');
+      const successEl = document.getElementById('modalBuySuccess');
+      const detailEl = document.getElementById('modalBuySuccessDetail');
+      if (detailEl) {
+        detailEl.textContent = `${data.order.units} units of ${data.order.fund_name} allotted at NAV ${data.order.nav} ${data.order.currency} · Folio ${data.order.folio}`;
+      }
+      successEl.classList.remove('hidden');
+    } catch (e) {
+      // Network failure -- leave the summary visible so the presenter can retry
+    } finally {
+      if (btn) { btn.disabled = false; btn.textContent = originalText; }
+    }
   }
+
+  function backToBuyForm() {
+    document.getElementById('modalBuySummary').classList.add('hidden');
+    document.getElementById('modalBuyForm').classList.remove('hidden');
+  }
+
+  const modalBuyProceedBtnEl = document.getElementById('modalBuyProceedBtn');
+  if (modalBuyProceedBtnEl) modalBuyProceedBtnEl.addEventListener('click', requestBuyQuote);
+
+  const modalBuyNotifyBtnEl = document.getElementById('modalBuyNotifyBtn');
+  if (modalBuyNotifyBtnEl) modalBuyNotifyBtnEl.addEventListener('click', submitBuyOrder);
+
+  const modalBuyBackBtnEl = document.getElementById('modalBuyBackBtn');
+  if (modalBuyBackBtnEl) modalBuyBackBtnEl.addEventListener('click', backToBuyForm);
 
   // --------------------------------------------------------------------------
   // Fund Detail Modal

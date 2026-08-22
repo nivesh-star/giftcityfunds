@@ -549,23 +549,49 @@
           <p class="text-xs text-[var(--color-text-subtle)]">This fund has no live NAV yet (NFO / private placement) — simulated purchase isn't available until a NAV is published.</p>
         </div>
 
-        <!-- Buy form -->
+        <!-- Step 1: Amount entry -->
         <div id="modalBuyForm" class="hidden">
+          <label class="block text-[10px] font-bold uppercase tracking-wide text-[var(--color-text-subtle)] mb-1">Amount (USD) — Min $500</label>
           <div class="flex items-center gap-2">
             <div class="relative flex-1">
               <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-[var(--color-text-subtle)] font-bold">$</span>
-              <input type="number" id="modalBuyAmount" min="1" step="1" placeholder="Amount to invest (USD)" class="w-full bg-[var(--color-card)] border border-[var(--color-border)] rounded-xl pl-6 pr-3 py-2 text-sm focus:outline-none focus:border-blue-500 transition-all" />
+              <input type="number" id="modalBuyAmount" min="500" step="1" placeholder="500" class="w-full bg-[var(--color-card)] border border-[var(--color-border)] rounded-xl pl-6 pr-3 py-2 text-sm focus:outline-none focus:border-blue-500 transition-all" />
             </div>
-            <button id="modalBuyBtn" class="btn-neon text-xs px-4 py-2 rounded-xl font-bold whitespace-nowrap shrink-0">Buy Now</button>
+            <button id="modalBuyProceedBtn" class="btn-neon text-xs px-4 py-2 rounded-xl font-bold whitespace-nowrap shrink-0">Proceed</button>
           </div>
           <p id="modalBuyError" class="text-[11px] text-red-400 mt-2 hidden"></p>
         </div>
 
-        <!-- Success state -->
+        <!-- Step 2: Payment Summary -->
+        <div id="modalBuySummary" class="hidden">
+          <div class="flex items-center justify-between mb-2">
+            <h4 class="text-xs font-bold text-[var(--color-text)]">Payment Summary</h4>
+            <button id="modalBuyBackBtn" type="button" class="text-[11px] font-bold text-blue-400 hover:underline">← Back</button>
+          </div>
+          <div class="text-xs divide-y divide-[var(--color-border)]">
+            <div class="flex justify-between py-1.5"><span class="text-[var(--color-text-subtle)]">Investing amount</span><span class="font-mono font-bold" id="sumAmount">—</span></div>
+            <div class="flex justify-between py-1.5"><span class="text-[var(--color-text-subtle)]">Transaction fee</span><span class="font-mono font-bold" id="sumFee">—</span></div>
+            <div class="flex justify-between py-1.5"><span class="font-bold">Subtotal</span><span class="font-mono font-bold" id="sumSubtotal">—</span></div>
+            <div class="flex justify-between py-1.5"><span class="text-[var(--color-text-subtle)]">Fx rate</span><span class="font-mono" id="sumFx">—</span></div>
+            <div class="flex justify-between py-1.5"><span class="text-[var(--color-text-subtle)]">GST</span><span class="font-mono" id="sumGst">—</span></div>
+            <div class="flex justify-between py-2">
+              <div>
+                <span class="font-bold block">Payable amount</span>
+                <span class="text-[10px] text-[var(--color-text-subtle)]" id="sumBank"></span>
+              </div>
+              <span class="font-mono font-bold text-sm" id="sumPayable">—</span>
+            </div>
+          </div>
+          <button id="modalBuyNotifyBtn" class="btn-neon w-full text-xs px-4 py-2.5 rounded-xl font-bold mt-2">Notify for Payment</button>
+        </div>
+
+        <!-- Step 3: Confirmation -->
         <div id="modalBuySuccess" class="hidden text-center py-2">
           <svg class="w-8 h-8 mx-auto mb-1 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-          <p class="font-bold text-sm text-emerald-400">Fund purchased successfully!</p>
+          <p class="font-bold text-sm text-emerald-400">Payment notification sent</p>
+          <p class="text-xs font-bold mt-2">✅ Fund purchased successfully</p>
           <p id="modalBuySuccessDetail" class="text-xs text-[var(--color-text-subtle)] mt-1"></p>
+          <p class="text-[10px] text-[var(--color-text-subtle)] mt-1 italic">(Demo simulation — no real payment was sent)</p>
           <a href="/portfolio" class="inline-block mt-3 text-xs font-bold text-blue-400 hover:underline">View in My Portfolio →</a>
         </div>
       </div>

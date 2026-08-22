@@ -600,56 +600,120 @@ def api_portfolio():
     })
 
 
-@app.route("/api/buy", methods=["POST"])
-@login_required
-def api_buy():
-    """Simulates a fund purchase order. DEMO ONLY -- no real money moves,
-    no real fund units are allotted, nothing is sent to any AMC or transfer
-    agent. Purely records a row in demo_holdings against the fund's current
-    displayed NAV so the demo portfolio can show a realistic position."""
-    data = request.get_json(silent=True) or {}
+# Demo-only constants mirroring the real GIFT City outbound remittance cost
+# structure used by IFSCA distributor platforms: a flat per-transaction fee,
+# an indicative USD/INR conversion rate, and GST charged on the standard 1%
+# forex-conversion service margin (the actual RBI/GST treatment for LRS
+# remittances) -- NOT a real bank/FX feed, purely for a believable demo quote.
+MIN_BUY_AMOUNT_USD = 500.0
+DEMO_TXN_FEE_USD = 2.0
+DEMO_FX_RATE = 88.50
+DEMO_LINKED_BANK = "Demo Bank ****1234"
+
+
+def _demo_folio(user_id: int, fund_id: int) -> str:
+    """Deterministic mock folio number, stable per user+fund, matching the
+    'GFT' + digits format seen on real distributor platforms."""
+    return f"GFT{100000 + (user_id * 97 + fund_id) % 900000}"
+
+
+def _build_quote(fund_row, amount: float, user_id: int) -> dict:
+    fee = DEMO_TXN_FEE_USD
+    subtotal_usd = round(amount + fee, 2)
+    subtotal_inr = subtotal_usd * DEMO_FX_RATE
+    forex_service_charge_inr = subtotal_inr * 0.01  # standard 1% forex margin
+    gst_inr = round(forex_service_charge_inr * 0.18, 2)  # 18% GST on that margin
+    payable_inr = round(subtotal_inr + gst_inr, 2)
+    units = round(amount / fund_row["nav"], 4)
+    return {
+        "fund_id": fund_row["fund_id"],
+        "fund_name": fund_row["fund_name"],
+        "folio": _demo_folio(user_id, fund_row["fund_id"]),
+        "amount": amount,
+        "nav": fund_row["nav"],
+        "currency": fund_row["nav_currency"] or "USD",
+        "units": units,
+        "transaction_fee": fee,
+        "subtotal_usd": subtotal_usd,
+        "fx_rate": DEMO_FX_RATE,
+        "subtotal_inr": round(subtotal_inr, 2),
+        "gst_inr": gst_inr,
+        "payable_inr": payable_inr,
+        "linked_bank": DEMO_LINKED_BANK,
+    }
+
+
+def _validate_buy_request(data):
+    """Shared validation for /api/buy/quote and /api/buy. Returns
+    (fund_row, amount, error_response) -- error_response is None on success."""
     fund_id = data.get("fund_id")
     amount = data.get("amount")
-
     try:
         fund_id = int(fund_id)
         amount = float(amount)
     except (TypeError, ValueError):
-        return jsonify({"success": False, "error": "Invalid fund_id or amount"}), 400
+        return None, None, (jsonify({"success": False, "error": "Invalid fund_id or amount"}), 400)
 
-    if amount <= 0:
-        return jsonify({"success": False, "error": "Amount must be greater than 0"}), 400
+    if amount < MIN_BUY_AMOUNT_USD:
+        return None, None, (jsonify({"success": False, "error": f"Minimum investment is ${MIN_BUY_AMOUNT_USD:.0f}"}), 400)
 
     with get_db_connection() as conn:
-        fund = conn.execute("SELECT fund_id, fund_name, nav, nav_currency, minimum_investment FROM funds WHERE fund_id = ?", (fund_id,)).fetchone()
-        if not fund:
-            return jsonify({"success": False, "error": "Fund not found"}), 404
-        if fund["nav"] is None:
-            return jsonify({"success": False, "error": "This fund has no live NAV yet (NFO / private placement) -- simulated purchase isn't available until a NAV is published."}), 400
+        fund = conn.execute(
+            "SELECT fund_id, fund_name, nav, nav_currency, minimum_investment FROM funds WHERE fund_id = ?",
+            (fund_id,)
+        ).fetchone()
+    if not fund:
+        return None, None, (jsonify({"success": False, "error": "Fund not found"}), 404)
+    if fund["nav"] is None:
+        return None, None, (jsonify({"success": False, "error": "This fund has no live NAV yet (NFO / private placement) -- simulated purchase isn't available until a NAV is published."}), 400)
 
-        buy_nav = fund["nav"]
-        units = round(amount / buy_nav, 4)
-        user_id = session["user_id"]
+    return fund, amount, None
 
+
+@app.route("/api/buy/quote", methods=["POST"])
+@login_required
+def api_buy_quote():
+    """Returns a Payment Summary quote (fee/FX/GST breakdown + demo folio)
+    WITHOUT recording anything -- mirrors the real distributor platform's
+    'Proceed' step before the final 'Notify for Payment' confirmation.
+    DEMO ONLY, no real money or real FX/bank data involved."""
+    data = request.get_json(silent=True) or {}
+    fund, amount, error = _validate_buy_request(data)
+    if error:
+        return error
+    return jsonify({"success": True, "quote": _build_quote(fund, amount, session["user_id"])})
+
+
+@app.route("/api/buy", methods=["POST"])
+@login_required
+def api_buy():
+    """Simulates a fund purchase order ('Notify for Payment' in the real
+    flow). DEMO ONLY -- no real money moves, no real fund units are
+    allotted, nothing is sent to any AMC, bank, or transfer agent. Purely
+    records a row in demo_holdings against the fund's current displayed
+    NAV so the demo portfolio can show a realistic position."""
+    data = request.get_json(silent=True) or {}
+    fund, amount, error = _validate_buy_request(data)
+    if error:
+        return error
+
+    user_id = session["user_id"]
+    quote = _build_quote(fund, amount, user_id)
+
+    with get_db_connection() as conn:
         cur = conn.execute(
             """INSERT INTO demo_holdings (user_id, fund_id, units, invested_amount, buy_nav, currency, status)
                VALUES (?, ?, ?, ?, ?, ?, 'completed')""",
-            (user_id, fund_id, units, amount, buy_nav, fund["nav_currency"] or "USD")
+            (user_id, fund["fund_id"], quote["units"], amount, fund["nav"], fund["nav_currency"] or "USD")
         )
         conn.commit()
         holding_id = cur.lastrowid
 
+    quote["holding_id"] = holding_id
     return jsonify({
         "success": True,
-        "message": "Fund purchased successfully",
-        "order": {
-            "holding_id": holding_id,
-            "fund_name": fund["fund_name"],
-            "units": units,
-            "amount": amount,
-            "nav": buy_nav,
-            "currency": fund["nav_currency"] or "USD",
-        }
+        "message": "Payment notification sent",
+        "order": quote,
     })
 
 
