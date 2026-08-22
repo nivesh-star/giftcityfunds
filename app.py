@@ -608,7 +608,7 @@ def api_portfolio():
 MIN_BUY_AMOUNT_USD = 500.0
 DEMO_TXN_FEE_USD = 2.0
 DEMO_FX_RATE = 88.50
-DEMO_LINKED_BANK = "Demo Bank ****1234"
+DEMO_LINKED_BANK = "HDFC Bank ****1234"
 
 
 def _demo_folio(user_id: int, fund_id: int) -> str:
