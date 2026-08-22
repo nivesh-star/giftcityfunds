@@ -114,6 +114,17 @@
           <span class="sm:hidden">Explore</span>
           <svg class="w-3 h-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
         </a>
+
+        <!-- Account Area -->
+        {% if session.user_id %}
+        <a href="/portfolio" class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[var(--color-border)] hover:border-blue-500/40 text-xs font-bold text-[var(--color-text-muted)] hover:text-blue-400 bg-[var(--color-card)] transition-all whitespace-nowrap shrink-0">
+          My Portfolio
+        </a>
+        {% else %}
+        <a href="/login" class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[var(--color-border)] hover:border-blue-500/40 text-xs font-bold text-[var(--color-text-muted)] hover:text-blue-400 bg-[var(--color-card)] transition-all whitespace-nowrap shrink-0">
+          Login
+        </a>
+        {% endif %}
       </div>
 
     </div>
@@ -520,6 +531,45 @@
         </div>
       </div>
 
+      <!-- Buy Panel (Demo Simulation) -->
+      <div id="modalBuySection" class="mb-5 rounded-2xl border border-[var(--color-border)] p-4 bg-[var(--color-bg-subtle)]">
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="text-xs font-bold text-[var(--color-text)] uppercase tracking-wider">Invest in this Fund</h3>
+          <span class="text-[9px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full" style="background: rgba(251,191,36,0.12); color: #f59e0b; border: 1px solid rgba(251,191,36,0.3);">Demo Simulation</span>
+        </div>
+
+        <!-- Not logged in -->
+        <div id="modalBuyLoggedOut" class="hidden">
+          <p class="text-xs text-[var(--color-text-subtle)] mb-2">Sign in to simulate a purchase of this fund.</p>
+          <a href="/login" class="btn-neon inline-block text-xs px-4 py-2 rounded-lg font-bold">Login to Invest</a>
+        </div>
+
+        <!-- No NAV yet (NFO) -->
+        <div id="modalBuyNoNav" class="hidden">
+          <p class="text-xs text-[var(--color-text-subtle)]">This fund has no live NAV yet (NFO / private placement) — simulated purchase isn't available until a NAV is published.</p>
+        </div>
+
+        <!-- Buy form -->
+        <div id="modalBuyForm" class="hidden">
+          <div class="flex items-center gap-2">
+            <div class="relative flex-1">
+              <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-[var(--color-text-subtle)] font-bold">$</span>
+              <input type="number" id="modalBuyAmount" min="1" step="1" placeholder="Amount to invest (USD)" class="w-full bg-[var(--color-card)] border border-[var(--color-border)] rounded-xl pl-6 pr-3 py-2 text-sm focus:outline-none focus:border-blue-500 transition-all" />
+            </div>
+            <button id="modalBuyBtn" class="btn-neon text-xs px-4 py-2 rounded-xl font-bold whitespace-nowrap shrink-0">Buy Now</button>
+          </div>
+          <p id="modalBuyError" class="text-[11px] text-red-400 mt-2 hidden"></p>
+        </div>
+
+        <!-- Success state -->
+        <div id="modalBuySuccess" class="hidden text-center py-2">
+          <svg class="w-8 h-8 mx-auto mb-1 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+          <p class="font-bold text-sm text-emerald-400">Fund purchased successfully!</p>
+          <p id="modalBuySuccessDetail" class="text-xs text-[var(--color-text-subtle)] mt-1"></p>
+          <a href="/portfolio" class="inline-block mt-3 text-xs font-bold text-blue-400 hover:underline">View in My Portfolio →</a>
+        </div>
+      </div>
+
       <!-- Interactive NAV Performance Simulation Chart -->
       <div class="mb-5">
         <div class="flex items-center justify-between mb-2">
@@ -679,6 +729,11 @@
       </div>
     </div>
   </footer>
+
+  <!-- Demo session flag for the Buy panel -->
+  <script>
+    window.GIFT360_LOGGED_IN = {{ 'true' if session.user_id else 'false' }};
+  </script>
 
   <!-- Main Application Script -->
   <script src="/static/js/app.js"></script>

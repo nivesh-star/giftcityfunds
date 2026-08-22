@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Portfolio | GIFT360</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            'gcf-blue': '#2563eb',
+            'gcf-blue-dark': '#1d4ed8',
+            'gcf-neon': '#79FE0C',
+            'gcf-neon-dark': '#67e600',
+            'fin-dark': '#0b0f19',
+            'fin-card': '#131d31',
+          }
+        }
+      }
+    }
+  </script>
+
+  <link rel="stylesheet" href="/static/css/custom.css" />
+  <script>
+    (function () {
+      var t = localStorage.getItem('gift360-theme') || 'dark';
+      document.documentElement.classList.add(t);
+      document.documentElement.classList.remove(t === 'light' ? 'dark' : 'light');
+    })();
+  </script>
+</head>
+<body class="min-h-screen" style="background-color: var(--color-bg); color: var(--color-text);">
+
+  <!-- Demo mode banner -->
+  <div class="w-full text-center text-[11px] font-bold uppercase tracking-wider py-1.5" style="background: rgba(251,191,36,0.12); color: #f59e0b; border-bottom: 1px solid rgba(251,191,36,0.3);">
+    Demo Mode — All holdings below are simulated. No real money or real fund units are involved.
+  </div>
+
+  <!-- Nav -->
+  <nav class="sticky top-0 z-40 border-b border-[var(--color-border)] px-4 md:px-8 py-3" style="background-color: var(--color-bg-subtle); backdrop-filter: blur(8px);">
+    <div class="max-w-6xl mx-auto flex items-center justify-between gap-4">
+      <a href="/" class="flex items-center gap-2.5">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 to-blue-700 flex items-center justify-center shadow-md shadow-blue-500/20 text-white font-black text-lg">G</div>
+        <span class="font-extrabold text-lg tracking-tight">GIFT<span class="text-blue-500">360</span></span>
+      </a>
+      <div class="flex items-center gap-3 text-xs font-bold">
+        <span id="portfolioUserName" class="text-[var(--color-text-subtle)] hidden sm:inline"></span>
+        <a href="/" class="px-3 py-1.5 rounded-lg border border-[var(--color-border)] hover:border-blue-500/40 transition-all">Dashboard</a>
+        <a href="/logout" class="px-3 py-1.5 rounded-lg border border-[var(--color-border)] hover:border-red-500/40 hover:text-red-400 transition-all">Logout</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="max-w-6xl mx-auto px-4 md:px-8 py-8">
+    <h1 class="text-2xl font-black mb-1">My Portfolio</h1>
+    <p class="text-xs text-[var(--color-text-subtle)] mb-6">Simulated GIFT City fund holdings, valued at each fund's latest recorded NAV.</p>
+
+    <!-- Summary cards -->
+    <div id="summaryGrid" class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-8">
+      <div class="glass-card rounded-2xl p-4 border border-[var(--color-border)]">
+        <span class="block text-[10px] uppercase text-[var(--color-text-subtle)] mb-1">Invested</span>
+        <span id="sumInvested" class="font-mono font-bold text-lg">—</span>
+      </div>
+      <div class="glass-card rounded-2xl p-4 border border-[var(--color-border)]">
+        <span class="block text-[10px] uppercase text-[var(--color-text-subtle)] mb-1">Current Value</span>
+        <span id="sumCurrent" class="font-mono font-bold text-lg">—</span>
+      </div>
+      <div class="glass-card rounded-2xl p-4 border border-[var(--color-border)]">
+        <span class="block text-[10px] uppercase text-[var(--color-text-subtle)] mb-1">Gain / Loss</span>
+        <span id="sumGain" class="font-mono font-bold text-lg">—</span>
+      </div>
+      <div class="glass-card rounded-2xl p-4 border border-[var(--color-border)]">
+        <span class="block text-[10px] uppercase text-[var(--color-text-subtle)] mb-1">Funds Held</span>
+        <span id="sumCount" class="font-mono font-bold text-lg">—</span>
+      </div>
+    </div>
+
+    <div id="holdingsWrapper" class="glass-card rounded-2xl border border-[var(--color-border)] overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="text-left text-[10px] uppercase tracking-wide text-[var(--color-text-subtle)] border-b border-[var(--color-border)]">
+              <th class="px-4 py-3">Fund</th>
+              <th class="px-4 py-3">Units</th>
+              <th class="px-4 py-3">Buy NAV</th>
+              <th class="px-4 py-3">Current NAV</th>
+              <th class="px-4 py-3">Invested</th>
+              <th class="px-4 py-3">Current Value</th>
+              <th class="px-4 py-3">Gain/Loss</th>
+              <th class="px-4 py-3">Date</th>
+            </tr>
+          </thead>
+          <tbody id="holdingsBody"></tbody>
+        </table>
+      </div>
+      <div id="emptyState" class="hidden text-center py-14 px-4">
+        <p class="font-bold text-sm mb-1">No holdings yet</p>
+        <p class="text-xs text-[var(--color-text-subtle)] mb-4">Buy a fund from the dashboard to see it appear here.</p>
+        <a href="/#screener" class="btn-neon inline-block text-xs px-4 py-2 rounded-lg font-bold">Explore GIFT City Funds</a>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    async function loadPortfolio() {
+      const res = await fetch('/api/portfolio');
+      if (res.status === 401) { window.location.href = '/login'; return; }
+      const data = await res.json();
+      if (!data.success) return;
+
+      document.getElementById('portfolioUserName').textContent = data.user.name || data.user.email;
+
+      const s = data.summary;
+      const fmt = (n) => '$' + Number(n).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+      document.getElementById('sumInvested').textContent = fmt(s.total_invested);
+      document.getElementById('sumCurrent').textContent = fmt(s.total_current_value);
+      const gainEl = document.getElementById('sumGain');
+      gainEl.textContent = (s.total_gain_loss >= 0 ? '+' : '') + fmt(s.total_gain_loss) + ' (' + s.total_gain_loss_pct + '%)';
+      gainEl.className = 'font-mono font-bold text-lg ' + (s.total_gain_loss >= 0 ? 'text-emerald-400' : 'text-red-400');
+      document.getElementById('sumCount').textContent = s.holdings_count;
+
+      const body = document.getElementById('holdingsBody');
+      if (data.holdings.length === 0) {
+        document.getElementById('holdingsWrapper').querySelector('.overflow-x-auto').classList.add('hidden');
+        document.getElementById('emptyState').classList.remove('hidden');
+        return;
+      }
+
+      body.innerHTML = data.holdings.map(h => `
+        <tr class="border-b border-[var(--color-border)] last:border-0 hover:bg-[var(--color-card-hover)] transition-colors">
+          <td class="px-4 py-3">
+            <div class="font-bold">${h.fund_name}</div>
+            <div class="text-[11px] text-[var(--color-text-subtle)]">${h.amc_name || ''}</div>
+          </td>
+          <td class="px-4 py-3 font-mono">${h.units.toLocaleString(undefined, {maximumFractionDigits: 4})}</td>
+          <td class="px-4 py-3 font-mono">${h.buy_nav.toFixed(2)}</td>
+          <td class="px-4 py-3 font-mono">${h.current_nav != null ? h.current_nav.toFixed(2) : '—'}</td>
+          <td class="px-4 py-3 font-mono">${fmt(h.invested_amount)}</td>
+          <td class="px-4 py-3 font-mono font-bold">${fmt(h.current_value)}</td>
+          <td class="px-4 py-3 font-mono ${h.gain_loss >= 0 ? 'text-emerald-400' : 'text-red-400'}">${h.gain_loss >= 0 ? '+' : ''}${fmt(h.gain_loss)} (${h.gain_loss_pct}%)</td>
+          <td class="px-4 py-3 text-[var(--color-text-subtle)] text-xs">${new Date(h.purchase_date).toLocaleDateString()}</td>
+        </tr>
+      `).join('');
+    }
+    loadPortfolio();
+  </script>
+
+</body>
+</html>

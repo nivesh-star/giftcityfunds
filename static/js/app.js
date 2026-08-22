@@ -660,6 +660,81 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // --------------------------------------------------------------------------
+  // Buy Panel (Demo Simulation)
+  // --------------------------------------------------------------------------
+  function setupBuyPanel(f) {
+    const loggedOutEl = document.getElementById('modalBuyLoggedOut');
+    const noNavEl = document.getElementById('modalBuyNoNav');
+    const formEl = document.getElementById('modalBuyForm');
+    const successEl = document.getElementById('modalBuySuccess');
+    const errorEl = document.getElementById('modalBuyError');
+    if (!loggedOutEl || !formEl) return;
+
+    // Reset to a clean state every time the modal opens for a fund
+    [loggedOutEl, noNavEl, formEl, successEl].forEach(el => el.classList.add('hidden'));
+    if (errorEl) { errorEl.classList.add('hidden'); errorEl.textContent = ''; }
+    const amountInput = document.getElementById('modalBuyAmount');
+    if (amountInput) amountInput.value = '';
+
+    if (!window.GIFT360_LOGGED_IN) {
+      loggedOutEl.classList.remove('hidden');
+    } else if (f.nav === null || f.nav === undefined) {
+      noNavEl.classList.remove('hidden');
+    } else {
+      formEl.classList.remove('hidden');
+    }
+  }
+
+  async function submitBuyOrder() {
+    const fund = state.currentModalFund;
+    if (!fund) return;
+    const amountInput = document.getElementById('modalBuyAmount');
+    const errorEl = document.getElementById('modalBuyError');
+    const amount = parseFloat(amountInput ? amountInput.value : '');
+
+    if (!amount || amount <= 0) {
+      if (errorEl) { errorEl.textContent = 'Enter a valid amount to invest.'; errorEl.classList.remove('hidden'); }
+      return;
+    }
+    if (errorEl) errorEl.classList.add('hidden');
+
+    const btn = document.getElementById('modalBuyBtn');
+    const originalText = btn ? btn.textContent : '';
+    if (btn) { btn.disabled = true; btn.textContent = 'Processing…'; }
+
+    try {
+      const res = await fetch('/api/buy', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fund_id: fund.id, amount: amount }),
+      });
+      const data = await res.json();
+
+      if (!data.success) {
+        if (errorEl) { errorEl.textContent = data.error || 'Purchase failed. Please try again.'; errorEl.classList.remove('hidden'); }
+        return;
+      }
+
+      document.getElementById('modalBuyForm').classList.add('hidden');
+      const successEl = document.getElementById('modalBuySuccess');
+      const detailEl = document.getElementById('modalBuySuccessDetail');
+      if (detailEl) {
+        detailEl.textContent = `${data.order.units} units of ${data.order.fund_name} allotted at NAV ${data.order.nav} ${data.order.currency}`;
+      }
+      successEl.classList.remove('hidden');
+    } catch (e) {
+      if (errorEl) { errorEl.textContent = 'Network error — please try again.'; errorEl.classList.remove('hidden'); }
+    } finally {
+      if (btn) { btn.disabled = false; btn.textContent = originalText; }
+    }
+  }
+
+  const modalBuyBtnEl = document.getElementById('modalBuyBtn');
+  if (modalBuyBtnEl) {
+    modalBuyBtnEl.addEventListener('click', submitBuyOrder);
+  }
+
+  // --------------------------------------------------------------------------
   // Fund Detail Modal
   // --------------------------------------------------------------------------
   async function openFundDetail(fundId) {
@@ -672,6 +747,8 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!data.success) return;
 
       const f = data.fund;
+      state.currentModalFund = { id: f.fund_id, name: f.fund_name, nav: f.nav, currency: f.nav_currency || 'USD' };
+      setupBuyPanel(f);
       document.getElementById('modalFundName').textContent = f.fund_name;
       document.getElementById('modalAmcName').textContent = f.amc_name || 'GIFT City Asset Manager';
       document.getElementById('modalCategory').textContent = f.category || 'Specialized Investment Fund';

@@ -13,10 +13,27 @@ import sqlite3
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-from flask import Flask, jsonify, render_template, request, Response
+from functools import wraps
+
+from flask import Flask, jsonify, render_template, request, Response, session, redirect, url_for
+from werkzeug.security import check_password_hash
 
 app = Flask(__name__, static_folder="static", template_folder="templates")
+app.secret_key = "gift360-demo-secret-key-not-for-production"
 DB_PATH = Path("gift_city_amc_funds.db")
+
+
+def login_required(view_func):
+    """Gate a route behind the demo session login. Redirects HTML requests
+    to /login; returns 401 JSON for API requests."""
+    @wraps(view_func)
+    def wrapped(*args, **kwargs):
+        if not session.get("user_id"):
+            if request.path.startswith("/api/"):
+                return jsonify({"success": False, "error": "Not logged in"}), 401
+            return redirect(url_for("login", next=request.path))
+        return view_func(*args, **kwargs)
+    return wrapped
 
 
 def get_db_connection() -> sqlite3.Connection:
@@ -501,6 +518,137 @@ def get_stats():
             "category_distribution": category_distribution,
             "launch_timeline": launch_timeline,
             "nav_performers": nav_performers,
+        }
+    })
+
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    """Demo login -- pre-seeded demo account only, no public signup.
+    This entire purchase flow is a DEMO SIMULATION: no real money moves,
+    no real fund units are allotted. See demo_holdings table comment."""
+    error = None
+    if request.method == "POST":
+        email = (request.form.get("email") or "").strip().lower()
+        password = request.form.get("password") or ""
+        with get_db_connection() as conn:
+            user = conn.execute("SELECT * FROM demo_users WHERE email = ?", (email,)).fetchone()
+        if user and check_password_hash(user["password_hash"], password):
+            session["user_id"] = user["user_id"]
+            session["user_email"] = user["email"]
+            session["user_name"] = user["full_name"]
+            next_url = request.args.get("next") or url_for("portfolio")
+            return redirect(next_url)
+        error = "Invalid email or password."
+    return render_template("login.html", error=error)
+
+
+@app.route("/logout")
+def logout():
+    session.clear()
+    return redirect(url_for("index"))
+
+
+@app.route("/portfolio")
+@login_required
+def portfolio():
+    return render_template("portfolio.html")
+
+
+@app.route("/api/portfolio")
+@login_required
+def api_portfolio():
+    """Returns the logged-in demo user's simulated holdings, with current
+    value computed from each fund's latest known NAV. DEMO DATA ONLY."""
+    user_id = session["user_id"]
+    with get_db_connection() as conn:
+        rows = conn.execute(
+            """SELECT h.holding_id, h.fund_id, h.units, h.invested_amount, h.buy_nav,
+                      h.currency, h.purchase_date, h.status,
+                      f.fund_name, f.amc_name, f.nav AS current_nav, f.nav_currency, f.nav_as_of
+               FROM demo_holdings h JOIN funds f ON f.fund_id = h.fund_id
+               WHERE h.user_id = ?
+               ORDER BY h.purchase_date DESC""",
+            (user_id,)
+        ).fetchall()
+
+        holdings = []
+        total_invested = 0.0
+        total_current = 0.0
+        for r in rows:
+            d = dict(r)
+            current_nav = d["current_nav"] if d["current_nav"] is not None else d["buy_nav"]
+            current_value = round(d["units"] * current_nav, 2)
+            d["current_value"] = current_value
+            d["gain_loss"] = round(current_value - d["invested_amount"], 2)
+            d["gain_loss_pct"] = round((current_value - d["invested_amount"]) / d["invested_amount"] * 100, 2) if d["invested_amount"] else 0
+            total_invested += d["invested_amount"]
+            total_current += current_value
+            holdings.append(d)
+
+    return jsonify({
+        "success": True,
+        "user": {"name": session.get("user_name"), "email": session.get("user_email")},
+        "holdings": holdings,
+        "summary": {
+            "total_invested": round(total_invested, 2),
+            "total_current_value": round(total_current, 2),
+            "total_gain_loss": round(total_current - total_invested, 2),
+            "total_gain_loss_pct": round((total_current - total_invested) / total_invested * 100, 2) if total_invested else 0,
+            "holdings_count": len(holdings),
+        }
+    })
+
+
+@app.route("/api/buy", methods=["POST"])
+@login_required
+def api_buy():
+    """Simulates a fund purchase order. DEMO ONLY -- no real money moves,
+    no real fund units are allotted, nothing is sent to any AMC or transfer
+    agent. Purely records a row in demo_holdings against the fund's current
+    displayed NAV so the demo portfolio can show a realistic position."""
+    data = request.get_json(silent=True) or {}
+    fund_id = data.get("fund_id")
+    amount = data.get("amount")
+
+    try:
+        fund_id = int(fund_id)
+        amount = float(amount)
+    except (TypeError, ValueError):
+        return jsonify({"success": False, "error": "Invalid fund_id or amount"}), 400
+
+    if amount <= 0:
+        return jsonify({"success": False, "error": "Amount must be greater than 0"}), 400
+
+    with get_db_connection() as conn:
+        fund = conn.execute("SELECT fund_id, fund_name, nav, nav_currency, minimum_investment FROM funds WHERE fund_id = ?", (fund_id,)).fetchone()
+        if not fund:
+            return jsonify({"success": False, "error": "Fund not found"}), 404
+        if fund["nav"] is None:
+            return jsonify({"success": False, "error": "This fund has no live NAV yet (NFO / private placement) -- simulated purchase isn't available until a NAV is published."}), 400
+
+        buy_nav = fund["nav"]
+        units = round(amount / buy_nav, 4)
+        user_id = session["user_id"]
+
+        cur = conn.execute(
+            """INSERT INTO demo_holdings (user_id, fund_id, units, invested_amount, buy_nav, currency, status)
+               VALUES (?, ?, ?, ?, ?, ?, 'completed')""",
+            (user_id, fund_id, units, amount, buy_nav, fund["nav_currency"] or "USD")
+        )
+        conn.commit()
+        holding_id = cur.lastrowid
+
+    return jsonify({
+        "success": True,
+        "message": "Fund purchased successfully",
+        "order": {
+            "holding_id": holding_id,
+            "fund_name": fund["fund_name"],
+            "units": units,
+            "amount": amount,
+            "nav": buy_nav,
+            "currency": fund["nav_currency"] or "USD",
         }
     })
 
