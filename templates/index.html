@@ -79,7 +79,7 @@
       </a>
 
       <!-- Navigation Links -->
-      <ul class="hidden lg:flex items-center gap-3 xl:gap-5 text-xs font-bold tracking-wide text-[var(--color-text-muted)] whitespace-nowrap shrink-0 min-w-0">
+      <ul class="hidden 2xl:flex items-center gap-3 xl:gap-5 text-xs font-bold tracking-wide text-[var(--color-text-muted)] whitespace-nowrap shrink-0 min-w-0">
         <li><a href="#dashboard" class="hover:text-blue-500 transition-colors flex items-center gap-1">Dashboard</a></li>
         <li><a href="#screener" class="hover:text-blue-500 transition-colors flex items-center gap-1">Fund Screener</a></li>
         <li><a href="/gift-city-outbound" class="hover:text-blue-500 transition-colors flex items-center gap-1">Outbound Funds</a></li>
@@ -89,7 +89,7 @@
       </ul>
 
       <!-- Action Area -->
-      <div class="flex items-center gap-1.5 xl:gap-2 shrink-0 ml-auto">
+      <div class="flex items-center gap-1 xl:gap-2 shrink-0 ml-auto min-w-0">
         <!-- Quick Search -->
         <div class="relative hidden 2xl:block w-40 shrink-0">
           <input type="text" id="navQuickSearch" placeholder="Search 75 funds..." class="w-full bg-[var(--color-card)] border border-[var(--color-border)] rounded-xl px-3 py-1.5 text-xs text-[var(--color-text)] placeholder-[var(--color-text-subtle)] focus:outline-none focus:border-blue-500 transition-all" />
@@ -109,20 +109,20 @@
         </button>
 
         <!-- GIFT City Funds CTA -->
-        <a href="#screener" class="btn-neon text-xs px-2.5 xl:px-3 py-1.5 rounded-lg flex items-center gap-1.5 shadow-sm whitespace-nowrap shrink-0">
+        <a href="#screener" class="btn-neon text-xs px-2 xl:px-3 py-1.5 rounded-lg flex items-center gap-1 xl:gap-1.5 shadow-sm whitespace-nowrap shrink-0">
           <span class="hidden xl:inline">Explore GIFT City Funds</span>
           <span class="xl:hidden">Explore</span>
-          <svg class="w-3 h-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+          <svg class="w-3 h-3 shrink-0 hidden sm:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
         </a>
 
         <!-- Account Area -->
         {% if session.user_id %}
-        <a href="/portfolio" class="inline-flex items-center gap-1.5 px-2.5 xl:px-3 py-1.5 rounded-lg border border-[var(--color-border)] hover:border-blue-500/40 text-xs font-bold text-[var(--color-text-muted)] hover:text-blue-400 bg-[var(--color-card)] transition-all whitespace-nowrap shrink-0">
+        <a href="/portfolio" class="inline-flex items-center gap-1 xl:gap-1.5 px-2 xl:px-3 py-1.5 rounded-lg border border-[var(--color-border)] hover:border-blue-500/40 text-xs font-bold text-[var(--color-text-muted)] hover:text-blue-400 bg-[var(--color-card)] transition-all whitespace-nowrap shrink-0">
           <span class="hidden xl:inline">My Portfolio</span>
           <span class="xl:hidden">Portfolio</span>
         </a>
         {% else %}
-        <a href="/login" class="inline-flex items-center gap-1.5 px-2.5 xl:px-3 py-1.5 rounded-lg border border-[var(--color-border)] hover:border-blue-500/40 text-xs font-bold text-[var(--color-text-muted)] hover:text-blue-400 bg-[var(--color-card)] transition-all whitespace-nowrap shrink-0">
+        <a href="/login" class="inline-flex items-center gap-1 xl:gap-1.5 px-2 xl:px-3 py-1.5 rounded-lg border border-[var(--color-border)] hover:border-blue-500/40 text-xs font-bold text-[var(--color-text-muted)] hover:text-blue-400 bg-[var(--color-card)] transition-all whitespace-nowrap shrink-0">
           Login
         </a>
         {% endif %}
