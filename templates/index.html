@@ -79,7 +79,7 @@
       </a>
 
       <!-- Navigation Links -->
-      <ul class="hidden lg:flex items-center gap-6 text-xs font-bold tracking-wide text-[var(--color-text-muted)]">
+      <ul class="hidden lg:flex items-center gap-4 xl:gap-6 text-xs font-bold tracking-wide text-[var(--color-text-muted)] whitespace-nowrap shrink-0">
         <li><a href="#dashboard" class="hover:text-blue-500 transition-colors flex items-center gap-1">Dashboard</a></li>
         <li><a href="#screener" class="hover:text-blue-500 transition-colors flex items-center gap-1">Fund Screener</a></li>
         <li><a href="/gift-city-outbound" class="hover:text-blue-500 transition-colors flex items-center gap-1">Outbound Funds</a></li>
@@ -89,29 +89,30 @@
       </ul>
 
       <!-- Action Area -->
-      <div class="flex items-center gap-2.5">
+      <div class="flex items-center gap-2 xl:gap-2.5 shrink-0">
         <!-- Quick Search -->
-        <div class="relative hidden sm:block w-44 md:w-60">
+        <div class="relative hidden xl:block w-40 2xl:w-60 shrink-0">
           <input type="text" id="navQuickSearch" placeholder="Search 75 funds..." class="w-full bg-[var(--color-card)] border border-[var(--color-border)] rounded-xl px-3 py-1.5 text-xs text-[var(--color-text)] placeholder-[var(--color-text-subtle)] focus:outline-none focus:border-blue-500 transition-all" />
           <span class="absolute right-2.5 top-2 text-[10px] text-[var(--color-text-subtle)]">⌘K</span>
         </div>
 
         <!-- Export CSV Button -->
-        <a href="/api/export/csv" class="hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[var(--color-border)] hover:border-blue-500/40 text-xs font-bold text-[var(--color-text-muted)] hover:text-blue-400 bg-[var(--color-card)] transition-all" title="Download clean dataset">
-          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+        <a href="/api/export/csv" class="hidden xl:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[var(--color-border)] hover:border-blue-500/40 text-xs font-bold text-[var(--color-text-muted)] hover:text-blue-400 bg-[var(--color-card)] transition-all whitespace-nowrap shrink-0" title="Download clean dataset">
+          <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
           Export CSV
         </a>
 
         <!-- Dark/Light Theme Toggle -->
-        <button id="themeToggleBtn" aria-label="Toggle Theme" class="w-8 h-8 rounded-lg bg-[var(--color-card)] border border-[var(--color-border)] flex items-center justify-center text-[var(--color-text-muted)] hover:text-yellow-400 transition-colors">
+        <button id="themeToggleBtn" aria-label="Toggle Theme" class="w-8 h-8 shrink-0 rounded-lg bg-[var(--color-card)] border border-[var(--color-border)] flex items-center justify-center text-[var(--color-text-muted)] hover:text-yellow-400 transition-colors">
           <svg class="w-4 h-4 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
           <svg class="w-4 h-4 block dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
         </button>
 
         <!-- GIFT City Funds CTA -->
-        <a href="#screener" class="btn-neon text-xs px-3.5 py-1.5 rounded-lg flex items-center gap-1.5 shadow-sm">
-          <span>Explore GIFT City Funds</span>
-          <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+        <a href="#screener" class="btn-neon text-xs px-3.5 py-1.5 rounded-lg flex items-center gap-1.5 shadow-sm whitespace-nowrap shrink-0">
+          <span class="hidden sm:inline">Explore GIFT City Funds</span>
+          <span class="sm:hidden">Explore</span>
+          <svg class="w-3 h-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
         </a>
       </div>
 
