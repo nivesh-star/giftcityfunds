@@ -677,6 +677,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const amountInput = document.getElementById('modalBuyAmount');
     if (amountInput) amountInput.value = '';
 
+    // This fund's real minimum investment (server-computed from its share
+    // classes / factsheet minimum_investment text, falling back to the
+    // platform's $500 floor only when no real minimum is on file) --
+    // NOT a fixed $500 for every fund.
+    const minBuy = Number(f.effective_min_investment_usd) || 500;
+    state.currentModalMinBuy = minBuy;
+    const labelEl = document.getElementById('modalBuyAmountLabel');
+    if (labelEl) labelEl.textContent = `Amount (USD) — Min $${minBuy.toLocaleString()}`;
+    if (amountInput) {
+      amountInput.min = String(minBuy);
+      amountInput.placeholder = String(minBuy);
+    }
+
     if (!window.GIFT360_LOGGED_IN) {
       loggedOutEl.classList.remove('hidden');
     } else if (f.nav === null || f.nav === undefined) {
@@ -696,9 +709,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const amountInput = document.getElementById('modalBuyAmount');
     const errorEl = document.getElementById('modalBuyError');
     const amount = parseFloat(amountInput ? amountInput.value : '');
+    const minBuy = state.currentModalMinBuy || 500;
 
-    if (!amount || amount < 500) {
-      if (errorEl) { errorEl.textContent = 'Minimum investment is $500.'; errorEl.classList.remove('hidden'); }
+    if (!amount || amount < minBuy) {
+      if (errorEl) { errorEl.textContent = `Minimum investment for this fund is $${minBuy.toLocaleString()}.`; errorEl.classList.remove('hidden'); }
       return;
     }
     if (errorEl) errorEl.classList.add('hidden');

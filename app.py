@@ -9,6 +9,7 @@ from __future__ import annotations
 import csv
 import io
 import json
+import re
 import sqlite3
 from pathlib import Path
 from typing import Any, Dict, List, Optional
@@ -308,6 +309,9 @@ def get_fund_detail(fund_id: int):
             return jsonify({"success": False, "error": "Fund not found"}), 404
 
         fund_dict = dict(fund)
+        fund_dict["effective_min_investment_usd"] = effective_min_investment_usd(
+            conn, fund_id, fund_dict.get("minimum_investment")
+        )
         # Fetch related funds from same AMC
         related = conn.execute(
             "SELECT fund_id, fund_name, nav, nav_currency, category, source_tier FROM funds WHERE amc_name = ? AND fund_id != ? LIMIT 5",
@@ -634,10 +638,65 @@ def api_portfolio():
 # an indicative USD/INR conversion rate, and GST charged on the standard 1%
 # forex-conversion service margin (the actual RBI/GST treatment for LRS
 # remittances) -- NOT a real bank/FX feed, purely for a believable demo quote.
-MIN_BUY_AMOUNT_USD = 500.0
+MIN_BUY_AMOUNT_USD = 500.0  # fallback floor only, when a fund has no real minimum-investment data at all
 DEMO_TXN_FEE_USD = 2.0
 DEMO_FX_RATE = 88.50
 DEMO_LINKED_BANK = "HDFC Bank ****1234"
+
+
+def parse_min_investment_usd(raw: Optional[str]) -> Optional[float]:
+    """Best-effort extraction of the lowest legitimate USD entry amount from
+    the free-text funds.minimum_investment field (e.g. 'USD 150,000 (or
+    equivalent...)', 'USD 5,000 (step-up USD 500)', 'D1/F1: USD
+    150,000-500,000; ... AC2/AC3 (Accredited): USD 50,000'). Returns None
+    when nothing parseable is found -- callers fall back to
+    MIN_BUY_AMOUNT_USD, we never invent a number here."""
+    if not raw:
+        return None
+
+    text = raw
+    # Strip step-up/top-up mentions -- those are incremental follow-on
+    # amounts, not the minimum initial investment.
+    text = re.sub(r"\(?\s*step-?up[^)]*\)?", " ", text, flags=re.IGNORECASE)
+    text = re.sub(r"\(?\s*top-?up[^)]*\)?", " ", text, flags=re.IGNORECASE)
+
+    usd_amounts = [
+        float(m.replace(",", ""))
+        for m in re.findall(r"USD\s*\$?\s*([\d][\d,]*(?:\.\d+)?)", text, flags=re.IGNORECASE)
+    ]
+    if usd_amounts:
+        return min(usd_amounts)
+
+    # Rupee-denominated minimums (e.g. "Rs 50 Lakhs") -- convert via the same
+    # illustrative FX rate used elsewhere in the demo, so the simulator floor
+    # stays roughly consistent with the fund's real entry barrier.
+    lakh_match = re.search(r"Rs\.?\s*([\d,]+(?:\.\d+)?)\s*Lakh", text, flags=re.IGNORECASE)
+    if lakh_match:
+        inr_amount = float(lakh_match.group(1).replace(",", "")) * 100000
+        return round(inr_amount / DEMO_FX_RATE, 2)
+
+    return None
+
+
+def effective_min_investment_usd(conn: sqlite3.Connection, fund_id: int, raw_min_text: Optional[str]) -> float:
+    """The number actually used to gate the Buy simulator for one fund:
+    1) the lowest numeric min_investment_usd on file across its share
+       classes (the cleanest source, where captured),
+    2) else a best-effort parse of the free-text minimum_investment field,
+    3) else the platform-wide $500 fallback floor, when we genuinely have
+       no minimum-investment data for that fund at all."""
+    row = conn.execute(
+        "SELECT MIN(min_investment_usd) AS m FROM fund_share_classes WHERE fund_id = ? AND min_investment_usd IS NOT NULL",
+        (fund_id,)
+    ).fetchone()
+    if row and row["m"] is not None:
+        return float(row["m"])
+
+    parsed = parse_min_investment_usd(raw_min_text)
+    if parsed is not None:
+        return parsed
+
+    return MIN_BUY_AMOUNT_USD
 
 
 def _demo_folio(user_id: int, fund_id: int) -> str:
@@ -683,16 +742,21 @@ def _validate_buy_request(data):
     except (TypeError, ValueError):
         return None, None, (jsonify({"success": False, "error": "Invalid fund_id or amount"}), 400)
 
-    if amount < MIN_BUY_AMOUNT_USD:
-        return None, None, (jsonify({"success": False, "error": f"Minimum investment is ${MIN_BUY_AMOUNT_USD:.0f}"}), 400)
-
     with get_db_connection() as conn:
         fund = conn.execute(
             "SELECT fund_id, fund_name, nav, nav_currency, minimum_investment FROM funds WHERE fund_id = ?",
             (fund_id,)
         ).fetchone()
-    if not fund:
-        return None, None, (jsonify({"success": False, "error": "Fund not found"}), 404)
+        if not fund:
+            return None, None, (jsonify({"success": False, "error": "Fund not found"}), 404)
+
+        effective_min = effective_min_investment_usd(conn, fund_id, fund["minimum_investment"])
+
+    if amount < effective_min:
+        return None, None, (jsonify({
+            "success": False,
+            "error": f"Minimum investment for this fund is ${effective_min:,.0f}"
+        }), 400)
     if fund["nav"] is None:
         return None, None, (jsonify({"success": False, "error": "This fund has no live NAV yet (NFO / private placement) -- simulated purchase isn't available until a NAV is published."}), 400)
 
