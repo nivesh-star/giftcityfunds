@@ -45,7 +45,7 @@
   <!-- NAVIGATION BAR -->
   <!-- ========================================================================= -->
   <nav class="sticky top-0 z-40 bg-[var(--color-bg-subtle)]/90 backdrop-blur-md border-b border-[var(--color-border)] px-4 md:px-8 py-3 transition-colors">
-    <div class="max-w-4xl mx-auto flex items-center justify-between gap-4">
+    <div class="max-w-7xl mx-auto flex items-center justify-between gap-4">
       <a href="/" class="flex items-center gap-2.5 group">
         <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 to-blue-700 flex items-center justify-center shadow-md shadow-blue-500/20 text-white font-black text-lg">G</div>
         <div>
@@ -76,191 +76,205 @@
     </div>
   </nav>
 
-  <main class="max-w-4xl mx-auto px-4 md:px-8 py-6">
+  <main class="max-w-7xl mx-auto px-4 md:px-8 py-6">
 
     <a href="/#screener" class="inline-flex items-center gap-1 text-xs font-bold text-[var(--color-text-subtle)] hover:text-blue-400 mb-4 transition-colors">
       <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"></path></svg>
       Back to Fund Screener
     </a>
 
-    <div class="glass-card border border-[var(--color-border)] rounded-3xl p-5 md:p-6 shadow-xl">
-
-      <!-- Header -->
-      <div class="mb-4">
-        <div class="flex items-center gap-2 mb-2 flex-wrap">
-          <span id="modalTierBadge" class="text-xs px-2.5 py-0.5 rounded-full font-bold">Tier 1</span>
-          <span id="modalFlowBadge" class="text-xs px-2.5 py-0.5 rounded-full font-bold hidden"></span>
-          <span id="modalCategory" class="text-xs text-[var(--color-text-subtle)]">Retail Feeder Fund</span>
-        </div>
-        <h1 id="modalFundName" class="text-xl md:text-2xl font-black text-[var(--color-text)]">{{ fund_name }}</h1>
-        <p id="modalAmcName" class="text-xs text-blue-400 font-bold mt-0.5">{{ amc_name }}</p>
-        <p id="modalFundManager" class="text-[11px] text-[var(--color-text-subtle)] mt-0.5 hidden"></p>
-        <p id="modalBenchmark" class="text-[11px] text-[var(--color-text-subtle)] mt-0.5 hidden"></p>
+    <!-- Header (full width, above both columns) -->
+    <div class="glass-card border border-[var(--color-border)] rounded-3xl p-5 md:p-6 shadow-xl mb-6">
+      <div class="flex items-center gap-2 mb-2 flex-wrap">
+        <span id="modalTierBadge" class="text-xs px-2.5 py-0.5 rounded-full font-bold">Tier 1</span>
+        <span id="modalFlowBadge" class="text-xs px-2.5 py-0.5 rounded-full font-bold hidden"></span>
+        <span id="modalCategory" class="text-xs text-[var(--color-text-subtle)]">Retail Feeder Fund</span>
       </div>
+      <h1 id="modalFundName" class="text-2xl md:text-3xl font-black text-[var(--color-text)]">{{ fund_name }}</h1>
+      <p id="modalAmcName" class="text-sm text-blue-400 font-bold mt-0.5">{{ amc_name }}</p>
+      <p id="modalFundManager" class="text-[11px] text-[var(--color-text-subtle)] mt-0.5 hidden"></p>
+      <p id="modalBenchmark" class="text-[11px] text-[var(--color-text-subtle)] mt-0.5 hidden"></p>
+    </div>
 
-      <!-- Quick Metrics Grid -->
-      <div class="grid grid-cols-3 gap-3 bg-[var(--color-bg-subtle)] border border-[var(--color-border)] p-4 rounded-2xl mb-5">
-        <div>
-          <span class="block text-[10px] text-[var(--color-text-subtle)] uppercase">Current NAV</span>
-          <span id="modalNav" class="font-mono font-bold text-base text-emerald-400">—</span>
-          <span id="modalNavDate" class="block text-[9px] text-[var(--color-text-subtle)]">Live Daily NAV</span>
-        </div>
-        <div>
-          <span class="block text-[10px] text-[var(--color-text-subtle)] uppercase">Expense Ratio (TER)</span>
-          <span id="modalTer" class="font-mono font-bold text-base text-[var(--color-text)]">—</span>
-          <span id="modalTerSubtitle" class="block text-[9px] text-[var(--color-text-subtle)]">Direct Plan TER</span>
-        </div>
-        <div>
-          <span class="block text-[10px] text-[var(--color-text-subtle)] uppercase">Registration Date</span>
-          <span id="modalLaunchDate" class="font-mono font-bold text-base text-[var(--color-text)]">—</span>
-          <span class="block text-[9px] text-emerald-400 font-bold">IFSCA Verified</span>
-        </div>
-      </div>
+    <div class="grid lg:grid-cols-3 gap-6 items-start">
 
-      <!-- Buy Panel -->
-      <div id="modalBuySection" class="mb-5 rounded-2xl border border-[var(--color-border)] p-4 bg-[var(--color-bg-subtle)]">
-        <div class="flex items-center justify-between mb-3">
-          <h3 class="text-xs font-bold text-[var(--color-text)] uppercase tracking-wider">Invest in this Fund</h3>
-        </div>
+      <!-- Left column: chart + all data sections -->
+      <div class="lg:col-span-2 space-y-6">
 
-        <div id="modalBuyLoggedOut" class="hidden">
-          <p class="text-xs text-[var(--color-text-subtle)] mb-2">Sign in to simulate a purchase of this fund.</p>
-          <a href="/login" class="btn-neon inline-block text-xs px-4 py-2 rounded-lg font-bold">Login to Invest</a>
-        </div>
-
-        <div id="modalBuyNoNav" class="hidden">
-          <p class="text-xs text-[var(--color-text-subtle)]">This fund has no live NAV yet (NFO / private placement) — simulated purchase isn't available until a NAV is published.</p>
-        </div>
-
-        <div id="modalBuyForm" class="hidden">
-          <label class="block text-[10px] font-bold uppercase tracking-wide text-[var(--color-text-subtle)] mb-1">Amount (USD) — Min $500</label>
-          <div class="flex items-center gap-2">
-            <div class="relative flex-1">
-              <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-[var(--color-text-subtle)] font-bold">$</span>
-              <input type="number" id="modalBuyAmount" min="500" step="1" placeholder="500" class="w-full bg-[var(--color-card)] border border-[var(--color-border)] rounded-xl pl-6 pr-3 py-2 text-sm focus:outline-none focus:border-blue-500 transition-all" />
-            </div>
-            <button id="modalBuyProceedBtn" class="btn-neon text-xs px-4 py-2 rounded-xl font-bold whitespace-nowrap shrink-0">Proceed</button>
-          </div>
-          <p id="modalBuyError" class="text-[11px] text-red-400 mt-2 hidden"></p>
-        </div>
-
-        <div id="modalBuySummary" class="hidden">
+        <!-- NAV Performance Chart -->
+        <div class="glass-card border border-[var(--color-border)] rounded-3xl p-5 md:p-6 shadow-xl">
           <div class="flex items-center justify-between mb-2">
-            <h4 class="text-xs font-bold text-[var(--color-text)]">Payment Summary</h4>
-            <button id="modalBuyBackBtn" type="button" class="text-[11px] font-bold text-blue-400 hover:underline">← Back</button>
+            <h3 class="text-xs font-bold text-[var(--color-text)] uppercase tracking-wider">NAV Performance Trajectory</h3>
+            <span id="modalNavSubtitle" class="text-[10px] text-[var(--color-text-subtle)]">Recorded NAV History</span>
           </div>
-          <div class="text-xs divide-y divide-[var(--color-border)]">
-            <div class="flex justify-between py-1.5"><span class="text-[var(--color-text-subtle)]">Investing amount</span><span class="font-mono font-bold" id="sumAmount">—</span></div>
-            <div class="flex justify-between py-1.5"><span class="text-[var(--color-text-subtle)]">Transaction fee</span><span class="font-mono font-bold" id="sumFee">—</span></div>
-            <div class="flex justify-between py-1.5"><span class="font-bold">Subtotal</span><span class="font-mono font-bold" id="sumSubtotal">—</span></div>
-            <div class="flex justify-between py-1.5"><span class="text-[var(--color-text-subtle)]">Fx rate</span><span class="font-mono" id="sumFx">—</span></div>
-            <div class="flex justify-between py-1.5"><span class="text-[var(--color-text-subtle)]">GST</span><span class="font-mono" id="sumGst">—</span></div>
-            <div class="flex justify-between py-2">
-              <div>
-                <span class="font-bold block">Payable amount</span>
-                <span class="text-[10px] text-[var(--color-text-subtle)]" id="sumBank"></span>
-              </div>
-              <span class="font-mono font-bold text-sm" id="sumPayable">—</span>
+          <div id="modalNavChartWrapper" class="h-64 md:h-80 w-full bg-[var(--color-bg-subtle)] border border-[var(--color-border)] rounded-2xl p-3 relative">
+            <canvas id="modalNavCanvas"></canvas>
+          </div>
+        </div>
+
+        <div class="glass-card border border-[var(--color-border)] rounded-3xl p-5 md:p-6 shadow-xl space-y-5">
+
+          <div id="modalFeeNotesSection" class="hidden">
+            <h3 class="text-xs font-bold text-[var(--color-text)] uppercase tracking-wider mb-2">Fee Schedule</h3>
+            <div id="modalFeeNotesBody" class="bg-[var(--color-bg-subtle)] border border-[var(--color-border)] rounded-2xl p-3 text-xs text-[var(--color-text-muted)]"></div>
+          </div>
+
+          <div id="modalUnderlyingSection" class="hidden">
+            <h3 class="text-xs font-bold text-[var(--color-text)] uppercase tracking-wider mb-2">Underlying Fund</h3>
+            <div id="modalUnderlyingBody" class="bg-[var(--color-bg-subtle)] border border-[var(--color-border)] rounded-2xl p-3 text-xs text-[var(--color-text-muted)] space-y-1"></div>
+          </div>
+
+          <div id="modalHoldingsSection" class="hidden">
+            <div class="flex items-center justify-between mb-2">
+              <h3 class="text-xs font-bold text-[var(--color-text)] uppercase tracking-wider">Top Holdings</h3>
+              <span id="modalHoldingsBasisNote" class="text-[10px] text-[var(--color-text-subtle)]"></span>
+            </div>
+            <div id="modalHoldingsBody" class="bg-[var(--color-bg-subtle)] border border-[var(--color-border)] rounded-2xl p-3"></div>
+          </div>
+
+          <div class="grid sm:grid-cols-2 gap-5">
+            <div id="modalGeoSection" class="hidden">
+              <h3 class="text-xs font-bold text-[var(--color-text)] uppercase tracking-wider mb-2">Geographic Allocation</h3>
+              <div id="modalGeoBody" class="bg-[var(--color-bg-subtle)] border border-[var(--color-border)] rounded-2xl p-3 space-y-1.5"></div>
+            </div>
+
+            <div id="modalSectorSection" class="hidden">
+              <h3 class="text-xs font-bold text-[var(--color-text)] uppercase tracking-wider mb-2">Sector Allocation</h3>
+              <div id="modalSectorBody" class="bg-[var(--color-bg-subtle)] border border-[var(--color-border)] rounded-2xl p-3 space-y-1.5"></div>
+            </div>
+
+            <div id="modalMarketCapSection" class="hidden">
+              <h3 class="text-xs font-bold text-[var(--color-text)] uppercase tracking-wider mb-2">Market Capitalisation</h3>
+              <div id="modalMarketCapBody" class="bg-[var(--color-bg-subtle)] border border-[var(--color-border)] rounded-2xl p-3 space-y-1.5"></div>
+            </div>
+
+            <div id="modalAssetClassSection" class="hidden">
+              <h3 class="text-xs font-bold text-[var(--color-text)] uppercase tracking-wider mb-2">Asset Allocation</h3>
+              <div id="modalAssetClassBody" class="bg-[var(--color-bg-subtle)] border border-[var(--color-border)] rounded-2xl p-3 space-y-1.5"></div>
             </div>
           </div>
-          <button id="modalBuyNotifyBtn" class="btn-neon w-full text-xs px-4 py-2.5 rounded-xl font-bold mt-2">Notify for Payment</button>
+
+          <div id="modalTaxSection" class="hidden">
+            <h3 class="text-xs font-bold text-[var(--color-text)] uppercase tracking-wider mb-2">Taxation</h3>
+            <div id="modalTaxBody" class="bg-[var(--color-bg-subtle)] border border-[var(--color-border)] rounded-2xl p-3 text-xs space-y-1"></div>
+          </div>
+
+          <div id="modalShareClassSection" class="hidden">
+            <h3 class="text-xs font-bold text-[var(--color-text)] uppercase tracking-wider mb-2">Share Classes</h3>
+            <div id="modalShareClassBody" class="bg-[var(--color-bg-subtle)] border border-[var(--color-border)] rounded-2xl p-3 text-xs overflow-x-auto"></div>
+          </div>
+
+          <div id="modalPerformanceSection" class="hidden">
+            <h3 class="text-xs font-bold text-[var(--color-text)] uppercase tracking-wider mb-2">Performance vs. Benchmark</h3>
+            <div id="modalPerformanceBody" class="bg-[var(--color-bg-subtle)] border border-[var(--color-border)] rounded-2xl p-3 text-xs overflow-x-auto"></div>
+          </div>
+
+          <div id="modalRiskMetricsSection" class="hidden">
+            <h3 class="text-xs font-bold text-[var(--color-text)] uppercase tracking-wider mb-2">Risk Metrics</h3>
+            <div id="modalRiskMetricsBody" class="bg-[var(--color-bg-subtle)] border border-[var(--color-border)] rounded-2xl p-3 text-xs grid grid-cols-2 sm:grid-cols-3 gap-2"></div>
+          </div>
+
+          <div id="modalDataPendingSection" class="hidden">
+            <div class="chart-placeholder-box p-4 text-center">
+              <div class="flex flex-col items-center justify-center gap-1 text-[var(--color-text-subtle)]">
+                <svg class="w-8 h-8 opacity-40 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                <span class="text-xs font-bold text-[var(--color-text-muted)]">Holdings, allocation & taxation not yet captured</span>
+                <span class="text-[10px] italic">This fund's detailed factsheet data hasn't been parsed and verified yet.</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between pt-4 border-t border-[var(--color-border)] text-xs">
+            <span class="text-[var(--color-text-subtle)]">Official Source Attribution:</span>
+            <a id="modalSourceLink" href="#" target="_blank" rel="noopener noreferrer" class="font-bold text-blue-400 hover:underline flex items-center gap-1">
+              Open Factsheet / Backend API →
+            </a>
+          </div>
+
         </div>
-
-        <div id="modalBuySuccess" class="hidden text-center py-2">
-          <svg class="w-8 h-8 mx-auto mb-1 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-          <p class="font-bold text-sm text-emerald-400">Payment notification sent</p>
-          <p class="text-xs font-bold mt-2">✅ Fund purchased successfully</p>
-          <p id="modalBuySuccessDetail" class="text-xs text-[var(--color-text-subtle)] mt-1"></p>
-          <a href="/portfolio" class="inline-block mt-3 text-xs font-bold text-blue-400 hover:underline">View in My Portfolio →</a>
-        </div>
       </div>
 
-      <!-- NAV Performance Chart -->
-      <div class="mb-5">
-        <div class="flex items-center justify-between mb-2">
-          <h3 class="text-xs font-bold text-[var(--color-text)] uppercase tracking-wider">NAV Performance Trajectory</h3>
-          <span id="modalNavSubtitle" class="text-[10px] text-[var(--color-text-subtle)]">Recorded NAV History</span>
-        </div>
-        <div id="modalNavChartWrapper" class="h-44 w-full bg-[var(--color-bg-subtle)] border border-[var(--color-border)] rounded-2xl p-3 relative">
-          <canvas id="modalNavCanvas"></canvas>
-        </div>
-      </div>
+      <!-- Right column: quick metrics + buy panel (sticky) -->
+      <div class="lg:col-span-1 space-y-6 lg:sticky lg:top-20">
 
-      <div id="modalFeeNotesSection" class="mb-5 hidden">
-        <h3 class="text-xs font-bold text-[var(--color-text)] uppercase tracking-wider mb-2">Fee Schedule</h3>
-        <div id="modalFeeNotesBody" class="bg-[var(--color-bg-subtle)] border border-[var(--color-border)] rounded-2xl p-3 text-xs text-[var(--color-text-muted)]"></div>
-      </div>
-
-      <div id="modalUnderlyingSection" class="mb-5 hidden">
-        <h3 class="text-xs font-bold text-[var(--color-text)] uppercase tracking-wider mb-2">Underlying Fund</h3>
-        <div id="modalUnderlyingBody" class="bg-[var(--color-bg-subtle)] border border-[var(--color-border)] rounded-2xl p-3 text-xs text-[var(--color-text-muted)] space-y-1"></div>
-      </div>
-
-      <div id="modalHoldingsSection" class="mb-5 hidden">
-        <div class="flex items-center justify-between mb-2">
-          <h3 class="text-xs font-bold text-[var(--color-text)] uppercase tracking-wider">Top Holdings</h3>
-          <span id="modalHoldingsBasisNote" class="text-[10px] text-[var(--color-text-subtle)]"></span>
-        </div>
-        <div id="modalHoldingsBody" class="bg-[var(--color-bg-subtle)] border border-[var(--color-border)] rounded-2xl p-3"></div>
-      </div>
-
-      <div id="modalGeoSection" class="mb-5 hidden">
-        <h3 class="text-xs font-bold text-[var(--color-text)] uppercase tracking-wider mb-2">Geographic Allocation</h3>
-        <div id="modalGeoBody" class="bg-[var(--color-bg-subtle)] border border-[var(--color-border)] rounded-2xl p-3 space-y-1.5"></div>
-      </div>
-
-      <div id="modalSectorSection" class="mb-5 hidden">
-        <h3 class="text-xs font-bold text-[var(--color-text)] uppercase tracking-wider mb-2">Sector Allocation</h3>
-        <div id="modalSectorBody" class="bg-[var(--color-bg-subtle)] border border-[var(--color-border)] rounded-2xl p-3 space-y-1.5"></div>
-      </div>
-
-      <div id="modalMarketCapSection" class="mb-5 hidden">
-        <h3 class="text-xs font-bold text-[var(--color-text)] uppercase tracking-wider mb-2">Market Capitalisation</h3>
-        <div id="modalMarketCapBody" class="bg-[var(--color-bg-subtle)] border border-[var(--color-border)] rounded-2xl p-3 space-y-1.5"></div>
-      </div>
-
-      <div id="modalAssetClassSection" class="mb-5 hidden">
-        <h3 class="text-xs font-bold text-[var(--color-text)] uppercase tracking-wider mb-2">Asset Allocation</h3>
-        <div id="modalAssetClassBody" class="bg-[var(--color-bg-subtle)] border border-[var(--color-border)] rounded-2xl p-3 space-y-1.5"></div>
-      </div>
-
-      <div id="modalTaxSection" class="mb-5 hidden">
-        <h3 class="text-xs font-bold text-[var(--color-text)] uppercase tracking-wider mb-2">Taxation</h3>
-        <div id="modalTaxBody" class="bg-[var(--color-bg-subtle)] border border-[var(--color-border)] rounded-2xl p-3 text-xs space-y-1"></div>
-      </div>
-
-      <div id="modalShareClassSection" class="mb-5 hidden">
-        <h3 class="text-xs font-bold text-[var(--color-text)] uppercase tracking-wider mb-2">Share Classes</h3>
-        <div id="modalShareClassBody" class="bg-[var(--color-bg-subtle)] border border-[var(--color-border)] rounded-2xl p-3 text-xs overflow-x-auto"></div>
-      </div>
-
-      <div id="modalPerformanceSection" class="mb-5 hidden">
-        <h3 class="text-xs font-bold text-[var(--color-text)] uppercase tracking-wider mb-2">Performance vs. Benchmark</h3>
-        <div id="modalPerformanceBody" class="bg-[var(--color-bg-subtle)] border border-[var(--color-border)] rounded-2xl p-3 text-xs overflow-x-auto"></div>
-      </div>
-
-      <div id="modalRiskMetricsSection" class="mb-5 hidden">
-        <h3 class="text-xs font-bold text-[var(--color-text)] uppercase tracking-wider mb-2">Risk Metrics</h3>
-        <div id="modalRiskMetricsBody" class="bg-[var(--color-bg-subtle)] border border-[var(--color-border)] rounded-2xl p-3 text-xs grid grid-cols-2 sm:grid-cols-3 gap-2"></div>
-      </div>
-
-      <div id="modalDataPendingSection" class="mb-5 hidden">
-        <div class="chart-placeholder-box p-4 text-center">
-          <div class="flex flex-col items-center justify-center gap-1 text-[var(--color-text-subtle)]">
-            <svg class="w-8 h-8 opacity-40 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-            <span class="text-xs font-bold text-[var(--color-text-muted)]">Holdings, allocation & taxation not yet captured</span>
-            <span class="text-[10px] italic">This fund's detailed factsheet data hasn't been parsed and verified yet.</span>
+        <!-- Quick Metrics Grid -->
+        <div class="grid grid-cols-3 lg:grid-cols-1 gap-3 bg-[var(--color-bg-subtle)] border border-[var(--color-border)] p-4 rounded-2xl glass-card shadow-xl">
+          <div>
+            <span class="block text-[10px] text-[var(--color-text-subtle)] uppercase">Current NAV</span>
+            <span id="modalNav" class="font-mono font-bold text-base text-emerald-400">—</span>
+            <span id="modalNavDate" class="block text-[9px] text-[var(--color-text-subtle)]">Live Daily NAV</span>
+          </div>
+          <div>
+            <span class="block text-[10px] text-[var(--color-text-subtle)] uppercase">Expense Ratio (TER)</span>
+            <span id="modalTer" class="font-mono font-bold text-base text-[var(--color-text)]">—</span>
+            <span id="modalTerSubtitle" class="block text-[9px] text-[var(--color-text-subtle)]">Direct Plan TER</span>
+          </div>
+          <div>
+            <span class="block text-[10px] text-[var(--color-text-subtle)] uppercase">Registration Date</span>
+            <span id="modalLaunchDate" class="font-mono font-bold text-base text-[var(--color-text)]">—</span>
+            <span class="block text-[9px] text-emerald-400 font-bold">IFSCA Verified</span>
           </div>
         </div>
-      </div>
 
-      <div class="flex items-center justify-between pt-4 border-t border-[var(--color-border)] text-xs">
-        <span class="text-[var(--color-text-subtle)]">Official Source Attribution:</span>
-        <a id="modalSourceLink" href="#" target="_blank" rel="noopener noreferrer" class="font-bold text-blue-400 hover:underline flex items-center gap-1">
-          Open Factsheet / Backend API →
-        </a>
-      </div>
+        <!-- Buy Panel -->
+        <div id="modalBuySection" class="rounded-2xl border border-[var(--color-border)] p-4 bg-[var(--color-bg-subtle)] glass-card shadow-xl">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="text-xs font-bold text-[var(--color-text)] uppercase tracking-wider">Invest in this Fund</h3>
+          </div>
 
+          <div id="modalBuyLoggedOut" class="hidden">
+            <p class="text-xs text-[var(--color-text-subtle)] mb-2">Sign in to simulate a purchase of this fund.</p>
+            <a href="/login" class="btn-neon inline-block text-xs px-4 py-2 rounded-lg font-bold">Login to Invest</a>
+          </div>
+
+          <div id="modalBuyNoNav" class="hidden">
+            <p class="text-xs text-[var(--color-text-subtle)]">This fund has no live NAV yet (NFO / private placement) — simulated purchase isn't available until a NAV is published.</p>
+          </div>
+
+          <div id="modalBuyForm" class="hidden">
+            <label class="block text-[10px] font-bold uppercase tracking-wide text-[var(--color-text-subtle)] mb-1">Amount (USD) — Min $500</label>
+            <div class="flex items-center gap-2">
+              <div class="relative flex-1">
+                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-[var(--color-text-subtle)] font-bold">$</span>
+                <input type="number" id="modalBuyAmount" min="500" step="1" placeholder="500" class="w-full bg-[var(--color-card)] border border-[var(--color-border)] rounded-xl pl-6 pr-3 py-2 text-sm focus:outline-none focus:border-blue-500 transition-all" />
+              </div>
+              <button id="modalBuyProceedBtn" class="btn-neon text-xs px-4 py-2 rounded-xl font-bold whitespace-nowrap shrink-0">Proceed</button>
+            </div>
+            <p id="modalBuyError" class="text-[11px] text-red-400 mt-2 hidden"></p>
+          </div>
+
+          <div id="modalBuySummary" class="hidden">
+            <div class="flex items-center justify-between mb-2">
+              <h4 class="text-xs font-bold text-[var(--color-text)]">Payment Summary</h4>
+              <button id="modalBuyBackBtn" type="button" class="text-[11px] font-bold text-blue-400 hover:underline">← Back</button>
+            </div>
+            <div class="text-xs divide-y divide-[var(--color-border)]">
+              <div class="flex justify-between py-1.5"><span class="text-[var(--color-text-subtle)]">Investing amount</span><span class="font-mono font-bold" id="sumAmount">—</span></div>
+              <div class="flex justify-between py-1.5"><span class="text-[var(--color-text-subtle)]">Transaction fee</span><span class="font-mono font-bold" id="sumFee">—</span></div>
+              <div class="flex justify-between py-1.5"><span class="font-bold">Subtotal</span><span class="font-mono font-bold" id="sumSubtotal">—</span></div>
+              <div class="flex justify-between py-1.5"><span class="text-[var(--color-text-subtle)]">Fx rate</span><span class="font-mono" id="sumFx">—</span></div>
+              <div class="flex justify-between py-1.5"><span class="text-[var(--color-text-subtle)]">GST</span><span class="font-mono" id="sumGst">—</span></div>
+              <div class="flex justify-between py-2">
+                <div>
+                  <span class="font-bold block">Payable amount</span>
+                  <span class="text-[10px] text-[var(--color-text-subtle)]" id="sumBank"></span>
+                </div>
+                <span class="font-mono font-bold text-sm" id="sumPayable">—</span>
+              </div>
+            </div>
+            <button id="modalBuyNotifyBtn" class="btn-neon w-full text-xs px-4 py-2.5 rounded-xl font-bold mt-2">Notify for Payment</button>
+          </div>
+
+          <div id="modalBuySuccess" class="hidden text-center py-2">
+            <svg class="w-8 h-8 mx-auto mb-1 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            <p class="font-bold text-sm text-emerald-400">Payment notification sent</p>
+            <p class="text-xs font-bold mt-2">✅ Fund purchased successfully</p>
+            <p id="modalBuySuccessDetail" class="text-xs text-[var(--color-text-subtle)] mt-1"></p>
+            <a href="/portfolio" class="inline-block mt-3 text-xs font-bold text-blue-400 hover:underline">View in My Portfolio →</a>
+          </div>
+        </div>
+
+      </div>
     </div>
   </main>
 
