@@ -661,7 +661,7 @@ document.addEventListener('DOMContentLoaded', () => {
           tooltip: { mode: 'index', intersect: false }
         },
         scales: {
-          x: { grid: { display: false }, ticks: { color: isLight ? '#64748b' : '#94a3b8', font: { size: 10 } } },
+          x: { grid: { display: false }, ticks: { display: false } },
           y: { grid: { color: isLight ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.05)' }, ticks: { color: isLight ? '#64748b' : '#94a3b8', font: { size: 10 } } }
         }
       }
