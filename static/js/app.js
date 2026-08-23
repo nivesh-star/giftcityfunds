@@ -1572,7 +1572,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const detailBtn = e.target.closest('.view-detail-btn');
       if (detailBtn) {
         const id = detailBtn.getAttribute('data-id');
-        openFundDetail(id);
+        window.location.href = `/fund/${id}`;
         return;
       }
 

@@ -555,6 +555,17 @@ def portfolio():
     return render_template("portfolio.html")
 
 
+@app.route("/fund/<int:fund_id>")
+def fund_detail_page(fund_id: int):
+    """Full standalone page for a single fund (was previously a modal
+    overlay on the dashboard) -- gives every fund its own shareable URL."""
+    with get_db_connection() as conn:
+        fund = conn.execute("SELECT fund_id, fund_name, amc_name FROM funds WHERE fund_id = ?", (fund_id,)).fetchone()
+    if not fund:
+        return render_template("fund_not_found.html"), 404
+    return render_template("fund_detail.html", fund_id=fund_id, fund_name=fund["fund_name"], amc_name=fund["amc_name"])
+
+
 @app.route("/api/portfolio")
 @login_required
 def api_portfolio():

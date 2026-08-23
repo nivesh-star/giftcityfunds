@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fund Not Found | GIFT360</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: { extend: { colors: {
+        'gcf-blue': '#2563eb', 'gcf-blue-dark': '#1d4ed8',
+        'gcf-neon': '#79FE0C', 'gcf-neon-dark': '#67e600',
+        'fin-dark': '#0b0f19', 'fin-card': '#131d31',
+      } } }
+    }
+  </script>
+  <link rel="stylesheet" href="/static/css/custom.css" />
+  <script>
+    (function () {
+      var t = localStorage.getItem('gift360-theme') || 'dark';
+      document.documentElement.classList.add(t);
+      document.documentElement.classList.remove(t === 'light' ? 'dark' : 'light');
+    })();
+  </script>
+</head>
+<body class="min-h-screen flex items-center justify-center px-4" style="background-color: var(--color-bg); color: var(--color-text);">
+  <div class="text-center max-w-sm">
+    <div class="w-14 h-14 mx-auto mb-4 rounded-2xl bg-blue-500/10 flex items-center justify-center text-blue-400">
+      <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+    </div>
+    <h1 class="text-lg font-black mb-1">Fund not found</h1>
+    <p class="text-xs text-[var(--color-text-subtle)] mb-5">This fund doesn't exist or may have been removed from the directory.</p>
+    <a href="/" class="btn-neon inline-block text-xs px-4 py-2 rounded-xl font-bold">← Back to Dashboard</a>
+  </div>
+</body>
+</html>
