@@ -1241,6 +1241,21 @@ document.addEventListener('DOMContentLoaded', () => {
     `).join('');
   }
 
+  // Soft top-to-bottom fade under the NAV line -- cool cyan-blue at the top,
+  // fully transparent at the baseline, so the area fill reads as a subtle
+  // glow rather than a flat block of color. Scriptable per Chart.js's own
+  // recommended pattern (chart.chartArea isn't known until after the first
+  // layout pass, so this can't be built once up front off the raw canvas).
+  function navGradientFill(context) {
+    const chart = context.chart;
+    const { ctx, chartArea } = chart;
+    if (!chartArea) return 'rgba(56, 189, 248, 0.12)'; // first pass, before layout
+    const gradient = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+    gradient.addColorStop(0, 'rgba(56, 189, 248, 0.32)');
+    gradient.addColorStop(1, 'rgba(56, 189, 248, 0)');
+    return gradient;
+  }
+
   function renderModalNavChart(fund, history) {
     const canvas = document.getElementById('modalNavCanvas');
     const wrapper = document.getElementById('modalNavChartWrapper');
@@ -1273,6 +1288,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const labels = history.map(h => h.nav_date);
     const values = history.map(h => h.nav);
 
+    const navLineColor = '#38bdf8'; // cool cyan-blue accent, distinct from UI blue but still in-family
+
     state.charts.modalNav = new Chart(canvas, {
       type: isSingle ? 'bar' : 'line',
       data: {
@@ -1280,12 +1297,17 @@ document.addEventListener('DOMContentLoaded', () => {
         datasets: [{
           label: `${fund.fund_name} NAV (${fund.nav_currency || 'USD'})`,
           data: values,
-          borderColor: '#2563eb',
-          backgroundColor: isSingle ? '#2563eb' : 'rgba(37, 99, 235, 0.12)',
+          borderColor: navLineColor,
+          backgroundColor: isSingle ? navLineColor : navGradientFill,
+          borderWidth: 2.25,
           fill: !isSingle,
-          tension: 0.35,
-          pointRadius: isSingle ? 0 : 3,
-          pointHoverRadius: 6,
+          tension: 0.42,
+          cubicInterpolationMode: 'monotone',
+          pointRadius: 0,
+          pointHoverRadius: 5,
+          pointHoverBackgroundColor: navLineColor,
+          pointHoverBorderColor: isLight ? '#ffffff' : '#0b1220',
+          pointHoverBorderWidth: 2,
           maxBarThickness: 48,
         }]
       },
