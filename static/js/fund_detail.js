@@ -37,8 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
     themeToggleBtn.addEventListener('click', () => {
       const isLight = document.documentElement.classList.contains('light');
       applyTheme(isLight ? 'dark' : 'light');
-      const fund = state.currentModalFund;
-      if (fund && state.lastHistory) renderNavChart(fund, state.lastHistory);
+      if (state.currentModalFund && state.fullNavHistory) updateNavChart(state.navRange || 'ALL');
     });
   }
 
@@ -57,6 +56,98 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function fmtUsd(n) { return '$' + Number(n).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
   function fmtInr(n) { return '₹' + Number(n).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+
+  // --------------------------------------------------------------------------
+  // Geographic Allocation Map
+  // --------------------------------------------------------------------------
+  // Maps common country names (as they appear in factsheet-sourced allocation
+  // data) to ISO 3166-1 alpha-2 codes, which is what jsVectorMap's bundled
+  // 'world' map keys its regions by. Generic/regional buckets (Europe, Asia,
+  // Cash & Equivalents, etc.) intentionally have no entry here -- they stay
+  // in the text list below the map but are never guessed at on the map
+  // itself, since there's no single real country to highlight for them.
+  const COUNTRY_NAME_TO_ISO2 = {
+    'united states': 'US', 'usa': 'US', 'us': 'US',
+    'india': 'IN', 'china': 'CN', 'hong kong': 'HK', 'taiwan': 'TW',
+    'japan': 'JP', 'south korea': 'KR', 'korea': 'KR',
+    'united kingdom': 'GB', 'uk': 'GB', 'germany': 'DE', 'france': 'FR',
+    'switzerland': 'CH', 'netherlands': 'NL', 'ireland': 'IE',
+    'canada': 'CA', 'australia': 'AU', 'singapore': 'SG', 'brazil': 'BR',
+    'italy': 'IT', 'spain': 'ES', 'sweden': 'SE', 'denmark': 'DK',
+    'norway': 'NO', 'finland': 'FI', 'israel': 'IL', 'mexico': 'MX',
+    'indonesia': 'ID', 'south africa': 'ZA', 'russia': 'RU',
+    'saudi arabia': 'SA', 'united arab emirates': 'AE', 'uae': 'AE',
+    'vietnam': 'VN', 'thailand': 'TH', 'malaysia': 'MY',
+    'philippines': 'PH', 'poland': 'PL', 'turkey': 'TR',
+    'new zealand': 'NZ', 'belgium': 'BE', 'austria': 'AT',
+    'portugal': 'PT', 'luxembourg': 'LU', 'egypt': 'EG', 'chile': 'CL',
+    'argentina': 'AR', 'colombia': 'CO', 'peru': 'PE', 'qatar': 'QA',
+    'kuwait': 'KW',
+  };
+
+  // A category like "China + Taiwan + Hong Kong" or "US & Canada" bundles
+  // several countries' weight into one disclosed figure -- split it and
+  // credit each recognized country the full bundled weight (best-effort;
+  // factsheets don't disclose the per-country split within the bundle).
+  function countriesInCategory(category) {
+    return String(category || '')
+      .split(/[+&/]| and /i)
+      .map(part => COUNTRY_NAME_TO_ISO2[part.trim().toLowerCase()])
+      .filter(Boolean);
+  }
+
+  function renderGeoMap(geoItems) {
+    const wrapper = document.getElementById('modalGeoMapWrapper');
+    const mapEl = document.getElementById('modalGeoMap');
+    if (!wrapper || !mapEl) return;
+
+    const values = {};
+    geoItems.forEach(item => {
+      const codes = countriesInCategory(item.category);
+      codes.forEach(code => {
+        values[code] = (values[code] || 0) + (item.weight_pct || 0);
+      });
+    });
+
+    const codes = Object.keys(values);
+    if (codes.length === 0 || typeof jsVectorMap === 'undefined') {
+      wrapper.classList.add('hidden');
+      return;
+    }
+
+    wrapper.classList.remove('hidden');
+    mapEl.innerHTML = '';
+
+    const isLight = document.documentElement.classList.contains('light');
+    try {
+      new jsVectorMap({
+        selector: '#modalGeoMap',
+        map: 'world',
+        zoomButtons: false,
+        zoomOnScroll: false,
+        backgroundColor: 'transparent',
+        regionStyle: {
+          initial: { fill: isLight ? '#e2e8f0' : '#1e293b', stroke: isLight ? '#cbd5e1' : '#334155', strokeWidth: 0.5 },
+          hover: { fill: '#2563eb' },
+        },
+        series: {
+          regions: [{
+            values,
+            scale: ['#93c5fd', '#1d4ed8'],
+            normalizeFunction: 'polynomial',
+          }],
+        },
+        onRegionTooltipShow(event, tooltip, code) {
+          if (values[code] != null) {
+            tooltip.text(`${tooltip.text()}: ${values[code].toFixed(1)}%`);
+          }
+        },
+      });
+    } catch (e) {
+      console.error('Error rendering geographic map:', e);
+      wrapper.classList.add('hidden');
+    }
+  }
 
   function renderAllocationBars(items) {
     const sorted = [...items].sort((a, b) => (b.weight_pct || 0) - (a.weight_pct || 0));
@@ -307,8 +398,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (geoSection && geoBody) {
       const geo = Array.isArray(f.geographic_allocation) ? f.geographic_allocation : [];
-      if (geo.length > 0) { anyRendered = true; geoBody.innerHTML = renderAllocationBars(geo); geoSection.classList.remove('hidden'); }
-      else geoSection.classList.add('hidden');
+      if (geo.length > 0) {
+        anyRendered = true;
+        geoBody.innerHTML = renderAllocationBars(geo);
+        geoSection.classList.remove('hidden');
+        renderGeoMap(geo);
+      } else {
+        geoSection.classList.add('hidden');
+        const mapWrapper = document.getElementById('modalGeoMapWrapper');
+        if (mapWrapper) mapWrapper.classList.add('hidden');
+      }
     }
 
     if (sectorSection && sectorBody) {
@@ -464,8 +563,49 @@ document.addEventListener('DOMContentLoaded', () => {
   // --------------------------------------------------------------------------
   // NAV Chart
   // --------------------------------------------------------------------------
-  function renderNavChart(fund, history) {
-    state.lastHistory = history;
+  const NAV_RANGES = ['YTD', '1M', '3M', '1Y', '3Y', '5Y', 'ALL'];
+
+  // Filters the fund's full recorded NAV history down to a time-range tab.
+  // With sparse real data (most funds have 1-2 recorded points so far),
+  // a narrow range can legitimately contain zero points -- that's shown
+  // honestly rather than stretched to fill the window.
+  function filterHistoryByRange(fullHistory, range) {
+    if (!fullHistory || fullHistory.length === 0 || range === 'ALL') return fullHistory || [];
+    const now = new Date();
+    let cutoff;
+    if (range === 'YTD') {
+      cutoff = new Date(now.getFullYear(), 0, 1);
+    } else {
+      const monthsBack = { '1M': 1, '3M': 3, '1Y': 12, '3Y': 36, '5Y': 60 }[range] || 0;
+      cutoff = new Date(now);
+      cutoff.setMonth(cutoff.getMonth() - monthsBack);
+    }
+    return fullHistory.filter(h => {
+      const d = new Date(h.nav_date);
+      return !isNaN(d) && d >= cutoff;
+    });
+  }
+
+  function setActiveRangeTab(range) {
+    document.querySelectorAll('.nav-range-tab').forEach(btn => {
+      const isActive = btn.getAttribute('data-range') === range;
+      btn.classList.toggle('bg-blue-600', isActive);
+      btn.classList.toggle('text-white', isActive);
+      btn.classList.toggle('text-[var(--color-text-muted)]', !isActive);
+    });
+  }
+
+  function updateNavChart(range) {
+    state.navRange = range;
+    setActiveRangeTab(range);
+    const filtered = filterHistoryByRange(state.fullNavHistory, range);
+    const emptyMessage = (state.fullNavHistory && state.fullNavHistory.length > 0 && filtered.length === 0)
+      ? `No NAV snapshots recorded within the last ${range === 'YTD' ? 'year-to-date' : range.toLowerCase()} window -- try a wider range.`
+      : null;
+    renderNavChart(state.currentModalFund, filtered, emptyMessage);
+  }
+
+  function renderNavChart(fund, history, emptyMessage) {
     const canvas = document.getElementById('modalNavCanvas');
     const wrapper = document.getElementById('modalNavChartWrapper');
     const subtitle = document.getElementById('modalNavSubtitle');
@@ -484,7 +624,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (subtitle) subtitle.textContent = 'No History Yet';
       const note = document.createElement('div');
       note.className = 'chart-empty-note absolute inset-0 flex items-center justify-center text-center text-[11px] text-[var(--color-text-subtle)] px-4';
-      note.textContent = 'No NAV history recorded yet for this fund. A real trend will build up here as the data pipeline runs over time.';
+      note.textContent = emptyMessage || 'No NAV history recorded yet for this fund. A real trend will build up here as the data pipeline runs over time.';
       wrapper.appendChild(note);
       return;
     }
@@ -623,11 +763,16 @@ document.addEventListener('DOMContentLoaded', () => {
       } catch (e) {
         console.error('Error fetching NAV history:', e);
       }
-      renderNavChart(f, navHistory);
+      state.fullNavHistory = navHistory;
+      updateNavChart(state.navRange || 'ALL');
     } catch (e) {
       console.error('Error loading fund detail page:', e);
     }
   }
+
+  document.querySelectorAll('.nav-range-tab').forEach(btn => {
+    btn.addEventListener('click', () => updateNavChart(btn.getAttribute('data-range')));
+  });
 
   loadFund();
 });

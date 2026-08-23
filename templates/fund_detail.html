@@ -29,6 +29,11 @@
   <!-- Chart.js CDN -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+  <!-- jsVectorMap CDN (for the Geographic Allocation world map) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsvectormap@1.5.3/dist/css/jsvectormap.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/jsvectormap@1.5.3/dist/js/jsvectormap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jsvectormap@1.5.3/dist/maps/world.js"></script>
+
   <!-- Custom CSS -->
   <link rel="stylesheet" href="/static/css/custom.css" />
   <script>
@@ -103,9 +108,18 @@
 
         <!-- NAV Performance Chart -->
         <div class="glass-card border border-[var(--color-border)] rounded-3xl p-5 md:p-6 shadow-xl">
-          <div class="flex items-center justify-between mb-2">
+          <div class="flex items-center justify-between mb-2 flex-wrap gap-2">
             <h3 class="text-xs font-bold text-[var(--color-text)] uppercase tracking-wider">NAV Performance Trajectory</h3>
             <span id="modalNavSubtitle" class="text-[10px] text-[var(--color-text-subtle)]">Recorded NAV History</span>
+          </div>
+          <div class="flex items-center gap-1 mb-3 flex-wrap">
+            <button type="button" data-range="YTD" class="nav-range-tab text-[10px] font-bold px-2.5 py-1 rounded-lg text-[var(--color-text-muted)] hover:text-blue-400 transition-colors">YTD</button>
+            <button type="button" data-range="1M" class="nav-range-tab text-[10px] font-bold px-2.5 py-1 rounded-lg text-[var(--color-text-muted)] hover:text-blue-400 transition-colors">1M</button>
+            <button type="button" data-range="3M" class="nav-range-tab text-[10px] font-bold px-2.5 py-1 rounded-lg text-[var(--color-text-muted)] hover:text-blue-400 transition-colors">3M</button>
+            <button type="button" data-range="1Y" class="nav-range-tab text-[10px] font-bold px-2.5 py-1 rounded-lg text-[var(--color-text-muted)] hover:text-blue-400 transition-colors">1Y</button>
+            <button type="button" data-range="3Y" class="nav-range-tab text-[10px] font-bold px-2.5 py-1 rounded-lg text-[var(--color-text-muted)] hover:text-blue-400 transition-colors">3Y</button>
+            <button type="button" data-range="5Y" class="nav-range-tab text-[10px] font-bold px-2.5 py-1 rounded-lg text-[var(--color-text-muted)] hover:text-blue-400 transition-colors">5Y</button>
+            <button type="button" data-range="ALL" class="nav-range-tab text-[10px] font-bold px-2.5 py-1 rounded-lg text-[var(--color-text-muted)] hover:text-blue-400 transition-colors">All</button>
           </div>
           <div id="modalNavChartWrapper" class="h-64 md:h-80 w-full bg-[var(--color-bg-subtle)] border border-[var(--color-border)] rounded-2xl p-3 relative">
             <canvas id="modalNavCanvas"></canvas>
@@ -133,8 +147,11 @@
           </div>
 
           <div class="grid sm:grid-cols-2 gap-5">
-            <div id="modalGeoSection" class="hidden">
+            <div id="modalGeoSection" class="hidden sm:col-span-2">
               <h3 class="text-xs font-bold text-[var(--color-text)] uppercase tracking-wider mb-2">Geographic Allocation</h3>
+              <div id="modalGeoMapWrapper" class="hidden mb-3 bg-[var(--color-bg-subtle)] border border-[var(--color-border)] rounded-2xl p-2 h-56 md:h-64">
+                <div id="modalGeoMap" class="w-full h-full"></div>
+              </div>
               <div id="modalGeoBody" class="bg-[var(--color-bg-subtle)] border border-[var(--color-border)] rounded-2xl p-3 space-y-1.5"></div>
             </div>
 

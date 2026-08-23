@@ -555,14 +555,32 @@ def portfolio():
     return render_template("portfolio.html")
 
 
+def _slugify(text: str) -> str:
+    """Turns a fund name into a URL-friendly slug, e.g.
+    'Tata India Dynamic Equity Fund' -> 'tata-india-dynamic-equity-fund'."""
+    import re
+    text = (text or "").lower().strip()
+    text = re.sub(r"[^a-z0-9]+", "-", text)
+    return text.strip("-") or "fund"
+
+
 @app.route("/fund/<int:fund_id>")
-def fund_detail_page(fund_id: int):
+@app.route("/fund/<int:fund_id>/<slug>")
+def fund_detail_page(fund_id: int, slug: str | None = None):
     """Full standalone page for a single fund (was previously a modal
-    overlay on the dashboard) -- gives every fund its own shareable URL."""
+    overlay on the dashboard) -- gives every fund its own shareable URL,
+    named after the fund rather than just its numeric id. A bare /fund/<id>
+    (or a stale/incorrect slug) 301-redirects to the canonical named URL so
+    old links keep working."""
     with get_db_connection() as conn:
         fund = conn.execute("SELECT fund_id, fund_name, amc_name FROM funds WHERE fund_id = ?", (fund_id,)).fetchone()
     if not fund:
         return render_template("fund_not_found.html"), 404
+
+    correct_slug = _slugify(fund["fund_name"])
+    if slug != correct_slug:
+        return redirect(url_for("fund_detail_page", fund_id=fund_id, slug=correct_slug), code=301)
+
     return render_template("fund_detail.html", fund_id=fund_id, fund_name=fund["fund_name"], amc_name=fund["amc_name"])
 
 

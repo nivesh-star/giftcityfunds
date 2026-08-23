@@ -1572,7 +1572,9 @@ document.addEventListener('DOMContentLoaded', () => {
       const detailBtn = e.target.closest('.view-detail-btn');
       if (detailBtn) {
         const id = detailBtn.getAttribute('data-id');
-        window.location.href = `/fund/${id}`;
+        const fund = state.allFunds.find(f => String(f.fund_id) === String(id));
+        const slug = fund ? slugify(fund.fund_name) : null;
+        window.location.href = slug ? `/fund/${id}/${slug}` : `/fund/${id}`;
         return;
       }
 
@@ -1676,6 +1678,16 @@ document.addEventListener('DOMContentLoaded', () => {
       return `<span class="${size} rounded-full font-bold badge-inbound">Inbound</span>`;
     }
     return `<span class="${size} rounded-full font-bold badge-tier2">Unclassified</span>`;
+  }
+
+  // Utility helper to turn a fund name into a URL slug, matching the
+  // server-side _slugify() in app.py -- keeps the fund's name visible in
+  // the URL instead of just its numeric id.
+  function slugify(str) {
+    if (!str) return 'fund';
+    return String(str).toLowerCase().trim()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '') || 'fund';
   }
 
   // Utility helper for safe HTML strings
