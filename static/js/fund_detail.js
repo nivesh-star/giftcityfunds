@@ -96,6 +96,24 @@ document.addEventListener('DOMContentLoaded', () => {
       .filter(Boolean);
   }
 
+  // Manual low->high color interpolation for the allocation heat scale,
+  // rather than relying on jsVectorMap's own built-in series/scale system.
+  // That system divides by (max - min) to normalize a value, and when every
+  // allocated country carries the same weight (most commonly: a single
+  // country at 100%) that division is 0/0 -- the library ends up writing a
+  // literal fill="undefined" onto the SVG path, which browsers render as
+  // solid black. Computing the fill ourselves sidesteps that edge case
+  // entirely and gives full control over the color, in one cool cyan-blue
+  // family that matches the NAV chart's accent.
+  const GEO_LOW_COLOR = [125, 211, 252];   // #7dd3fc -- light sky, low weight
+  const GEO_HIGH_COLOR = [3, 105, 161];    // #0369a1 -- deep cyan-blue, high weight
+
+  function geoFillColor(value, minV, maxV) {
+    const t = maxV > minV ? (value - minV) / (maxV - minV) : 1; // flat/single value -> strongest color
+    const rgb = GEO_LOW_COLOR.map((lo, i) => Math.round(lo + (GEO_HIGH_COLOR[i] - lo) * t));
+    return `rgb(${rgb[0]}, ${rgb[1]}, ${rgb[2]})`;
+  }
+
   function renderGeoMap(geoItems) {
     const wrapper = document.getElementById('modalGeoMapWrapper');
     const mapEl = document.getElementById('modalGeoMap');
@@ -119,8 +137,12 @@ document.addEventListener('DOMContentLoaded', () => {
     mapEl.innerHTML = '';
 
     const isLight = document.documentElement.classList.contains('light');
+    const weights = codes.map(c => values[c]);
+    const minV = Math.min(...weights);
+    const maxV = Math.max(...weights);
+
     try {
-      new jsVectorMap({
+      const map = new jsVectorMap({
         selector: '#modalGeoMap',
         map: 'world',
         zoomButtons: false,
@@ -128,20 +150,23 @@ document.addEventListener('DOMContentLoaded', () => {
         backgroundColor: 'transparent',
         regionStyle: {
           initial: { fill: isLight ? '#e2e8f0' : '#1e293b', stroke: isLight ? '#cbd5e1' : '#334155', strokeWidth: 0.5 },
-          hover: { fill: '#2563eb' },
-        },
-        series: {
-          regions: [{
-            values,
-            scale: ['#93c5fd', '#1d4ed8'],
-            normalizeFunction: 'polynomial',
-          }],
+          hover: { fill: '#38bdf8' },
         },
         onRegionTooltipShow(event, tooltip, code) {
           if (values[code] != null) {
             tooltip.text(`${tooltip.text()}: ${values[code].toFixed(1)}%`);
           }
         },
+      });
+
+      // Paint each allocated country ourselves -- see geoFillColor() above
+      // for why we don't hand this off to jsVectorMap's series/scale option.
+      codes.forEach(code => {
+        const region = map.regions[code];
+        const shapeEl = region && region.element && region.element.shape && region.element.shape.node;
+        if (shapeEl) {
+          shapeEl.style.fill = geoFillColor(values[code], minV, maxV);
+        }
       });
     } catch (e) {
       console.error('Error rendering geographic map:', e);
