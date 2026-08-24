@@ -539,6 +539,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const perf = Array.isArray(f.performance) ? f.performance : [];
       if (perf.length > 0) {
         anyRendered = true;
+        renderPerformanceChart(perf);
         performanceBody.innerHTML = `
           <table class="w-full text-left border-collapse">
             <thead>
@@ -657,6 +658,81 @@ document.addEventListener('DOMContentLoaded', () => {
     gradient.addColorStop(0, 'rgba(56, 189, 248, 0.32)');
     gradient.addColorStop(1, 'rgba(56, 189, 248, 0)');
     return gradient;
+  }
+
+  // Fund vs. benchmark returns, grouped by period, as a bar chart. A fund can
+  // have several share classes in fund_performance -- we pick the one with the
+  // most periods disclosed (ties broken by first-seen) so the chart shows one
+  // coherent series rather than mixing classes, and label which class it is.
+  const PERFORMANCE_PERIOD_ORDER = ['1M', '3M', 'YTD', '1Y', '3Y', '5Y', 'SI', 'ALL'];
+
+  function renderPerformanceChart(perf) {
+    const canvas = document.getElementById('modalPerformanceCanvas');
+    const shareClassLabel = document.getElementById('modalPerformanceShareClass');
+    if (!canvas) return;
+
+    if (state.charts.modalPerformance) {
+      state.charts.modalPerformance.destroy();
+      state.charts.modalPerformance = null;
+    }
+
+    const withBenchmark = perf.filter(p => p.benchmark_return_pct != null);
+    const rows = withBenchmark.length > 0 ? withBenchmark : perf;
+
+    const byClass = {};
+    rows.forEach(p => {
+      const key = p.share_class || '—';
+      (byClass[key] = byClass[key] || []).push(p);
+    });
+    const bestClass = Object.keys(byClass).sort((a, b) => byClass[b].length - byClass[a].length)[0];
+    const classRows = byClass[bestClass] || [];
+
+    if (shareClassLabel) {
+      shareClassLabel.textContent = bestClass && bestClass !== '—' ? `Share class: ${bestClass}` : '';
+    }
+
+    const sorted = [...classRows].sort((a, b) => {
+      const ai = PERFORMANCE_PERIOD_ORDER.indexOf(a.period);
+      const bi = PERFORMANCE_PERIOD_ORDER.indexOf(b.period);
+      return (ai === -1 ? 999 : ai) - (bi === -1 ? 999 : bi);
+    });
+
+    const labels = sorted.map(p => p.period || '—');
+    const fundData = sorted.map(p => p.fund_return_pct);
+    const benchmarkData = sorted.map(p => p.benchmark_return_pct);
+    const isLight = document.documentElement.classList.contains('light');
+    const fundColor = '#38bdf8';
+    const benchmarkColor = isLight ? '#94a3b8' : '#64748b';
+
+    state.charts.modalPerformance = new Chart(canvas, {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [
+          { label: 'Fund', data: fundData, backgroundColor: fundColor, borderRadius: 4, maxBarThickness: 28 },
+          { label: 'Benchmark', data: benchmarkData, backgroundColor: benchmarkColor, borderRadius: 4, maxBarThickness: 28 },
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'top', labels: { color: isLight ? '#334155' : '#cbd5e1', boxWidth: 10, font: { size: 10 } } },
+          tooltip: {
+            callbacks: {
+              label: (ctx) => `${ctx.dataset.label}: ${ctx.raw != null ? ctx.raw + '%' : '—'}`
+            }
+          }
+        },
+        scales: {
+          x: { grid: { display: false }, ticks: { color: isLight ? '#64748b' : '#94a3b8', font: { size: 10 } } },
+          y: {
+            grid: { color: isLight ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.05)' },
+            ticks: { color: isLight ? '#64748b' : '#94a3b8', font: { size: 10 }, callback: (v) => v + '%' }
+          }
+        }
+      }
+    });
   }
 
   function renderNavChart(fund, history, emptyMessage) {

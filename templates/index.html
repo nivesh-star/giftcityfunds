@@ -667,7 +667,13 @@
 
       <!-- Performance / Returns -->
       <div id="modalPerformanceSection" class="mb-5 hidden">
-        <h3 class="text-xs font-bold text-[var(--color-text)] uppercase tracking-wider mb-2">Performance vs. Benchmark</h3>
+        <div class="flex items-center justify-between mb-2">
+          <h3 class="text-xs font-bold text-[var(--color-text)] uppercase tracking-wider">Performance vs. Benchmark</h3>
+          <span id="modalPerformanceShareClass" class="text-[10px] text-[var(--color-text-subtle)]"></span>
+        </div>
+        <div class="bg-[var(--color-bg-subtle)] border border-[var(--color-border)] rounded-2xl p-3 mb-3" style="height: 220px;">
+          <canvas id="modalPerformanceCanvas"></canvas>
+        </div>
         <div id="modalPerformanceBody" class="bg-[var(--color-bg-subtle)] border border-[var(--color-border)] rounded-2xl p-3 text-xs overflow-x-auto"></div>
       </div>
 
