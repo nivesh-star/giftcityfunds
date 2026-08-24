@@ -525,6 +525,18 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  function planBadgeHtml(planType) {
+    const styles = {
+      'Direct': 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30',
+      'Regular': 'bg-amber-500/10 text-amber-400 border-amber-500/30',
+      'Direct & Regular': 'bg-blue-500/10 text-blue-400 border-blue-500/30',
+    };
+    if (!planType || planType === '—' || !styles[planType]) {
+      return `<span class="text-[var(--color-text-subtle)] text-xs">—</span>`;
+    }
+    return `<span class="text-[10px] font-bold px-2 py-0.5 rounded-full border ${styles[planType]}">${escapeHtml(planType)}</span>`;
+  }
+
   function createTableRow(fund) {
     const isCompared = state.compareIds.has(fund.fund_id);
     const navText = fund.nav !== null 
@@ -536,6 +548,8 @@ document.addEventListener('DOMContentLoaded', () => {
       : `<span class="text-[var(--color-text-subtle)] text-xs">—</span>`;
 
     const launchText = fund.launch_date || `<span class="text-[var(--color-text-subtle)] text-xs">—</span>`;
+
+    const planText = planBadgeHtml(fund.plan_type);
 
     return `
       <tr class="border-b border-[var(--color-border)] hover:bg-[var(--color-card-hover)] transition-colors group">
@@ -559,6 +573,9 @@ document.addEventListener('DOMContentLoaded', () => {
         </td>
         <td class="py-3.5 px-4 text-xs font-medium text-[var(--color-text-muted)]">
           ${escapeHtml(fund.category || 'General Fund')}
+        </td>
+        <td class="py-3.5 px-4 text-center">
+          ${planText}
         </td>
         <td class="py-3.5 px-4 text-right">
           ${navText}

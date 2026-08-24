@@ -291,12 +291,49 @@ def get_funds():
     with get_db_connection() as conn:
         rows = conn.execute(query, params).fetchall()
         funds = [dict(row) for row in rows]
+        plan_map = _get_fund_plan_map(conn)
+
+    for fund in funds:
+        fund["plan_type"] = plan_map.get(fund["fund_id"], "—")
 
     return jsonify({
         "success": True,
         "count": len(funds),
         "funds": funds,
     })
+
+
+def _get_fund_plan_map(conn: sqlite3.Connection) -> Dict[int, str]:
+    """Builds a {fund_id: 'Direct' | 'Regular' | 'Direct & Regular' | '—'} map
+    by combining explicit share-class names (fund_share_classes.class_name) with
+    Direct/Regular mentions in nav_history.source_name. Only funds where the AMC
+    actually discloses a plan get a label other than the dash placeholder."""
+    flags: Dict[int, Dict[str, bool]] = {}
+
+    def mark(fund_id: int, direct: bool, regular: bool) -> None:
+        entry = flags.setdefault(fund_id, {"direct": False, "regular": False})
+        entry["direct"] = entry["direct"] or direct
+        entry["regular"] = entry["regular"] or regular
+
+    for row in conn.execute("SELECT fund_id, class_name FROM fund_share_classes"):
+        name = (row["class_name"] or "").lower()
+        if "direct" in name or "regular" in name:
+            mark(row["fund_id"], "direct" in name, "regular" in name)
+
+    for row in conn.execute("SELECT fund_id, source_name FROM nav_history"):
+        name = (row["source_name"] or "").lower()
+        if "direct" in name or "regular" in name:
+            mark(row["fund_id"], "direct" in name, "regular" in name)
+
+    plan_map: Dict[int, str] = {}
+    for fund_id, entry in flags.items():
+        if entry["direct"] and entry["regular"]:
+            plan_map[fund_id] = "Direct & Regular"
+        elif entry["direct"]:
+            plan_map[fund_id] = "Direct"
+        elif entry["regular"]:
+            plan_map[fund_id] = "Regular"
+    return plan_map
 
 
 @app.route("/api/fund/<int:fund_id>")
