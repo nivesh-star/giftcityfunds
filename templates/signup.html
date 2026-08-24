@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Login | GIFT360</title>
+  <title>Sign Up | GIFT360</title>
 
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -43,8 +43,8 @@
     </a>
 
     <div class="glass-card rounded-2xl p-6 border border-[var(--color-border)]">
-      <h1 class="text-lg font-black mb-1">Sign in to your account</h1>
-      <p class="text-xs text-[var(--color-text-subtle)] mb-5">Access your simulated fund portfolio.</p>
+      <h1 class="text-lg font-black mb-1">Create your account</h1>
+      <p class="text-xs text-[var(--color-text-subtle)] mb-5">Set up a simulated portfolio -- demo only, no real money or KYC involved.</p>
 
       {% if error %}
       <div class="mb-4 text-xs font-semibold px-3 py-2 rounded-lg" style="background: rgba(239,68,68,0.12); color: #ef4444; border: 1px solid rgba(239,68,68,0.3);">
@@ -54,18 +54,26 @@
 
       <form method="POST" class="space-y-3">
         <div>
+          <label class="block text-[11px] font-bold uppercase tracking-wide text-[var(--color-text-subtle)] mb-1">Full Name</label>
+          <input type="text" name="full_name" required value="{{ full_name }}" placeholder="Your name" class="w-full bg-[var(--color-bg-subtle)] border border-[var(--color-border)] rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-blue-500 transition-all" />
+        </div>
+        <div>
           <label class="block text-[11px] font-bold uppercase tracking-wide text-[var(--color-text-subtle)] mb-1">Email</label>
-          <input type="email" name="email" required placeholder="you@email.com" class="w-full bg-[var(--color-bg-subtle)] border border-[var(--color-border)] rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-blue-500 transition-all" />
+          <input type="email" name="email" required value="{{ email }}" placeholder="you@email.com" class="w-full bg-[var(--color-bg-subtle)] border border-[var(--color-border)] rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-blue-500 transition-all" />
         </div>
         <div>
           <label class="block text-[11px] font-bold uppercase tracking-wide text-[var(--color-text-subtle)] mb-1">Password</label>
-          <input type="password" name="password" required placeholder="••••••••" class="w-full bg-[var(--color-bg-subtle)] border border-[var(--color-border)] rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-blue-500 transition-all" />
+          <input type="password" name="password" required minlength="8" placeholder="At least 8 characters" class="w-full bg-[var(--color-bg-subtle)] border border-[var(--color-border)] rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-blue-500 transition-all" />
         </div>
-        <button type="submit" class="btn-neon w-full text-sm px-4 py-2.5 rounded-xl font-bold mt-2">Sign In</button>
+        <div>
+          <label class="block text-[11px] font-bold uppercase tracking-wide text-[var(--color-text-subtle)] mb-1">Confirm Password</label>
+          <input type="password" name="confirm_password" required minlength="8" placeholder="••••••••" class="w-full bg-[var(--color-bg-subtle)] border border-[var(--color-border)] rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-blue-500 transition-all" />
+        </div>
+        <button type="submit" class="btn-neon w-full text-sm px-4 py-2.5 rounded-xl font-bold mt-2">Create Account</button>
       </form>
 
       <p class="text-center text-xs text-[var(--color-text-subtle)] mt-4">
-        Don't have an account? <a href="/signup" class="text-blue-400 hover:text-blue-300 font-semibold">Sign up</a>
+        Already have an account? <a href="/login" class="text-blue-400 hover:text-blue-300 font-semibold">Sign in</a>
       </p>
     </div>
 

@@ -17,7 +17,7 @@ from typing import Any, Dict, List, Optional
 from functools import wraps
 
 from flask import Flask, jsonify, render_template, request, Response, session, redirect, url_for
-from werkzeug.security import check_password_hash
+from werkzeug.security import check_password_hash, generate_password_hash
 
 app = Flask(__name__, static_folder="static", template_folder="templates")
 app.secret_key = "gift360-demo-secret-key-not-for-production"
@@ -565,9 +565,10 @@ def get_stats():
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
-    """Demo login -- pre-seeded demo account only, no public signup.
-    This entire purchase flow is a DEMO SIMULATION: no real money moves,
-    no real fund units are allotted. See demo_holdings table comment."""
+    """Demo login. This entire purchase flow is a DEMO SIMULATION: no real
+    money moves, no real fund units are allotted. See demo_holdings table
+    comment. New accounts come from /signup below -- both routes write to
+    the same demo_users table."""
     error = None
     if request.method == "POST":
         email = (request.form.get("email") or "").strip().lower()
@@ -582,6 +583,47 @@ def login():
             return redirect(next_url)
         error = "Invalid email or password."
     return render_template("login.html", error=error)
+
+
+@app.route("/signup", methods=["GET", "POST"])
+def signup():
+    """Creates a new demo account (demo_users row) and signs the person
+    straight in. DEMO ONLY -- this just gates the simulated portfolio /
+    Buy flow; no real KYC, no real money, no real fund units."""
+    error = None
+    full_name = ""
+    email = ""
+    if request.method == "POST":
+        full_name = (request.form.get("full_name") or "").strip()
+        email = (request.form.get("email") or "").strip().lower()
+        password = request.form.get("password") or ""
+        confirm_password = request.form.get("confirm_password") or ""
+
+        if not full_name:
+            error = "Please enter your name."
+        elif not email or "@" not in email:
+            error = "Please enter a valid email address."
+        elif len(password) < 8:
+            error = "Password must be at least 8 characters."
+        elif password != confirm_password:
+            error = "Passwords don't match."
+        else:
+            with get_db_connection() as conn:
+                existing = conn.execute("SELECT user_id FROM demo_users WHERE email = ?", (email,)).fetchone()
+                if existing:
+                    error = "An account with this email already exists."
+                else:
+                    cur = conn.execute(
+                        "INSERT INTO demo_users (email, password_hash, full_name) VALUES (?, ?, ?)",
+                        (email, generate_password_hash(password), full_name)
+                    )
+                    conn.commit()
+                    session["user_id"] = cur.lastrowid
+                    session["user_email"] = email
+                    session["user_name"] = full_name
+                    return redirect(url_for("portfolio"))
+
+    return render_template("signup.html", error=error, full_name=full_name, email=email)
 
 
 @app.route("/logout")
