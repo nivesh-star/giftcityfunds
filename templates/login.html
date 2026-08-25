@@ -33,18 +33,78 @@
     })();
   </script>
 </head>
-<body class="min-h-screen flex items-center justify-center px-4" style="background-color: var(--color-bg); color: var(--color-text);">
+<body class="min-h-screen flex items-center justify-center px-4 py-8" style="background-color: var(--color-bg); color: var(--color-text);">
 
-  <div class="w-full max-w-sm">
+  <div class="w-full max-w-4xl glass-card rounded-3xl overflow-hidden border border-[var(--color-border)] grid md:grid-cols-2">
 
-    <a href="/" class="flex items-center justify-center gap-2 mb-6">
-      <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-blue-700 flex items-center justify-center shadow-md shadow-blue-500/20 text-white font-black text-lg">G</div>
-      <span class="font-extrabold text-xl tracking-tight">GIFT<span class="text-blue-500">360</span></span>
-    </a>
+    <!-- Illustration panel -->
+    <div class="relative hidden md:flex flex-col justify-between p-8 overflow-hidden" style="background: linear-gradient(160deg, #0b1220 0%, #0f1f3d 55%, #0b1220 100%);">
+      <div class="absolute inset-0 opacity-30" style="background-image: radial-gradient(circle at 20% 20%, rgba(37,99,235,0.35), transparent 45%), radial-gradient(circle at 80% 75%, rgba(121,254,12,0.18), transparent 40%);"></div>
 
-    <div class="glass-card rounded-2xl p-6 border border-[var(--color-border)]">
-      <h1 class="text-lg font-black mb-1">Sign in to your account</h1>
-      <p class="text-xs text-[var(--color-text-subtle)] mb-5">Access your simulated fund portfolio.</p>
+      <a href="/" class="relative flex items-center gap-2 z-10">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 to-blue-700 flex items-center justify-center shadow-md shadow-blue-500/20 text-white font-black text-base">G</div>
+        <span class="font-extrabold text-lg tracking-tight text-white">GIFT<span class="text-blue-400">360</span></span>
+      </a>
+
+      <svg class="relative z-10 w-full h-auto" viewBox="0 0 400 260" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="towerGrad1" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#1d4ed8" stop-opacity="0.9"/>
+            <stop offset="100%" stop-color="#1d4ed8" stop-opacity="0.35"/>
+          </linearGradient>
+          <linearGradient id="towerGrad2" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#2563eb" stop-opacity="0.95"/>
+            <stop offset="100%" stop-color="#2563eb" stop-opacity="0.4"/>
+          </linearGradient>
+          <linearGradient id="lineGlow" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#79FE0C" stop-opacity="0.2"/>
+            <stop offset="100%" stop-color="#79FE0C" stop-opacity="1"/>
+          </linearGradient>
+        </defs>
+
+        <!-- skyline -->
+        <rect x="20" y="150" width="34" height="90" rx="3" fill="url(#towerGrad1)"/>
+        <rect x="64" y="110" width="30" height="130" rx="3" fill="url(#towerGrad2)"/>
+        <rect x="104" y="170" width="26" height="70" rx="3" fill="url(#towerGrad1)"/>
+        <rect x="140" y="90" width="34" height="150" rx="3" fill="url(#towerGrad2)"/>
+        <rect x="184" y="135" width="28" height="105" rx="3" fill="url(#towerGrad1)"/>
+        <rect x="222" y="60" width="36" height="180" rx="3" fill="url(#towerGrad2)"/>
+        <rect x="268" y="145" width="28" height="95" rx="3" fill="url(#towerGrad1)"/>
+        <rect x="306" y="100" width="32" height="140" rx="3" fill="url(#towerGrad2)"/>
+        <rect x="348" y="165" width="30" height="75" rx="3" fill="url(#towerGrad1)"/>
+
+        <!-- window dots -->
+        <g fill="#79FE0C" opacity="0.55">
+          <circle cx="35" cy="170" r="1.6"/><circle cx="45" cy="170" r="1.6"/><circle cx="35" cy="185" r="1.6"/>
+          <circle cx="78" cy="130" r="1.6"/><circle cx="88" cy="130" r="1.6"/><circle cx="78" cy="150" r="1.6"/><circle cx="88" cy="150" r="1.6"/>
+          <circle cx="238" cy="85" r="1.6"/><circle cx="248" cy="85" r="1.6"/><circle cx="238" cy="105" r="1.6"/><circle cx="248" cy="105" r="1.6"/>
+          <circle cx="320" cy="125" r="1.6"/><circle cx="320" cy="145" r="1.6"/>
+        </g>
+
+        <!-- rising performance line -->
+        <polyline points="10,230 60,205 110,215 155,150 205,165 255,95 300,120 350,70 392,55" fill="none" stroke="url(#lineGlow)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="392" cy="55" r="5" fill="#79FE0C"/>
+        <circle cx="392" cy="55" r="9" fill="#79FE0C" opacity="0.25"/>
+
+        <!-- baseline -->
+        <line x1="0" y1="240" x2="400" y2="240" stroke="#334155" stroke-width="1"/>
+      </svg>
+
+      <div class="relative z-10">
+        <p class="text-white font-bold text-lg leading-snug">Your gateway to<br/>GIFT City's global funds.</p>
+        <p class="text-slate-400 text-xs mt-2 max-w-xs">Track NAVs, compare outbound &amp; inbound funds, and simulate investments -- all in one place.</p>
+      </div>
+    </div>
+
+    <!-- Form panel -->
+    <div class="p-8 md:p-10 flex flex-col justify-center">
+      <a href="/" class="flex md:hidden items-center gap-2 mb-6">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 to-blue-700 flex items-center justify-center shadow-md shadow-blue-500/20 text-white font-black text-base">G</div>
+        <span class="font-extrabold text-lg tracking-tight">GIFT<span class="text-blue-500">360</span></span>
+      </a>
+
+      <h1 class="text-xl font-black mb-1">Login to your account</h1>
+      <p class="text-xs text-[var(--color-text-subtle)] mb-6">Access your simulated fund portfolio.</p>
 
       {% if error %}
       <div class="mb-4 text-xs font-semibold px-3 py-2 rounded-lg" style="background: rgba(239,68,68,0.12); color: #ef4444; border: 1px solid rgba(239,68,68,0.3);">
@@ -52,24 +112,27 @@
       </div>
       {% endif %}
 
-      <form method="POST" class="space-y-3">
+      <form method="POST" class="space-y-4">
         <div>
           <label class="block text-[11px] font-bold uppercase tracking-wide text-[var(--color-text-subtle)] mb-1">Email</label>
           <input type="email" name="email" required placeholder="you@email.com" class="w-full bg-[var(--color-bg-subtle)] border border-[var(--color-border)] rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-blue-500 transition-all" />
         </div>
         <div>
-          <label class="block text-[11px] font-bold uppercase tracking-wide text-[var(--color-text-subtle)] mb-1">Password</label>
+          <div class="flex items-center justify-between mb-1">
+            <label class="block text-[11px] font-bold uppercase tracking-wide text-[var(--color-text-subtle)]">Password</label>
+          </div>
           <input type="password" name="password" required placeholder="••••••••" class="w-full bg-[var(--color-bg-subtle)] border border-[var(--color-border)] rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-blue-500 transition-all" />
         </div>
         <button type="submit" class="btn-neon w-full text-sm px-4 py-2.5 rounded-xl font-bold mt-2">Sign In</button>
       </form>
 
-      <p class="text-center text-xs text-[var(--color-text-subtle)] mt-4">
-        Don't have an account? <a href="/signup" class="text-blue-400 hover:text-blue-300 font-semibold">Sign up</a>
+      <p class="text-center text-xs text-[var(--color-text-subtle)] mt-5">
+        New to GIFT360? <a href="/signup" class="text-blue-400 hover:text-blue-300 font-semibold">Create an account</a>
       </p>
+
+      <a href="/" class="block text-center mt-5 text-xs text-[var(--color-text-subtle)] hover:text-blue-400">← Back to dashboard</a>
     </div>
 
-    <a href="/" class="block text-center mt-5 text-xs text-[var(--color-text-subtle)] hover:text-blue-400">← Back to dashboard</a>
   </div>
 
 </body>

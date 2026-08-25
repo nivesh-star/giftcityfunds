@@ -589,24 +589,45 @@ def login():
 def signup():
     """Creates a new demo account (demo_users row) and signs the person
     straight in. DEMO ONLY -- this just gates the simulated portfolio /
-    Buy flow; no real KYC, no real money, no real fund units."""
+    Buy flow; no real KYC, no real money, no real fund units. The Bank
+    Details / Nominee steps mirror what a real AMC folio application asks
+    for, but nothing here is verified against any bank or registry --
+    it's stored in demo_investor_profile purely so the demo account looks
+    like a complete investor record."""
     error = None
-    full_name = ""
-    email = ""
+    form = {k: (request.form.get(k) or "").strip() for k in (
+        "full_name", "email", "mobile_number", "password", "confirm_password",
+        "bank_name", "account_number", "ifsc_code", "nominee_name", "nominee_relationship",
+    )} if request.method == "POST" else {k: "" for k in (
+        "full_name", "email", "mobile_number", "bank_name", "account_number",
+        "ifsc_code", "nominee_name", "nominee_relationship",
+    )}
+
     if request.method == "POST":
-        full_name = (request.form.get("full_name") or "").strip()
-        email = (request.form.get("email") or "").strip().lower()
+        email = form["email"].lower()
         password = request.form.get("password") or ""
         confirm_password = request.form.get("confirm_password") or ""
 
-        if not full_name:
+        if not form["full_name"]:
             error = "Please enter your name."
         elif not email or "@" not in email:
             error = "Please enter a valid email address."
+        elif not re.fullmatch(r"\d{10}", form["mobile_number"]):
+            error = "Please enter a valid 10-digit mobile number."
         elif len(password) < 8:
             error = "Password must be at least 8 characters."
         elif password != confirm_password:
             error = "Passwords don't match."
+        elif not form["bank_name"]:
+            error = "Please enter your bank name."
+        elif not re.fullmatch(r"\d{6,20}", form["account_number"]):
+            error = "Please enter a valid bank account number."
+        elif not re.fullmatch(r"[A-Za-z]{4}0[A-Za-z0-9]{6}", form["ifsc_code"]):
+            error = "Please enter a valid 11-character IFSC code (e.g. HDFC0001234)."
+        elif not form["nominee_name"]:
+            error = "Please enter a nominee name."
+        elif not form["nominee_relationship"]:
+            error = "Please select the nominee's relationship to you."
         else:
             with get_db_connection() as conn:
                 existing = conn.execute("SELECT user_id FROM demo_users WHERE email = ?", (email,)).fetchone()
@@ -615,15 +636,24 @@ def signup():
                 else:
                     cur = conn.execute(
                         "INSERT INTO demo_users (email, password_hash, full_name) VALUES (?, ?, ?)",
-                        (email, generate_password_hash(password), full_name)
+                        (email, generate_password_hash(password), form["full_name"])
+                    )
+                    user_id = cur.lastrowid
+                    conn.execute(
+                        """INSERT INTO demo_investor_profile
+                           (user_id, mobile_number, bank_name, account_number, ifsc_code,
+                            nominee_name, nominee_relationship)
+                           VALUES (?, ?, ?, ?, ?, ?, ?)""",
+                        (user_id, form["mobile_number"], form["bank_name"], form["account_number"],
+                         form["ifsc_code"].upper(), form["nominee_name"], form["nominee_relationship"])
                     )
                     conn.commit()
-                    session["user_id"] = cur.lastrowid
+                    session["user_id"] = user_id
                     session["user_email"] = email
-                    session["user_name"] = full_name
+                    session["user_name"] = form["full_name"]
                     return redirect(url_for("portfolio"))
 
-    return render_template("signup.html", error=error, full_name=full_name, email=email)
+    return render_template("signup.html", error=error, **form)
 
 
 @app.route("/logout")

@@ -32,19 +32,56 @@
       document.documentElement.classList.remove(t === 'light' ? 'dark' : 'light');
     })();
   </script>
+  <style>
+    .step-row.is-active .step-num { background: var(--color-gift-blue, #2563eb); color: #fff; border-color: transparent; }
+    .step-row.is-done .step-num { background: rgba(121,254,12,0.15); color: #79FE0C; border-color: rgba(121,254,12,0.4); }
+    .step-row.is-active .step-label { color: var(--color-text); font-weight: 700; }
+    .wizard-step { display: none; }
+    .wizard-step.is-active { display: block; }
+  </style>
 </head>
-<body class="min-h-screen flex items-center justify-center px-4" style="background-color: var(--color-bg); color: var(--color-text);">
+<body class="min-h-screen flex items-center justify-center px-4 py-8" style="background-color: var(--color-bg); color: var(--color-text);">
 
-  <div class="w-full max-w-sm">
+  <div class="w-full max-w-4xl glass-card rounded-3xl overflow-hidden border border-[var(--color-border)] grid md:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)]">
 
-    <a href="/" class="flex items-center justify-center gap-2 mb-6">
-      <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-blue-700 flex items-center justify-center shadow-md shadow-blue-500/20 text-white font-black text-lg">G</div>
-      <span class="font-extrabold text-xl tracking-tight">GIFT<span class="text-blue-500">360</span></span>
-    </a>
+    <!-- Step list panel -->
+    <div class="relative flex flex-col p-8 overflow-hidden" style="background: linear-gradient(160deg, #0b1220 0%, #0f1f3d 55%, #0b1220 100%);">
+      <div class="absolute inset-0 opacity-30" style="background-image: radial-gradient(circle at 15% 15%, rgba(37,99,235,0.35), transparent 45%), radial-gradient(circle at 85% 80%, rgba(121,254,12,0.16), transparent 40%);"></div>
 
-    <div class="glass-card rounded-2xl p-6 border border-[var(--color-border)]">
-      <h1 class="text-lg font-black mb-1">Create your account</h1>
-      <p class="text-xs text-[var(--color-text-subtle)] mb-5">Set up a simulated portfolio -- demo only, no real money or KYC involved.</p>
+      <a href="/" class="relative z-10 flex items-center gap-2 mb-8">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 to-blue-700 flex items-center justify-center shadow-md shadow-blue-500/20 text-white font-black text-base">G</div>
+        <span class="font-extrabold text-lg tracking-tight text-white">GIFT<span class="text-blue-400">360</span></span>
+      </a>
+
+      <h1 class="relative z-10 text-xl font-black text-white mb-1">Create your investor account</h1>
+      <p class="relative z-10 text-xs text-slate-400 mb-8">Set up a simulated portfolio -- demo only, no real money or KYC involved.</p>
+
+      <div class="relative z-10 space-y-1" id="stepList">
+        <div class="step-row is-active flex items-center gap-3 px-3 py-3 rounded-xl transition-all" data-step="1">
+          <div class="step-num w-7 h-7 shrink-0 rounded-full border border-slate-600 text-slate-400 text-xs font-bold flex items-center justify-center transition-all">1</div>
+          <span class="step-label text-sm text-slate-400 transition-all">Personal Details</span>
+        </div>
+        <div class="step-row flex items-center gap-3 px-3 py-3 rounded-xl transition-all" data-step="2">
+          <div class="step-num w-7 h-7 shrink-0 rounded-full border border-slate-600 text-slate-400 text-xs font-bold flex items-center justify-center transition-all">2</div>
+          <span class="step-label text-sm text-slate-400 transition-all">Create Password</span>
+        </div>
+        <div class="step-row flex items-center gap-3 px-3 py-3 rounded-xl transition-all" data-step="3">
+          <div class="step-num w-7 h-7 shrink-0 rounded-full border border-slate-600 text-slate-400 text-xs font-bold flex items-center justify-center transition-all">3</div>
+          <span class="step-label text-sm text-slate-400 transition-all">Bank Details</span>
+        </div>
+        <div class="step-row flex items-center gap-3 px-3 py-3 rounded-xl transition-all" data-step="4">
+          <div class="step-num w-7 h-7 shrink-0 rounded-full border border-slate-600 text-slate-400 text-xs font-bold flex items-center justify-center transition-all">4</div>
+          <span class="step-label text-sm text-slate-400 transition-all">Nominee</span>
+        </div>
+      </div>
+
+      <div class="relative z-10 mt-auto pt-8 text-[11px] text-slate-500 leading-relaxed">
+        Bank &amp; nominee details are stored for this demo only -- nothing here is verified against a real bank or registry, and no real KYC is performed.
+      </div>
+    </div>
+
+    <!-- Form panel -->
+    <div class="p-8 md:p-10 flex flex-col justify-center">
 
       {% if error %}
       <div class="mb-4 text-xs font-semibold px-3 py-2 rounded-lg" style="background: rgba(239,68,68,0.12); color: #ef4444; border: 1px solid rgba(239,68,68,0.3);">
@@ -52,33 +89,178 @@
       </div>
       {% endif %}
 
-      <form method="POST" class="space-y-3">
-        <div>
-          <label class="block text-[11px] font-bold uppercase tracking-wide text-[var(--color-text-subtle)] mb-1">Full Name</label>
-          <input type="text" name="full_name" required value="{{ full_name }}" placeholder="Your name" class="w-full bg-[var(--color-bg-subtle)] border border-[var(--color-border)] rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-blue-500 transition-all" />
+      <form method="POST" id="signupForm" novalidate>
+
+        <!-- Step 1: Personal Details -->
+        <div class="wizard-step is-active" data-step="1">
+          <h2 class="text-lg font-black mb-1">Personal Details</h2>
+          <p class="text-xs text-[var(--color-text-subtle)] mb-5">Tell us a bit about yourself.</p>
+          <div class="space-y-3">
+            <div>
+              <label class="block text-[11px] font-bold uppercase tracking-wide text-[var(--color-text-subtle)] mb-1">Full Name</label>
+              <input type="text" name="full_name" required value="{{ full_name }}" placeholder="e.g. Rohan Mehta" class="w-full bg-[var(--color-bg-subtle)] border border-[var(--color-border)] rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-blue-500 transition-all" />
+            </div>
+            <div>
+              <label class="block text-[11px] font-bold uppercase tracking-wide text-[var(--color-text-subtle)] mb-1">Email</label>
+              <input type="email" name="email" required value="{{ email }}" placeholder="you@email.com" class="w-full bg-[var(--color-bg-subtle)] border border-[var(--color-border)] rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-blue-500 transition-all" />
+            </div>
+            <div>
+              <label class="block text-[11px] font-bold uppercase tracking-wide text-[var(--color-text-subtle)] mb-1">Mobile Number</label>
+              <div class="flex items-stretch gap-2">
+                <span class="inline-flex items-center px-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-subtle)] text-sm font-semibold text-[var(--color-text-subtle)]">+91</span>
+                <input type="text" name="mobile_number" required pattern="\d{10}" maxlength="10" value="{{ mobile_number }}" placeholder="10-digit mobile number" class="w-full bg-[var(--color-bg-subtle)] border border-[var(--color-border)] rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-blue-500 transition-all" />
+              </div>
+            </div>
+          </div>
+          <button type="button" class="wizard-next btn-neon w-full text-sm px-4 py-2.5 rounded-xl font-bold mt-6">Continue</button>
         </div>
-        <div>
-          <label class="block text-[11px] font-bold uppercase tracking-wide text-[var(--color-text-subtle)] mb-1">Email</label>
-          <input type="email" name="email" required value="{{ email }}" placeholder="you@email.com" class="w-full bg-[var(--color-bg-subtle)] border border-[var(--color-border)] rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-blue-500 transition-all" />
+
+        <!-- Step 2: Create Password -->
+        <div class="wizard-step" data-step="2">
+          <h2 class="text-lg font-black mb-1">Create Password</h2>
+          <p class="text-xs text-[var(--color-text-subtle)] mb-5">Secure your demo account.</p>
+          <div class="space-y-3">
+            <div>
+              <label class="block text-[11px] font-bold uppercase tracking-wide text-[var(--color-text-subtle)] mb-1">Password</label>
+              <input type="password" name="password" required minlength="8" placeholder="At least 8 characters" class="w-full bg-[var(--color-bg-subtle)] border border-[var(--color-border)] rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-blue-500 transition-all" />
+            </div>
+            <div>
+              <label class="block text-[11px] font-bold uppercase tracking-wide text-[var(--color-text-subtle)] mb-1">Confirm Password</label>
+              <input type="password" name="confirm_password" required minlength="8" placeholder="••••••••" class="w-full bg-[var(--color-bg-subtle)] border border-[var(--color-border)] rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-blue-500 transition-all" />
+            </div>
+          </div>
+          <div class="flex gap-3 mt-6">
+            <button type="button" class="wizard-back text-sm px-4 py-2.5 rounded-xl font-bold border border-[var(--color-border)] hover:border-blue-500/40 transition-all">Back</button>
+            <button type="button" class="wizard-next btn-neon flex-1 text-sm px-4 py-2.5 rounded-xl font-bold">Continue</button>
+          </div>
         </div>
-        <div>
-          <label class="block text-[11px] font-bold uppercase tracking-wide text-[var(--color-text-subtle)] mb-1">Password</label>
-          <input type="password" name="password" required minlength="8" placeholder="At least 8 characters" class="w-full bg-[var(--color-bg-subtle)] border border-[var(--color-border)] rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-blue-500 transition-all" />
+
+        <!-- Step 3: Bank Details -->
+        <div class="wizard-step" data-step="3">
+          <h2 class="text-lg font-black mb-1">Bank Details</h2>
+          <p class="text-xs text-[var(--color-text-subtle)] mb-5">Used for simulated redemption payouts. Demo data only -- try "ABC Bank".</p>
+          <div class="space-y-3">
+            <div>
+              <label class="block text-[11px] font-bold uppercase tracking-wide text-[var(--color-text-subtle)] mb-1">Bank Name</label>
+              <input type="text" name="bank_name" required value="{{ bank_name }}" placeholder="e.g. ABC Bank" class="w-full bg-[var(--color-bg-subtle)] border border-[var(--color-border)] rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-blue-500 transition-all" />
+            </div>
+            <div>
+              <label class="block text-[11px] font-bold uppercase tracking-wide text-[var(--color-text-subtle)] mb-1">Account Number</label>
+              <input type="text" name="account_number" required pattern="\d{6,20}" value="{{ account_number }}" placeholder="e.g. 123456789012" class="w-full bg-[var(--color-bg-subtle)] border border-[var(--color-border)] rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-blue-500 transition-all" />
+            </div>
+            <div>
+              <label class="block text-[11px] font-bold uppercase tracking-wide text-[var(--color-text-subtle)] mb-1">IFSC Code</label>
+              <input type="text" name="ifsc_code" required pattern="[A-Za-z]{4}0[A-Za-z0-9]{6}" maxlength="11" value="{{ ifsc_code }}" placeholder="e.g. ABCD0123456" style="text-transform: uppercase;" class="w-full bg-[var(--color-bg-subtle)] border border-[var(--color-border)] rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-blue-500 transition-all" />
+            </div>
+          </div>
+          <div class="flex gap-3 mt-6">
+            <button type="button" class="wizard-back text-sm px-4 py-2.5 rounded-xl font-bold border border-[var(--color-border)] hover:border-blue-500/40 transition-all">Back</button>
+            <button type="button" class="wizard-next btn-neon flex-1 text-sm px-4 py-2.5 rounded-xl font-bold">Continue</button>
+          </div>
         </div>
-        <div>
-          <label class="block text-[11px] font-bold uppercase tracking-wide text-[var(--color-text-subtle)] mb-1">Confirm Password</label>
-          <input type="password" name="confirm_password" required minlength="8" placeholder="••••••••" class="w-full bg-[var(--color-bg-subtle)] border border-[var(--color-border)] rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-blue-500 transition-all" />
+
+        <!-- Step 4: Nominee -->
+        <div class="wizard-step" data-step="4">
+          <h2 class="text-lg font-black mb-1">Nominee</h2>
+          <p class="text-xs text-[var(--color-text-subtle)] mb-5">Standard for a real fund folio -- demo data only.</p>
+          <div class="space-y-3">
+            <div>
+              <label class="block text-[11px] font-bold uppercase tracking-wide text-[var(--color-text-subtle)] mb-1">Nominee Name</label>
+              <input type="text" name="nominee_name" required value="{{ nominee_name }}" placeholder="e.g. Priya Mehta" class="w-full bg-[var(--color-bg-subtle)] border border-[var(--color-border)] rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-blue-500 transition-all" />
+            </div>
+            <div>
+              <label class="block text-[11px] font-bold uppercase tracking-wide text-[var(--color-text-subtle)] mb-1">Relationship</label>
+              <select name="nominee_relationship" required class="w-full bg-[var(--color-bg-subtle)] border border-[var(--color-border)] rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-blue-500 transition-all">
+                <option value="" {% if not nominee_relationship %}selected{% endif %} disabled>Select relationship</option>
+                {% for rel in ['Spouse', 'Parent', 'Child', 'Sibling', 'Other'] %}
+                <option value="{{ rel }}" {% if nominee_relationship == rel %}selected{% endif %}>{{ rel }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+          <p class="text-center text-xs text-[var(--color-text-subtle)] mt-4">
+            By clicking Create Account, you agree this is a demo simulation with no real money or KYC involved.
+          </p>
+          <div class="flex gap-3 mt-3">
+            <button type="button" class="wizard-back text-sm px-4 py-2.5 rounded-xl font-bold border border-[var(--color-border)] hover:border-blue-500/40 transition-all">Back</button>
+            <button type="submit" class="btn-neon flex-1 text-sm px-4 py-2.5 rounded-xl font-bold">Create Account</button>
+          </div>
         </div>
-        <button type="submit" class="btn-neon w-full text-sm px-4 py-2.5 rounded-xl font-bold mt-2">Create Account</button>
+
       </form>
 
-      <p class="text-center text-xs text-[var(--color-text-subtle)] mt-4">
+      <p class="text-center text-xs text-[var(--color-text-subtle)] mt-5">
         Already have an account? <a href="/login" class="text-blue-400 hover:text-blue-300 font-semibold">Sign in</a>
       </p>
     </div>
 
-    <a href="/" class="block text-center mt-5 text-xs text-[var(--color-text-subtle)] hover:text-blue-400">← Back to dashboard</a>
   </div>
+
+  <script>
+    (function () {
+      var steps = Array.from(document.querySelectorAll('.wizard-step'));
+      var stepRows = Array.from(document.querySelectorAll('.step-row'));
+      var form = document.getElementById('signupForm');
+      var current = 1;
+
+      function showStep(n) {
+        current = n;
+        steps.forEach(function (s) { s.classList.toggle('is-active', Number(s.dataset.step) === n); });
+        stepRows.forEach(function (row) {
+          var stepNum = Number(row.dataset.step);
+          row.classList.toggle('is-active', stepNum === n);
+          row.classList.toggle('is-done', stepNum < n);
+        });
+      }
+
+      function validateStep(n) {
+        var stepEl = steps.find(function (s) { return Number(s.dataset.step) === n; });
+        var inputs = stepEl.querySelectorAll('input, select');
+        for (var i = 0; i < inputs.length; i++) {
+          if (!inputs[i].checkValidity()) {
+            inputs[i].reportValidity();
+            return false;
+          }
+        }
+        if (n === 2) {
+          var pw = stepEl.querySelector('[name="password"]').value;
+          var confirm = stepEl.querySelector('[name="confirm_password"]').value;
+          if (pw !== confirm) {
+            var confirmEl = stepEl.querySelector('[name="confirm_password"]');
+            confirmEl.setCustomValidity("Passwords don't match.");
+            confirmEl.reportValidity();
+            confirmEl.addEventListener('input', function () { confirmEl.setCustomValidity(''); }, { once: true });
+            return false;
+          }
+        }
+        return true;
+      }
+
+      document.querySelectorAll('.wizard-next').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          if (validateStep(current)) showStep(Math.min(current + 1, 4));
+        });
+      });
+      document.querySelectorAll('.wizard-back').forEach(function (btn) {
+        btn.addEventListener('click', function () { showStep(Math.max(current - 1, 1)); });
+      });
+      form.addEventListener('submit', function (e) {
+        if (!validateStep(4)) e.preventDefault();
+      });
+
+      // IFSC auto-uppercase as the person types
+      var ifscInput = document.querySelector('[name="ifsc_code"]');
+      if (ifscInput) {
+        ifscInput.addEventListener('input', function () {
+          var pos = this.selectionStart;
+          this.value = this.value.toUpperCase();
+          this.setSelectionRange(pos, pos);
+        });
+      }
+
+      showStep(current);
+    })();
+  </script>
 
 </body>
 </html>
