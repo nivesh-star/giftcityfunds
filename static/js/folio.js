@@ -319,7 +319,7 @@ document.addEventListener('DOMContentLoaded', () => {
       <h3 class="text-lg font-black text-[var(--color-text)] mb-4"><span class="text-blue-500">CKYC</span> &amp; Occupation</h3>
 
       <label class="text-xs font-bold text-[var(--color-text)] block mb-1">CKYC</label>
-      <p class="text-[10.5px] text-[var(--color-text-subtle)] mb-1.5">Central Know Your Customer number issued by CERSAI. <a href="#" class="text-blue-400 font-bold hover:underline" id="folioCkycHelp">How to find yours?</a></p>
+      <p class="text-[10.5px] text-[var(--color-text-subtle)] mb-1.5">Central Know Your Customer number issued by CERSAI. <a href="https://www.ckycindia.in/" target="_blank" rel="noopener noreferrer" class="text-blue-400 font-bold hover:underline" id="folioCkycHelp">How to find yours? ↗</a></p>
       <input type="text" id="folioCkycInput" maxlength="14" inputmode="numeric" placeholder="Enter your 14 digit CKYC number" value="${escapeHtml(fstate.ckyc)}"
         class="w-full bg-[var(--color-bg-subtle)] border border-[var(--color-border)] rounded-xl px-3 py-2.5 text-xs text-[var(--color-text)] placeholder-[var(--color-text-subtle)] focus:outline-none focus:border-blue-500 font-mono tracking-wider mb-1" />
       <p id="folioCkycCounter" class="text-[10px] text-[var(--color-text-subtle)] mb-4">${fstate.ckyc.length}/14 digits</p>
@@ -369,7 +369,6 @@ document.addEventListener('DOMContentLoaded', () => {
       updateFooter();
     });
 
-    document.getElementById('folioCkycHelp').addEventListener('click', (e) => e.preventDefault());
 
     document.getElementById('folioOccupationSelect').addEventListener('change', (e) => {
       fstate.occupation = e.target.value;
