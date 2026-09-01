@@ -108,6 +108,13 @@
           <svg class="w-4 h-4 block dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
         </button>
 
+        <!-- Onboard Investor CTA (Folio Creation Flow) -->
+        <button id="navOnboardBtn" type="button" class="btn-blue text-xs px-2 xl:px-3 py-1.5 rounded-lg flex items-center gap-1 xl:gap-1.5 shadow-sm whitespace-nowrap shrink-0">
+          <span class="hidden xl:inline">Onboard Investor</span>
+          <span class="xl:hidden">Onboard</span>
+          <svg class="w-3 h-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
+        </button>
+
         <!-- GIFT City Funds CTA -->
         <a href="#screener" class="btn-neon text-xs px-2 xl:px-3 py-1.5 rounded-lg flex items-center gap-1 xl:gap-1.5 shadow-sm whitespace-nowrap shrink-0">
           <span class="hidden xl:inline">Explore GIFT City Funds</span>
@@ -130,6 +137,27 @@
 
     </div>
   </nav>
+
+  <!-- ========================================================================= -->
+  <!-- GIFT OUTBOUND ONBOARDING PROMO STRIP -->
+  <!-- ========================================================================= -->
+  <div class="max-w-7xl mx-auto w-full px-4 md:px-8 pt-6">
+    <div class="glass-card rounded-2xl px-5 py-3.5 flex flex-col sm:flex-row items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-xl bg-blue-600/10 border border-blue-500/25 flex items-center justify-center font-black text-blue-400 text-xs shrink-0">
+          G↗
+        </div>
+        <div>
+          <span class="block text-sm font-black text-[var(--color-text)]">Global Investing Made Easy</span>
+          <span class="block text-xs text-[var(--color-text-muted)]">Parag Parikh's GIFT outbound funds are now available to onboard &amp; transact.</span>
+        </div>
+      </div>
+      <button id="promoOnboardBtn" type="button" class="btn-blue px-4 py-2 rounded-xl text-xs inline-flex items-center gap-1.5 shrink-0">
+        <span>Onboard Clients</span>
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+      </button>
+    </div>
+  </div>
 
   <!-- ========================================================================= -->
   <!-- HERO SECTION -->
@@ -762,6 +790,61 @@
     </div>
   </footer>
 
+  <!-- ========================================================================= -->
+  <!-- FOLIO CREATION / ONBOARD INVESTOR MODAL (GIFT Outbound) -->
+  <!-- ========================================================================= -->
+  <div id="folioModal" class="fixed inset-0 z-[60] bg-black/80 backdrop-blur-sm hidden items-center justify-center p-3 sm:p-4">
+    <div class="bg-[var(--color-card)] border border-[var(--color-border)] rounded-3xl max-w-4xl w-full shadow-2xl relative max-h-[92vh] overflow-hidden grid md:grid-cols-2">
+
+      <button id="folioCloseBtn" type="button" class="absolute right-4 top-4 z-10 text-white/70 hover:text-white p-1.5 rounded-lg bg-black/20 backdrop-blur-sm md:bg-transparent md:text-[var(--color-text-subtle)] md:hover:text-[var(--color-text)]">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+      </button>
+
+      <!-- Left illustration / marketing panel (swaps per step) -->
+      <div id="folioSidePanel" class="folio-side-panel hidden md:flex flex-col justify-between p-8">
+        <div class="folio-side-glow"></div>
+        <div class="relative z-10 space-y-3">
+          <h3 id="folioSideTitle" class="text-2xl font-black leading-tight">Invest in Global Assets <span class="text-blue-400">without the offshore complexity.</span></h3>
+          <p id="folioSideSubtitle" class="text-sm text-white/70 max-w-xs">Access US equities, global ETFs, and international funds from a single GIFT City account.</p>
+        </div>
+        <div class="relative z-10 flex items-center gap-2 text-[10px] text-white/40 font-bold uppercase tracking-widest">
+          <span class="w-1.5 h-1.5 rounded-full bg-gcf-neon"></span> GIFT360 Onboarding
+        </div>
+      </div>
+
+      <!-- Right content panel -->
+      <div class="flex flex-col p-5 sm:p-7 overflow-y-auto max-h-[92vh]">
+        <div class="flex items-center gap-2 mb-4 pr-8">
+          <div class="w-7 h-7 rounded-lg bg-blue-600 flex items-center justify-center text-white font-black text-xs shrink-0">G</div>
+          <span class="font-extrabold text-sm text-[var(--color-text)]">GIFT360 Onboarding</span>
+          <span class="ml-auto text-[9px] px-2 py-0.5 rounded font-black tracking-widest bg-gcf-neon text-black">GIFT OUTBOUND</span>
+        </div>
+
+        <div class="folio-progress-track mb-5">
+          <div class="folio-progress-seg" data-seg="0"></div>
+          <div class="folio-progress-seg" data-seg="1"></div>
+          <div class="folio-progress-seg" data-seg="2"></div>
+          <div class="folio-progress-seg" data-seg="3"></div>
+        </div>
+
+        <div id="folioStepBody" class="flex-1 min-h-[360px]">
+          <!-- Rendered dynamically by folio.js -->
+        </div>
+
+        <div id="folioFooterNav" class="flex items-center justify-between gap-3 pt-5 mt-auto">
+          <button id="folioBackBtn" type="button" class="px-4 py-2 rounded-xl text-xs font-bold border border-[var(--color-border)] text-[var(--color-text-muted)] hover:bg-[var(--color-card-hover)] transition-all">
+            ← Back
+          </button>
+          <button id="folioNextBtn" type="button" class="btn-blue px-5 py-2 rounded-xl text-xs inline-flex items-center gap-1.5 ml-auto">
+            <span id="folioNextLabel">Continue</span>
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
   <!-- Demo session flag for the Buy panel -->
   <script>
     window.GIFT360_LOGGED_IN = {{ 'true' if session.user_id else 'false' }};
@@ -769,5 +852,6 @@
 
   <!-- Main Application Script -->
   <script src="/static/js/app.js"></script>
+  <script src="/static/js/folio.js"></script>
 </body>
 </html>

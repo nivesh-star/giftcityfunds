@@ -222,3 +222,223 @@ body {
   color: var(--color-badge-inbound-text);
   border: 1px solid var(--color-badge-inbound-border);
 }
+
+/* ========================================================================= */
+/* FOLIO CREATION FLOW (Onboard Investor Wizard)                             */
+/* ========================================================================= */
+
+.folio-progress-track {
+  display: flex;
+  gap: 6px;
+  width: 100%;
+}
+
+.folio-progress-seg {
+  height: 4px;
+  flex: 1;
+  border-radius: 999px;
+  background-color: var(--color-border-strong);
+  overflow: hidden;
+  position: relative;
+}
+
+.folio-progress-seg.done,
+.folio-progress-seg.active {
+  background-color: var(--gcf-blue);
+}
+
+.folio-side-panel {
+  background: linear-gradient(160deg, #0a1128 0%, #0f1b3d 55%, #142863 100%);
+  position: relative;
+  overflow: hidden;
+  color: #f8fafc;
+}
+
+.folio-side-panel .folio-side-glow {
+  position: absolute;
+  width: 320px;
+  height: 320px;
+  border-radius: 999px;
+  background: radial-gradient(circle, rgba(37, 99, 235, 0.35), transparent 70%);
+  top: -60px;
+  right: -80px;
+  pointer-events: none;
+}
+
+.folio-side-panel.side-warm {
+  background: linear-gradient(160deg, #2b1608 0%, #3a1f0d 55%, #52290f 100%);
+}
+
+.folio-side-panel.side-purple {
+  background: linear-gradient(160deg, #170a33 0%, #241154 55%, #351a7a 100%);
+}
+
+.folio-client-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.folio-client-row:hover {
+  background-color: var(--color-card-hover);
+}
+
+.folio-client-row.selected {
+  background-color: rgba(37, 99, 235, 0.1);
+  border-color: rgba(37, 99, 235, 0.4);
+}
+
+.folio-client-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 800;
+  flex-shrink: 0;
+  background-color: rgba(37, 99, 235, 0.15);
+  color: #60a5fa;
+}
+
+.folio-upload-zone {
+  border: 1.5px dashed var(--color-border-strong);
+  border-radius: 12px;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-size: 12px;
+  color: var(--color-text-subtle);
+  background: rgba(255, 255, 255, 0.015);
+}
+
+.folio-upload-zone:hover {
+  border-color: var(--gcf-blue);
+  color: var(--gcf-blue);
+}
+
+.folio-upload-zone.filled {
+  border-style: solid;
+  border-color: rgba(16, 185, 129, 0.4);
+  background: rgba(16, 185, 129, 0.06);
+  color: var(--color-text);
+  justify-content: space-between;
+}
+
+.folio-fund-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  border: 1px solid var(--color-border-strong);
+  color: var(--color-text-muted);
+}
+
+.folio-fund-chip.live {
+  border-color: rgba(16, 185, 129, 0.35);
+  color: #10b981;
+  background: rgba(16, 185, 129, 0.08);
+}
+
+/* Printable Application Form Preview — always paper-white regardless of theme */
+.folio-doc {
+  background: #ffffff;
+  color: #111827;
+  border-radius: 10px;
+  border: 1px solid #d1d5db;
+  font-size: 10.5px;
+  line-height: 1.4;
+}
+
+.folio-doc table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.folio-doc th, .folio-doc td {
+  border: 1px solid #cbd5e1;
+  padding: 4px 6px;
+  vertical-align: top;
+  text-align: left;
+}
+
+.folio-doc .doc-section-title {
+  background: #eef2ff;
+  color: #1e293b;
+  font-weight: 800;
+  text-transform: uppercase;
+  font-size: 10px;
+  letter-spacing: 0.03em;
+  padding: 5px 8px;
+  border: 1px solid #cbd5e1;
+}
+
+.folio-doc .doc-field-label {
+  font-size: 8.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: #64748b;
+  display: block;
+  margin-bottom: 1px;
+}
+
+.folio-doc .doc-boxes {
+  display: inline-flex;
+  gap: 1.5px;
+  flex-wrap: wrap;
+  font-family: var(--font-mono);
+}
+
+.folio-doc .doc-box {
+  border: 1px solid #94a3b8;
+  min-width: 12px;
+  height: 15px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  font-weight: 700;
+  color: #1d4ed8;
+  background: #f8fafc;
+}
+
+.folio-doc .doc-check {
+  display: inline-flex;
+  width: 10px;
+  height: 10px;
+  border: 1px solid #64748b;
+  align-items: center;
+  justify-content: center;
+  font-size: 8px;
+  margin-right: 4px;
+  vertical-align: middle;
+}
+
+.folio-doc .doc-check.checked {
+  background: #1d4ed8;
+  color: #ffffff;
+  border-color: #1d4ed8;
+}
+
+.folio-doc .doc-sig-box {
+  border: 1px dashed #94a3b8;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #94a3b8;
+  font-size: 9px;
+  font-style: italic;
+}
