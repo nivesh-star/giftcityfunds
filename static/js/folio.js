@@ -77,16 +77,79 @@ document.addEventListener('DOMContentLoaded', () => {
       theme: '',
       title: 'Invest in Global Assets <span class="text-blue-400">without the offshore complexity.</span>',
       subtitle: 'Access US equities, global ETFs, and international funds from a single GIFT City account.',
+      art: `
+        <svg viewBox="0 0 280 200" class="w-full max-w-[260px]" fill="none">
+          <defs>
+            <linearGradient id="fg1a" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#60a5fa"/><stop offset="100%" stop-color="#2563eb"/>
+            </linearGradient>
+          </defs>
+          <circle cx="140" cy="105" r="62" stroke="url(#fg1a)" stroke-width="1.4" opacity="0.55"/>
+          <ellipse cx="140" cy="105" rx="62" ry="22" stroke="#93c5fd" stroke-width="1" opacity="0.35"/>
+          <ellipse cx="140" cy="105" rx="22" ry="62" stroke="#93c5fd" stroke-width="1" opacity="0.35"/>
+          <circle cx="140" cy="105" r="46" fill="url(#fg1a)" opacity="0.16"/>
+          <path d="M96 118 Q118 92 140 100 T184 78" stroke="#79FE0C" stroke-width="3" stroke-linecap="round" fill="none"/>
+          <path d="M170 82 L184 78 L182 94" stroke="#79FE0C" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+          <circle cx="96" cy="118" r="4" fill="#f8fafc"/>
+          <circle cx="140" cy="100" r="4" fill="#f8fafc"/>
+          <circle cx="184" cy="78" r="4" fill="#f8fafc"/>
+          <circle cx="60" cy="60" r="2.5" fill="#93c5fd"/>
+          <circle cx="220" cy="150" r="2.5" fill="#93c5fd"/>
+          <circle cx="210" cy="55" r="2" fill="#79FE0C"/>
+          <circle cx="55" cy="150" r="2" fill="#79FE0C"/>
+        </svg>
+      `,
     },
     {
       theme: 'side-warm',
       title: 'Overcome <span class="text-amber-300">Domestic Investment Limits.</span>',
       subtitle: 'GIFT City lets qualified investors allocate up to $250,000 every year, legally and seamlessly.',
+      art: `
+        <svg viewBox="0 0 280 200" class="w-full max-w-[260px]" fill="none">
+          <defs>
+            <linearGradient id="fg2a" x1="0" y1="1" x2="0" y2="0">
+              <stop offset="0%" stop-color="#f59e0b"/><stop offset="100%" stop-color="#fde68a"/>
+            </linearGradient>
+          </defs>
+          <rect x="48" y="118" width="28" height="52" rx="4" fill="url(#fg2a)" opacity="0.85"/>
+          <rect x="90" y="94" width="28" height="76" rx="4" fill="url(#fg2a)" opacity="0.9"/>
+          <rect x="132" y="70" width="28" height="100" rx="4" fill="url(#fg2a)" opacity="0.95"/>
+          <rect x="174" y="42" width="28" height="128" rx="4" fill="url(#fg2a)"/>
+          <path d="M48 108 L90 84 L132 60 L174 32" stroke="#fef3c7" stroke-width="2" stroke-linecap="round" stroke-dasharray="1 7"/>
+          <circle cx="215" cy="60" r="22" fill="#2b1608" stroke="#fbbf24" stroke-width="2"/>
+          <text x="215" y="67" text-anchor="middle" font-size="20" font-weight="800" fill="#fbbf24" font-family="var(--font-sans)">$</text>
+        </svg>
+      `,
     },
     {
       theme: 'side-purple',
       title: 'International Diversification, <span class="text-indigo-300">always stay on top.</span>',
       subtitle: 'Global benchmarks have historically outpaced domestic ones over the long run — diversify beyond borders.',
+      art: `
+        <svg viewBox="0 0 280 200" class="w-full max-w-[260px]" fill="none">
+          <rect x="60" y="120" width="46" height="50" rx="6" fill="#1e1b4b" stroke="#6366f1" stroke-width="1.5"/>
+          <rect x="66" y="128" width="34" height="8" fill="#ff9933"/>
+          <rect x="66" y="136" width="34" height="8" fill="#f8fafc"/>
+          <rect x="66" y="144" width="34" height="8" fill="#138808"/>
+          <circle cx="83" cy="140" r="3.2" fill="none" stroke="#0b0f19" stroke-width="1"/>
+
+          <rect x="150" y="100" width="46" height="70" rx="6" fill="#1e1b4b" stroke="#818cf8" stroke-width="1.5"/>
+          <rect x="156" y="108" width="34" height="54" fill="#1d3f91"/>
+          <g fill="#f8fafc">
+            <circle cx="162" cy="114" r="1.6"/><circle cx="168" cy="114" r="1.6"/><circle cx="174" cy="114" r="1.6"/>
+            <circle cx="162" cy="120" r="1.6"/><circle cx="168" cy="120" r="1.6"/><circle cx="174" cy="120" r="1.6"/>
+            <circle cx="162" cy="126" r="1.6"/><circle cx="168" cy="126" r="1.6"/>
+          </g>
+          <rect x="156" y="132" width="34" height="4" fill="#dc2626"/>
+          <rect x="156" y="140" width="34" height="4" fill="#f8fafc"/>
+          <rect x="156" y="148" width="34" height="4" fill="#dc2626"/>
+          <rect x="156" y="156" width="34" height="4" fill="#f8fafc"/>
+
+          <path d="M40 178 H216" stroke="#4338ca" stroke-width="2" opacity="0.5"/>
+          <path d="M110 96 Q150 60 190 40" stroke="#a5b4fc" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+          <path d="M176 44 L190 40 L186 54" stroke="#a5b4fc" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        </svg>
+      `,
     },
   ];
 
@@ -111,6 +174,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const sidePanel = document.getElementById('folioSidePanel');
   const sideTitle = document.getElementById('folioSideTitle');
   const sideSubtitle = document.getElementById('folioSideSubtitle');
+  const sideArt = document.getElementById('folioSideArt');
   const stepBody = document.getElementById('folioStepBody');
   const backBtn = document.getElementById('folioBackBtn');
   const nextBtn = document.getElementById('folioNextBtn');
@@ -168,6 +232,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (panel.theme) sidePanel.classList.add(panel.theme);
     sideTitle.innerHTML = panel.title;
     sideSubtitle.textContent = panel.subtitle;
+    if (sideArt) sideArt.innerHTML = panel.art || '';
   }
 
   // --------------------------------------------------------------------------
