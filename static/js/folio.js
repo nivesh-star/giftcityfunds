@@ -470,12 +470,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const showBusiness = BUSINESS_OCCUPATIONS.includes(fstate.occupation);
 
     stepBody.innerHTML = `
-      <h3 class="text-lg font-black text-[var(--color-text)] mb-1">Review</h3>
+      <div class="flex items-start justify-between gap-3 mb-1">
+        <h3 class="text-lg font-black text-[var(--color-text)]">Review</h3>
+        <button id="folioDownloadPdfBtn" type="button" class="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-bold border border-[var(--color-border)] text-[var(--color-text-muted)] hover:text-blue-400 hover:border-blue-500/40 bg-[var(--color-card)] transition-all">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+          <span id="folioDownloadPdfLabel">Download PDF</span>
+        </button>
+      </div>
       <p class="text-xs text-[var(--color-text-muted)] mb-3">Confirm the generated application form before sending it for e-signature.</p>
       <div class="folio-doc p-3 max-h-[420px] overflow-y-auto">
 
         <div class="text-center border-2 border-slate-400 rounded-lg p-2 mb-2">
-          <div class="font-black text-[11px]">GIFT360 CAPITAL ADVISORS PRIVATE LIMITED</div>
+          <div class="font-black text-[11px]">MFAPI GIFT</div>
           <div class="font-bold text-[10px]">Application Form for Outbound Funds (Individual)</div>
           <div class="text-[9px] text-slate-500">Scheme Applied For: ${escapeHtml(SCHEME_NAME)}</div>
         </div>
@@ -485,7 +491,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <th style="width:25%">Distributor</th><th style="width:25%">Code</th><th style="width:30%">Email</th><th style="width:20%">Mobile</th>
           </tr>
           <tr>
-            <td>GIFT360 Capital Advisors</td><td>GC100450</td><td>onboarding@gift360.in</td><td>9999900000</td>
+            <td>mfAPI GIFT</td><td>GC100450</td><td>onboarding@mfapigift.in</td><td>9999900000</td>
           </tr>
         </table>
 
@@ -600,6 +606,72 @@ document.addEventListener('DOMContentLoaded', () => {
 
       </div>
     `;
+
+    const downloadBtn = document.getElementById('folioDownloadPdfBtn');
+    if (downloadBtn) downloadBtn.addEventListener('click', downloadReviewPdf);
+  }
+
+  // --------------------------------------------------------------------------
+  // PDF Export (client-side, via html2canvas + jsPDF)
+  // --------------------------------------------------------------------------
+  async function downloadReviewPdf() {
+    const original = stepBody.querySelector('.folio-doc');
+    if (!original) return;
+    if (typeof window.html2canvas === 'undefined' || typeof window.jspdf === 'undefined') {
+      alert('PDF export library failed to load. Check your connection and try again.');
+      return;
+    }
+
+    const btn = document.getElementById('folioDownloadPdfBtn');
+    const label = document.getElementById('folioDownloadPdfLabel');
+    const prevLabel = label ? label.textContent : '';
+    if (btn) btn.disabled = true;
+    if (label) label.textContent = 'Preparing…';
+
+    // Clone the doc without its modal scroll-clipping so the PDF captures the
+    // FULL form, not just the currently-scrolled-into-view portion.
+    const clone = original.cloneNode(true);
+    clone.style.maxHeight = 'none';
+    clone.style.overflow = 'visible';
+    clone.style.width = `${original.offsetWidth}px`;
+    clone.style.position = 'fixed';
+    clone.style.left = '-9999px';
+    clone.style.top = '0';
+    clone.removeAttribute('id');
+    document.body.appendChild(clone);
+
+    try {
+      const canvas = await window.html2canvas(clone, { scale: 2, backgroundColor: '#ffffff', useCORS: true });
+      const { jsPDF } = window.jspdf;
+      const pdf = new jsPDF('p', 'pt', 'a4');
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      const imgWidth = pageWidth;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      const imgData = canvas.toDataURL('image/png');
+
+      let heightLeft = imgHeight;
+      let position = 0;
+      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+      while (heightLeft > 0) {
+        position = heightLeft - imgHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+      }
+
+      const c = getClient();
+      const fileName = `GIFT_Outbound_Application_${c ? c.name.replace(/\s+/g, '_') : 'form'}.pdf`;
+      pdf.save(fileName);
+    } catch (err) {
+      console.error('PDF export failed:', err);
+      alert('Could not generate the PDF. Please try again.');
+    } finally {
+      document.body.removeChild(clone);
+      if (btn) btn.disabled = false;
+      if (label) label.textContent = prevLabel || 'Download PDF';
+    }
   }
 
   function renderStepCompleted() {
