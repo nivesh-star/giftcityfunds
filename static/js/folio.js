@@ -630,18 +630,34 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Clone the doc without its modal scroll-clipping so the PDF captures the
     // FULL form, not just the currently-scrolled-into-view portion.
+    // IMPORTANT: html2canvas has a well-known bug where `position:fixed`
+    // off-screen elements get shifted by the page's current scroll offset
+    // during its internal document clone, which is what caused the
+    // "zoomed in and cut off" PDF. Using `position:absolute` (anchored to
+    // the top of the document, not the viewport) avoids that entirely, and
+    // passing explicit scrollX/scrollY/windowWidth/windowHeight makes sure
+    // html2canvas ignores the real page's scroll position altogether.
     const clone = original.cloneNode(true);
     clone.style.maxHeight = 'none';
     clone.style.overflow = 'visible';
     clone.style.width = `${original.offsetWidth}px`;
-    clone.style.position = 'fixed';
+    clone.style.margin = '0';
+    clone.style.position = 'absolute';
     clone.style.left = '-9999px';
-    clone.style.top = '0';
+    clone.style.top = '0px';
     clone.removeAttribute('id');
     document.body.appendChild(clone);
 
     try {
-      const canvas = await window.html2canvas(clone, { scale: 2, backgroundColor: '#ffffff', useCORS: true });
+      const canvas = await window.html2canvas(clone, {
+        scale: 2,
+        backgroundColor: '#ffffff',
+        useCORS: true,
+        scrollX: 0,
+        scrollY: 0,
+        windowWidth: clone.scrollWidth,
+        windowHeight: clone.scrollHeight,
+      });
       const { jsPDF } = window.jspdf;
       const pdf = new jsPDF('p', 'pt', 'a4');
       const pageWidth = pdf.internal.pageSize.getWidth();
