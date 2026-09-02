@@ -168,7 +168,12 @@ document.addEventListener('DOMContentLoaded', () => {
     businessName: '',
     businessNature: '',
     signHours: 3,
+    signMethod: null, // 'inapp' | 'mail'
   };
+
+  // Object URLs for previewing uploaded image documents in the Review step
+  // and the generated PDF. Keyed the same way as fstate.documents.
+  const docPreviewUrls = { aadhaar: null, pan: null, bank: null };
 
   const modal = document.getElementById('folioModal');
   const sidePanel = document.getElementById('folioSidePanel');
@@ -199,6 +204,11 @@ document.addEventListener('DOMContentLoaded', () => {
     fstate.businessName = '';
     fstate.businessNature = '';
     fstate.signHours = 2 + Math.floor(Math.random() * 3);
+    fstate.signMethod = null;
+    Object.values(docPreviewUrls).forEach(url => { if (url) URL.revokeObjectURL(url); });
+    docPreviewUrls.aadhaar = null;
+    docPreviewUrls.pan = null;
+    docPreviewUrls.bank = null;
   }
 
   function openModal() {
@@ -341,7 +351,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <label class="folio-upload-zone ${fstate.documents[r.key] ? 'filled' : ''}" data-doc-key="${r.key}">
               <span class="flex items-center gap-2 min-w-0">
                 <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                <span class="truncate">${fstate.documents[r.key] ? escapeHtml(fstate.documents[r.key]) : 'Upload file — jpg, png, or pdf (max 5mb)'}</span>
+                <span class="truncate">${fstate.documents[r.key] ? escapeHtml(fstate.documents[r.key].name) : 'Upload file — jpg, png, or pdf (max 5mb)'}</span>
               </span>
               ${fstate.documents[r.key] ? `<button type="button" class="folio-remove-doc text-[var(--color-text-subtle)] hover:text-red-400 shrink-0" data-doc-key="${r.key}">
                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>
@@ -358,7 +368,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const key = input.getAttribute('data-doc-key');
         const file = e.target.files && e.target.files[0];
         if (file) {
-          fstate.documents[key] = file.name;
+          fstate.documents[key] = { name: file.name, type: file.type, file };
+          if (docPreviewUrls[key]) URL.revokeObjectURL(docPreviewUrls[key]);
+          docPreviewUrls[key] = file.type.startsWith('image/') ? URL.createObjectURL(file) : null;
           renderStepDocuments();
           updateFooter();
         }
@@ -370,6 +382,7 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
         const key = btn.getAttribute('data-doc-key');
         fstate.documents[key] = null;
+        if (docPreviewUrls[key]) { URL.revokeObjectURL(docPreviewUrls[key]); docPreviewUrls[key] = null; }
         renderStepDocuments();
         updateFooter();
       });
@@ -469,6 +482,28 @@ document.addEventListener('DOMContentLoaded', () => {
     const showEmployer = EMPLOYER_OCCUPATIONS.includes(fstate.occupation);
     const showBusiness = BUSINESS_OCCUPATIONS.includes(fstate.occupation);
 
+    const docRows = [
+      { key: 'aadhaar', label: 'Masked Aadhaar' },
+      { key: 'pan', label: 'PAN Card' },
+      { key: 'bank', label: 'Bank Proof' },
+    ];
+    const allDocsUploaded = docRows.every(r => fstate.documents[r.key]);
+
+    const thumbHtml = docRows.map(r => {
+      const doc = fstate.documents[r.key];
+      const url = docPreviewUrls[r.key];
+      const preview = doc
+        ? (url
+            ? `<img src="${url}" alt="${escapeHtml(r.label)}" />`
+            : `<svg class="w-6 h-6 text-slate-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>`)
+        : `<span class="text-[8px] text-slate-400">Not uploaded</span>`;
+      return `
+        <div class="doc-thumb">
+          <div class="doc-thumb-preview">${preview}</div>
+          <div class="doc-thumb-label">${escapeHtml(r.label)}${doc ? '' : ' — missing'}</div>
+        </div>`;
+    }).join('');
+
     stepBody.innerHTML = `
       <div class="flex items-start justify-between gap-3 mb-1">
         <h3 class="text-lg font-black text-[var(--color-text)]">Review</h3>
@@ -480,11 +515,41 @@ document.addEventListener('DOMContentLoaded', () => {
       <p class="text-xs text-[var(--color-text-muted)] mb-3">Confirm the generated application form before sending it for e-signature.</p>
       <div class="folio-doc p-3 max-h-[420px] overflow-y-auto">
 
-        <div class="text-center border-2 border-slate-400 rounded-lg p-2 mb-2">
-          <div class="font-black text-[11px]">MFAPI GIFT</div>
-          <div class="font-bold text-[10px]">Application Form for Outbound Funds (Individual)</div>
-          <div class="text-[9px] text-slate-500">Scheme Applied For: ${escapeHtml(SCHEME_NAME)}</div>
+        <div class="doc-title-box">
+          <div class="doc-title-line">mfAPI GIFT</div>
+          <div class="doc-title-line">Application Form for Outbound Funds</div>
+          <div class="doc-title-line">(Individual)</div>
+          <div class="doc-title-scheme">Scheme Applied For: ${escapeHtml(SCHEME_NAME)}</div>
         </div>
+
+        <div class="doc-section-title">Checklist for Individuals</div>
+        <table class="mb-2">
+          <tr><th style="width:8%">Sr.</th><th>Description</th><th style="width:14%">Check</th></tr>
+          <tr>
+            <td>1</td>
+            <td>Documentation</td>
+            <td><span class="doc-check ${allDocsUploaded ? 'checked' : ''}">${allDocsUploaded ? '✓' : ''}</span></td>
+          </tr>
+          <tr>
+            <td rowspan="2">2</td>
+            <td>Copy of PAN Card (self-attested)</td>
+            <td><span class="doc-check ${fstate.documents.pan ? 'checked' : ''}">${fstate.documents.pan ? '✓' : ''}</span></td>
+          </tr>
+          <tr>
+            <td>Copy of Address Proof — Masked Aadhaar</td>
+            <td><span class="doc-check ${fstate.documents.aadhaar ? 'checked' : ''}">${fstate.documents.aadhaar ? '✓' : ''}</span></td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td>Bank proof — cancelled cheque / passbook / statement, personalised with the investor's name</td>
+            <td><span class="doc-check ${fstate.documents.bank ? 'checked' : ''}">${fstate.documents.bank ? '✓' : ''}</span></td>
+          </tr>
+          <tr>
+            <td>4</td>
+            <td>CERSAI form — only required if CKYC / KIN is not available</td>
+            <td><span class="doc-check ${fstate.ckyc ? '' : 'checked'}">${fstate.ckyc ? '' : '✓'}</span></td>
+          </tr>
+        </table>
 
         <table class="mb-2">
           <tr>
@@ -533,82 +598,123 @@ document.addEventListener('DOMContentLoaded', () => {
 
         <div class="doc-section-title">II &nbsp; KYC Details</div>
         <table class="mb-2">
+          <tr><th style="width:35%">Category</th><th>Sole / First Applicant</th></tr>
           <tr>
-            <td style="width:55%">
-              <span class="doc-field-label">Occupation</span>
-              <div class="grid grid-cols-2 gap-x-2 gap-y-0.5 mt-1">${occChecks}</div>
-            </td>
-            <td>
-              <span class="doc-field-label">Gross Annual Income</span>
-              <div class="grid grid-cols-1 gap-y-0.5 mt-1">${incomeChecks}</div>
-            </td>
+            <td class="doc-field-label" style="text-transform:none;font-size:9px;color:#334155;">Occupation</td>
+            <td><div class="grid grid-cols-2 gap-x-2 gap-y-0.5">${occChecks}</div></td>
           </tr>
-          <tr><td colspan="2">
-            <span class="doc-field-label">PEP Disclosure</span>
-            <span class="doc-check checked">✓</span> Not a Politically Exposed Person
-          </td></tr>
+          <tr>
+            <td class="doc-field-label" style="text-transform:none;font-size:9px;color:#334155;">Gross Annual Income</td>
+            <td><div class="grid grid-cols-2 gap-x-2 gap-y-0.5">${incomeChecks}</div></td>
+          </tr>
+          <tr>
+            <td class="doc-field-label" style="text-transform:none;font-size:9px;color:#334155;">PEP Disclosure</td>
+            <td><span class="doc-check checked">✓</span> Not a Politically Exposed Person</td>
+          </tr>
           ${showEmployer ? `
           <tr>
-            <td><span class="doc-field-label">Name of Employer</span>${escapeHtml(fstate.employerName) || '—'}</td>
-            <td><span class="doc-field-label">Place of Work</span>${escapeHtml(fstate.placeOfWork) || '—'}</td>
+            <td class="doc-field-label" style="text-transform:none;font-size:9px;color:#334155;">In case of Salaried</td>
+            <td>Name of Employer: ${escapeHtml(fstate.employerName) || '—'} &nbsp;&nbsp; Place of Work: ${escapeHtml(fstate.placeOfWork) || '—'}</td>
           </tr>` : ''}
           ${showBusiness ? `
           <tr>
-            <td><span class="doc-field-label">Name of Business</span>${escapeHtml(fstate.businessName) || '—'}</td>
-            <td><span class="doc-field-label">Nature of Business</span>${escapeHtml(fstate.businessNature) || '—'}</td>
+            <td class="doc-field-label" style="text-transform:none;font-size:9px;color:#334155;">In case Occupation stated as Business</td>
+            <td>Name of Business: ${escapeHtml(fstate.businessName) || '—'} &nbsp;&nbsp; Nature of Business: ${escapeHtml(fstate.businessNature) || '—'}</td>
           </tr>` : ''}
         </table>
 
-        <div class="doc-section-title">III &nbsp; FATCA &amp; CRS Details</div>
+        <div class="doc-section-title">III &nbsp; Foreign Account Tax Compliance Act (FATCA) &amp; CRS Details</div>
         <table class="mb-2">
-          <tr>
-            <td><span class="doc-check checked">✓</span> Country of Birth: India</td>
-            <td><span class="doc-check checked">✓</span> Citizenship / Nationality: Indian</td>
-            <td><span class="doc-check checked">✓</span> US Person: No</td>
-          </tr>
+          <tr><th style="width:35%">Category</th><th>Sole / First Applicant</th></tr>
+          <tr><td class="doc-field-label" style="text-transform:none;font-size:9px;color:#334155;">Country of Birth</td><td><span class="doc-check checked">✓</span> India</td></tr>
+          <tr><td class="doc-field-label" style="text-transform:none;font-size:9px;color:#334155;">Citizenship / Nationality</td><td><span class="doc-check checked">✓</span> Indian</td></tr>
+          <tr><td class="doc-field-label" style="text-transform:none;font-size:9px;color:#334155;">Resident of any other country for tax purposes?</td><td><span class="doc-check checked">✓</span> No &nbsp;&nbsp; <span class="doc-check"></span> Yes</td></tr>
+          <tr><td class="doc-field-label" style="text-transform:none;font-size:9px;color:#334155;">US Person</td><td><span class="doc-check checked">✓</span> No &nbsp;&nbsp; <span class="doc-check"></span> Yes</td></tr>
         </table>
 
         <div class="doc-section-title">IV &nbsp; Bank Account Details</div>
         <table class="mb-2">
+          <tr><td colspan="3">
+            <span class="doc-field-label">Account Number / IBAN</span>${renderBoxes(c.bank.account, 16)}
+          </td></tr>
           <tr>
-            <td><span class="doc-field-label">Account Number</span>${renderBoxes(c.bank.account, 16)}</td>
-          </tr>
-          <tr>
-            <td><span class="doc-check checked">✓</span> Savings</td>
+            <td><span class="doc-check checked">✓</span> Savings &nbsp; <span class="doc-check"></span> Current &nbsp; <span class="doc-check"></span> RFC &nbsp; <span class="doc-check"></span> FCA (GIFT City)</td>
             <td><span class="doc-field-label">Name of Bank / Branch</span>${escapeHtml(c.bank.bankName)}, ${escapeHtml(c.bank.branch)}</td>
-            <td><span class="doc-field-label">IFSC Code</span>${escapeHtml(c.bank.ifsc)}</td>
+            <td><span class="doc-field-label">IFSC Code</span>${renderBoxes(c.bank.ifsc, 11)}</td>
           </tr>
         </table>
 
         <div class="doc-section-title">V &nbsp; Nomination Details</div>
         <table class="mb-2">
-          <tr><th>Nominee Name</th><th>Date of Birth</th><th>Relationship</th><th>Mobile</th><th>Share</th></tr>
           <tr>
-            <td>${escapeHtml(c.nominee.name)}</td><td>${escapeHtml(c.nominee.dob)}</td>
-            <td>${escapeHtml(c.nominee.relation)}</td><td>${escapeHtml(c.nominee.mobile)}</td><td>100%</td>
+            <th style="width:6%">Sr.</th><th>Nominee Name</th><th>Date of Birth</th><th style="width:10%">Share %</th><th>Mobile No. &amp; Email ID</th><th>Guardian / Relationship</th>
           </tr>
+          <tr>
+            <td>1</td>
+            <td>${escapeHtml(c.nominee.name)}</td>
+            <td>${escapeHtml(c.nominee.dob)}</td>
+            <td>100%</td>
+            <td>${escapeHtml(c.nominee.mobile)}</td>
+            <td>${escapeHtml(c.nominee.relation)}</td>
+          </tr>
+          <tr><td>2</td><td colspan="5" class="text-slate-400">—</td></tr>
+          <tr><td>3</td><td colspan="5" class="text-slate-400">—</td></tr>
         </table>
 
         <div class="doc-section-title">VI &nbsp; Declarations &amp; Signature</div>
-        <table>
+        <table class="mb-2">
           <tr>
-            <td class="text-[9px] text-slate-600">I/We hereby declare that all the information and particulars given by me/us in this application form are true, complete and accurate, and agree to the terms and conditions governing GIFT City IFSC outbound investments.</td>
-          </tr>
-          <tr>
-            <td>
-              <div class="doc-sig-box">Awaiting e-signature</div>
+            <td class="text-[9px] text-slate-600 leading-relaxed">
+              I/We hereby declare that all the information and particulars given in this application form are true, complete and accurate to the best of my/our knowledge, and I/we agree to promptly inform mfAPI GIFT and the Fund Management Entity (FME) of any change to this information. I/We confirm that the funds invested belong to me/us and have not been derived from any illegal activity, and I/we authorise the FME and its authorised agents, distributors and service providers to collect, process, and share my/our KYC and account information as required under applicable FEMA, IFSCA, and AML/KYC regulations for the purpose of administering this investment. I/We have read and understood the terms and conditions and scheme documents applicable to this investment and agree to be bound by them.
             </td>
           </tr>
+        </table>
+        <table class="mb-2">
+          <tr><th>Sole / First Applicant</th><th>Second Applicant</th><th>Third Applicant</th></tr>
+          <tr>
+            <td><div class="doc-sig-box">Awaiting e-signature</div></td>
+            <td><div class="doc-sig-box">Not Applicable</div></td>
+            <td><div class="doc-sig-box">Not Applicable</div></td>
+          </tr>
+        </table>
+        <table>
           <tr>
             <td>Place: INDIA &nbsp;&nbsp;&nbsp; Date: ${renderBoxes(todayFormatted(), 8)}</td>
           </tr>
         </table>
 
+        <div class="doc-section-title">VII &nbsp; Uploaded Documents</div>
+        <div class="doc-thumb-grid mb-1">${thumbHtml}</div>
+
+      </div>
+
+      <div class="flex gap-2 mt-3">
+        <button id="folioSignHereBtn" type="button" class="folio-sign-btn primary">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536M9 11l6.586-6.586a2 2 0 112.828 2.828L11.828 13.828 8 15l1.172-3.829z"></path><path stroke-linecap="round" stroke-linejoin="round" d="M5 19h14"></path></svg>
+          Sign
+        </button>
+        <button id="folioSignMailBtn" type="button" class="folio-sign-btn secondary">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+          Sign via Mail
+        </button>
       </div>
     `;
 
     const downloadBtn = document.getElementById('folioDownloadPdfBtn');
     if (downloadBtn) downloadBtn.addEventListener('click', downloadReviewPdf);
+
+    const signHereBtn = document.getElementById('folioSignHereBtn');
+    const signMailBtn = document.getElementById('folioSignMailBtn');
+    if (signHereBtn) signHereBtn.addEventListener('click', () => {
+      fstate.signMethod = 'inapp';
+      fstate.step = 4;
+      render();
+    });
+    if (signMailBtn) signMailBtn.addEventListener('click', () => {
+      fstate.signMethod = 'mail';
+      fstate.step = 4;
+      render();
+    });
   }
 
   // --------------------------------------------------------------------------
@@ -647,6 +753,19 @@ document.addEventListener('DOMContentLoaded', () => {
     clone.style.top = '0px';
     clone.removeAttribute('id');
     document.body.appendChild(clone);
+
+    // The clone's <img> tags (uploaded-document thumbnails) are freshly
+    // created DOM nodes, so even though the same blob: URL was already
+    // loaded once in the original element, the clone has to load it again.
+    // Capturing before that finishes is what produced blank thumbnail boxes.
+    const cloneImages = Array.from(clone.querySelectorAll('img'));
+    await Promise.all(cloneImages.map(img => {
+      if (img.complete && img.naturalWidth > 0) return Promise.resolve();
+      return new Promise(resolve => {
+        img.addEventListener('load', resolve, { once: true });
+        img.addEventListener('error', resolve, { once: true });
+      });
+    }));
 
     try {
       const canvas = await window.html2canvas(clone, {
@@ -692,6 +811,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function renderStepCompleted() {
     const c = getClient();
+    const viaMail = fstate.signMethod !== 'inapp';
+    const step1 = viaMail
+      ? `${escapeHtml(c ? c.name : 'The investor')} needs to sign the filled form. They will receive it via email within the next ${fstate.signHours} hours.`
+      : `${escapeHtml(c ? c.name : 'The investor')} has signed the filled form directly during this onboarding session.`;
     stepBody.innerHTML = `
       <div class="flex flex-col items-center justify-center text-center py-10">
         <div class="w-16 h-16 rounded-full bg-emerald-500/15 border border-emerald-500/40 flex items-center justify-center mb-4">
@@ -702,7 +825,7 @@ document.addEventListener('DOMContentLoaded', () => {
           <span class="text-[11px] font-extrabold uppercase tracking-widest text-blue-500">Next Steps</span>
           <div class="flex gap-2 text-xs text-[var(--color-text-muted)]">
             <span class="w-5 h-5 rounded-full bg-blue-600 text-white text-[10px] font-bold flex items-center justify-center shrink-0">1</span>
-            <span>${escapeHtml(c ? c.name : 'The investor')} needs to sign the filled form. They will receive it via email within the next ${fstate.signHours} hours.</span>
+            <span>${step1}</span>
           </div>
           <div class="flex gap-2 text-xs text-[var(--color-text-muted)]">
             <span class="w-5 h-5 rounded-full bg-blue-600 text-white text-[10px] font-bold flex items-center justify-center shrink-0">2</span>
@@ -739,14 +862,24 @@ document.addEventListener('DOMContentLoaded', () => {
     if (fstate.step === 4) {
       footerNav.classList.add('justify-center');
       backBtn.classList.add('hidden');
+      nextBtn.classList.remove('hidden');
       nextLabel.textContent = 'Done';
       nextBtn.disabled = false;
       nextBtn.classList.remove('opacity-40', 'cursor-not-allowed');
       return;
     }
+    if (fstate.step === 3) {
+      // Review step has its own Sign / Sign via Mail buttons inside the
+      // card, so the shared footer only needs Back.
+      footerNav.classList.remove('justify-center');
+      backBtn.classList.remove('hidden');
+      nextBtn.classList.add('hidden');
+      return;
+    }
     footerNav.classList.remove('justify-center');
     backBtn.classList.toggle('hidden', fstate.step === 0);
-    nextLabel.textContent = fstate.step === 2 ? 'Submit' : (fstate.step === 3 ? 'Continue' : 'Continue');
+    nextBtn.classList.remove('hidden');
+    nextLabel.textContent = fstate.step === 2 ? 'Submit' : 'Continue';
     const ok = canProceed();
     nextBtn.disabled = !ok;
     nextBtn.classList.toggle('opacity-40', !ok);

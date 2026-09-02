@@ -442,3 +442,106 @@ body {
   font-size: 9px;
   font-style: italic;
 }
+
+/* Rounded title block at the top of the generated form, matching the AMC's
+   own application-form header style. */
+.folio-doc .doc-title-box {
+  border: 2px solid #64748b;
+  border-radius: 14px;
+  padding: 10px 14px;
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.folio-doc .doc-title-box .doc-title-line {
+  font-weight: 800;
+  font-size: 12px;
+  color: #1e293b;
+  line-height: 1.35;
+}
+
+.folio-doc .doc-title-box .doc-title-scheme {
+  margin-top: 4px;
+  font-size: 9px;
+  color: #475569;
+  font-weight: 600;
+}
+
+/* Uploaded-document thumbnails shown at the end of the generated form */
+.folio-doc .doc-thumb-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.folio-doc .doc-thumb {
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #f8fafc;
+  text-align: center;
+}
+
+.folio-doc .doc-thumb .doc-thumb-preview {
+  height: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #eef2f7;
+  overflow: hidden;
+}
+
+.folio-doc .doc-thumb .doc-thumb-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.folio-doc .doc-thumb .doc-thumb-label {
+  font-size: 8.5px;
+  font-weight: 700;
+  color: #334155;
+  padding: 3px 4px;
+  border-top: 1px solid #cbd5e1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Sign / Sign-via-Mail action buttons on the Review step, replacing the
+   generic Continue button once the document is ready. */
+.folio-sign-btn {
+  flex: 1;
+  padding: 10px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 800;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.folio-sign-btn.primary {
+  background: var(--gcf-blue);
+  color: #ffffff;
+  border: 1px solid var(--gcf-blue);
+}
+
+.folio-sign-btn.primary:hover {
+  filter: brightness(1.08);
+}
+
+.folio-sign-btn.secondary {
+  background: transparent;
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+}
+
+.folio-sign-btn.secondary:hover {
+  border-color: var(--gcf-blue);
+  color: var(--gcf-blue);
+}
