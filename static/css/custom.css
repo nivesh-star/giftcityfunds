@@ -539,6 +539,21 @@ body {
   padding-bottom: 0;
 }
 
+/* AMC logo slot on the cover page. Points at a static file path — drop the
+   actual logo file at that path on the server and it renders here; if the
+   file is missing, onerror hides the <img> so nothing broken shows. */
+.folio-doc .doc-amc-logo-wrap {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 10px;
+}
+
+.folio-doc .doc-amc-logo {
+  max-height: 42px;
+  max-width: 160px;
+  object-fit: contain;
+}
+
 /* Plain bold section heading (no shaded bar) used only for the checklist
    header on the cover page, matching the real form's styling there. */
 .folio-doc .doc-plain-title {

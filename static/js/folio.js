@@ -606,12 +606,8 @@ document.addEventListener('DOMContentLoaded', () => {
             </tr>
           </table>
 
-          <div class="doc-brand-mark">
-            <svg viewBox="0 0 40 40" width="30" height="30"><circle cx="20" cy="20" r="18" fill="#0f172a"/><path d="M20 8c6 4 9 8 9 13a9 9 0 11-18 0c0-5 3-9 9-13z" fill="#22c55e"/><circle cx="20" cy="23" r="3.4" fill="#0f172a"/></svg>
-            <span>
-              <span class="doc-brand-mark-top">mfAPI</span>
-              <span class="doc-brand-mark-bottom">GIFT</span>
-            </span>
+          <div class="doc-amc-logo-wrap">
+            <img src="/static/img/amc-logo.png" alt="" class="doc-amc-logo" onerror="this.style.display='none'" />
           </div>
         </div>
 
