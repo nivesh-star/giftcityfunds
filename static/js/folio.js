@@ -71,6 +71,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const BUSINESS_OCCUPATIONS = ['Business'];
 
   const SCHEME_NAME = "Parag Parikh IFSC – S&P 500 Fund of Fund (Direct Plan)";
+  // The AMC that actually issues the application form for the selected
+  // scheme — shown on the form's cover page — kept separate from the
+  // distributor identity (mfAPI GIFT) shown in the Distributor row below it.
+  const FUND_AMC_NAME = "PPFAS Alternate Asset Managers IFSC Private Limited";
 
   const SIDE_PANELS = [
     {
@@ -512,179 +516,222 @@ document.addEventListener('DOMContentLoaded', () => {
           <span id="folioDownloadPdfLabel">Download PDF</span>
         </button>
       </div>
-      <p class="text-xs text-[var(--color-text-muted)] mb-3">Confirm the generated application form before sending it for e-signature.</p>
+      <p class="text-xs text-[var(--color-text-muted)] mb-3">Confirm the generated application form before sending it for e-signature. Scroll through — it's paginated the same way the printed form is.</p>
       <div class="folio-doc p-3 max-h-[420px] overflow-y-auto">
 
-        <div class="doc-title-box">
-          <div class="doc-title-line">mfAPI GIFT</div>
-          <div class="doc-title-line">Application Form for Outbound Funds</div>
-          <div class="doc-title-line">(Individual)</div>
-          <div class="doc-title-scheme">Scheme Applied For: ${escapeHtml(SCHEME_NAME)}</div>
+        <div class="doc-page">
+          <div class="doc-title-box">
+            <div class="doc-title-line">${escapeHtml(FUND_AMC_NAME)}</div>
+            <div class="doc-title-line">Application Form for Outbound Funds</div>
+            <div class="doc-title-line">(Individual)</div>
+            <div class="doc-title-scheme">Scheme Applied For: ${escapeHtml(SCHEME_NAME)}</div>
+          </div>
+
+          <div class="doc-section-title">Checklist for Individuals</div>
+          <p class="text-[8.5px] text-slate-500 mb-1">For Individual / Joint holder / Minor</p>
+          <table class="mb-2">
+            <tr><th style="width:8%">Sr.</th><th>Description</th><th style="width:14%">Check Box</th></tr>
+            <tr>
+              <td>1</td>
+              <td>Documentation</td>
+              <td><span class="doc-check ${allDocsUploaded ? 'checked' : ''}">${allDocsUploaded ? '✓' : ''}</span></td>
+            </tr>
+            <tr>
+              <td rowspan="2">For individual / joint holders</td>
+              <td>Self-attested copy of identity proof — Copy of PAN Card</td>
+              <td><span class="doc-check ${fstate.documents.pan ? 'checked' : ''}">${fstate.documents.pan ? '✓' : ''}</span></td>
+            </tr>
+            <tr>
+              <td>Self-attested copy of address proof — Masked Aadhaar</td>
+              <td><span class="doc-check ${fstate.documents.aadhaar ? 'checked' : ''}">${fstate.documents.aadhaar ? '✓' : ''}</span></td>
+            </tr>
+            <tr>
+              <td>Bank Details</td>
+              <td>Proof: cancelled cheque leaf / bank statement (not more than 2 months old), personalised and bearing the name of the investor</td>
+              <td><span class="doc-check ${fstate.documents.bank ? 'checked' : ''}">${fstate.documents.bank ? '✓' : ''}</span></td>
+            </tr>
+            <tr>
+              <td>2</td>
+              <td>CERSAI Form — only required if CKYC is not done and KIN is not available</td>
+              <td><span class="doc-check ${fstate.ckyc ? '' : 'checked'}">${fstate.ckyc ? '' : '✓'}</span></td>
+            </tr>
+          </table>
+          <p class="text-[8px] text-slate-500 leading-relaxed">In case of joint investors, please provide the KYC documents for each investor; full signature and initials are to be done by each investor. Documents to be signed by the Guardian on behalf of a minor.</p>
+
+          <table class="mb-2 mt-2">
+            <tr>
+              <th style="width:25%">Distributor</th><th style="width:25%">Code</th><th style="width:30%">Email</th><th style="width:20%">Mobile</th>
+            </tr>
+            <tr>
+              <td>mfAPI GIFT</td><td>GC100450</td><td>onboarding@mfapigift.in</td><td>9999900000</td>
+            </tr>
+          </table>
         </div>
 
-        <div class="doc-section-title">Checklist for Individuals</div>
-        <table class="mb-2">
-          <tr><th style="width:8%">Sr.</th><th>Description</th><th style="width:14%">Check</th></tr>
-          <tr>
-            <td>1</td>
-            <td>Documentation</td>
-            <td><span class="doc-check ${allDocsUploaded ? 'checked' : ''}">${allDocsUploaded ? '✓' : ''}</span></td>
-          </tr>
-          <tr>
-            <td rowspan="2">2</td>
-            <td>Copy of PAN Card (self-attested)</td>
-            <td><span class="doc-check ${fstate.documents.pan ? 'checked' : ''}">${fstate.documents.pan ? '✓' : ''}</span></td>
-          </tr>
-          <tr>
-            <td>Copy of Address Proof — Masked Aadhaar</td>
-            <td><span class="doc-check ${fstate.documents.aadhaar ? 'checked' : ''}">${fstate.documents.aadhaar ? '✓' : ''}</span></td>
-          </tr>
-          <tr>
-            <td>3</td>
-            <td>Bank proof — cancelled cheque / passbook / statement, personalised with the investor's name</td>
-            <td><span class="doc-check ${fstate.documents.bank ? 'checked' : ''}">${fstate.documents.bank ? '✓' : ''}</span></td>
-          </tr>
-          <tr>
-            <td>4</td>
-            <td>CERSAI form — only required if CKYC / KIN is not available</td>
-            <td><span class="doc-check ${fstate.ckyc ? '' : 'checked'}">${fstate.ckyc ? '' : '✓'}</span></td>
-          </tr>
-        </table>
+        <div class="doc-page">
+          <div class="doc-section-title">I &nbsp; General Information</div>
+          <table class="mb-2">
+            <tr><td colspan="2">
+              <span class="doc-field-label">Name of Sole / First Applicant (as per PAN)</span>
+              ${renderBoxes(c.name, 26)}
+            </td></tr>
+            <tr>
+              <td style="width:60%">
+                <span class="doc-field-label">Date of Birth</span>${renderBoxes(c.dob.replace(/-/g, ''), 8)}
+                <span class="ml-3">
+                  <span class="doc-check ${c.gender === 'Male' ? 'checked' : ''}">${c.gender === 'Male' ? '✓' : ''}</span>Male
+                  &nbsp;
+                  <span class="doc-check ${c.gender === 'Female' ? 'checked' : ''}">${c.gender === 'Female' ? '✓' : ''}</span>Female
+                </span>
+              </td>
+              <td>
+                <span class="doc-field-label">PAN</span>${renderBoxes(c.pan, 10)}
+              </td>
+            </tr>
+            <tr><td colspan="2">
+              <span class="doc-field-label">CKYC – KIN (as entered during onboarding)</span>
+              ${renderBoxes(fstate.ckyc, 14)}
+            </td></tr>
+            <tr><td colspan="2">
+              <span class="doc-check checked">✓</span> Single &nbsp;&nbsp; <span class="doc-check"></span> Joint &nbsp;&nbsp; <span class="doc-check"></span> Minor &nbsp; <span class="text-slate-400 text-[9px]">(Mode of Operation)</span>
+            </td></tr>
+            <tr><td colspan="2">
+              <span class="doc-field-label">Correspondence &amp; Permanent Address</span>
+              ${escapeHtml(c.address.line)}, ${escapeHtml(c.address.city)}, ${escapeHtml(c.address.state)} – ${escapeHtml(c.address.pincode)}, India
+            </td></tr>
+            <tr>
+              <td><span class="doc-field-label">Mobile No.</span>${renderBoxes(c.phone, 10)}</td>
+              <td><span class="doc-field-label">Email ID</span>${escapeHtml(c.email)}</td>
+            </tr>
+          </table>
+        </div>
 
-        <table class="mb-2">
-          <tr>
-            <th style="width:25%">Distributor</th><th style="width:25%">Code</th><th style="width:30%">Email</th><th style="width:20%">Mobile</th>
-          </tr>
-          <tr>
-            <td>mfAPI GIFT</td><td>GC100450</td><td>onboarding@mfapigift.in</td><td>9999900000</td>
-          </tr>
-        </table>
+        <div class="doc-page">
+          <div class="doc-section-title">II &nbsp; KYC Details</div>
+          <table class="mb-2">
+            <tr><th style="width:35%">Category</th><th>Sole / First Applicant</th></tr>
+            <tr>
+              <td class="doc-field-label" style="text-transform:none;font-size:9px;color:#334155;">Occupation</td>
+              <td><div class="grid grid-cols-2 gap-x-2 gap-y-0.5">${occChecks}</div></td>
+            </tr>
+            <tr>
+              <td class="doc-field-label" style="text-transform:none;font-size:9px;color:#334155;">Gross Annual Income</td>
+              <td><div class="grid grid-cols-2 gap-x-2 gap-y-0.5">${incomeChecks}</div></td>
+            </tr>
+            <tr>
+              <td class="doc-field-label" style="text-transform:none;font-size:9px;color:#334155;">PEP Disclosure</td>
+              <td><span class="doc-check checked">✓</span> Not a Politically Exposed Person</td>
+            </tr>
+            ${showEmployer ? `
+            <tr>
+              <td class="doc-field-label" style="text-transform:none;font-size:9px;color:#334155;">In case of Salaried</td>
+              <td>Name of Employer: ${escapeHtml(fstate.employerName) || '—'} &nbsp;&nbsp; Place of Work: ${escapeHtml(fstate.placeOfWork) || '—'}</td>
+            </tr>` : ''}
+            ${showBusiness ? `
+            <tr>
+              <td class="doc-field-label" style="text-transform:none;font-size:9px;color:#334155;">In case Occupation stated as Business</td>
+              <td>Name of Business: ${escapeHtml(fstate.businessName) || '—'} &nbsp;&nbsp; Nature of Business: ${escapeHtml(fstate.businessNature) || '—'}</td>
+            </tr>` : ''}
+          </table>
 
-        <div class="doc-section-title">I &nbsp; General Information</div>
-        <table class="mb-2">
-          <tr><td colspan="2">
-            <span class="doc-field-label">Name of Sole / First Applicant (as per PAN)</span>
-            ${renderBoxes(c.name, 26)}
-          </td></tr>
-          <tr>
-            <td style="width:60%">
-              <span class="doc-field-label">Date of Birth</span>${renderBoxes(c.dob.replace(/-/g, ''), 8)}
-              <span class="ml-3">
-                <span class="doc-check ${c.gender === 'Male' ? 'checked' : ''}">${c.gender === 'Male' ? '✓' : ''}</span>Male
-                &nbsp;
-                <span class="doc-check ${c.gender === 'Female' ? 'checked' : ''}">${c.gender === 'Female' ? '✓' : ''}</span>Female
-              </span>
-            </td>
-            <td>
-              <span class="doc-field-label">PAN</span>${renderBoxes(c.pan, 10)}
-            </td>
-          </tr>
-          <tr><td colspan="2">
-            <span class="doc-field-label">CKYC – KIN (as entered during onboarding)</span>
-            ${renderBoxes(fstate.ckyc, 14)}
-          </td></tr>
-          <tr><td colspan="2">
-            <span class="doc-check checked">✓</span> Single &nbsp;&nbsp; <span class="doc-check">✓</span> Joint &nbsp;&nbsp; <span class="doc-check">✓</span> Minor &nbsp; <span class="text-slate-400 text-[9px]">(Mode of Operation)</span>
-          </td></tr>
-          <tr><td colspan="2">
-            <span class="doc-field-label">Correspondence &amp; Permanent Address</span>
-            ${escapeHtml(c.address.line)}, ${escapeHtml(c.address.city)}, ${escapeHtml(c.address.state)} – ${escapeHtml(c.address.pincode)}, India
-          </td></tr>
-          <tr>
-            <td><span class="doc-field-label">Mobile No.</span>${renderBoxes(c.phone, 10)}</td>
-            <td><span class="doc-field-label">Email ID</span>${escapeHtml(c.email)}</td>
-          </tr>
-        </table>
+          <div class="doc-section-title">III &nbsp; Foreign Account Tax Compliance Act (FATCA) &amp; CRS Details</div>
+          <table class="mb-2">
+            <tr><th style="width:35%">Category</th><th>Sole / First Applicant</th></tr>
+            <tr><td class="doc-field-label" style="text-transform:none;font-size:9px;color:#334155;">Country of Birth</td><td><span class="doc-check checked">✓</span> India</td></tr>
+            <tr><td class="doc-field-label" style="text-transform:none;font-size:9px;color:#334155;">Place of Birth</td><td>India</td></tr>
+            <tr><td class="doc-field-label" style="text-transform:none;font-size:9px;color:#334155;">Citizenship / Nationality</td><td><span class="doc-check checked">✓</span> Indian</td></tr>
+            <tr><td class="doc-field-label" style="text-transform:none;font-size:9px;color:#334155;">Resident of any other country for tax purposes?</td><td><span class="doc-check checked">✓</span> No &nbsp;&nbsp; <span class="doc-check"></span> Yes</td></tr>
+            <tr><td class="doc-field-label" style="text-transform:none;font-size:9px;color:#334155;">US Person</td><td><span class="doc-check checked">✓</span> No &nbsp;&nbsp; <span class="doc-check"></span> Yes</td></tr>
+          </table>
+        </div>
 
-        <div class="doc-section-title">II &nbsp; KYC Details</div>
-        <table class="mb-2">
-          <tr><th style="width:35%">Category</th><th>Sole / First Applicant</th></tr>
-          <tr>
-            <td class="doc-field-label" style="text-transform:none;font-size:9px;color:#334155;">Occupation</td>
-            <td><div class="grid grid-cols-2 gap-x-2 gap-y-0.5">${occChecks}</div></td>
-          </tr>
-          <tr>
-            <td class="doc-field-label" style="text-transform:none;font-size:9px;color:#334155;">Gross Annual Income</td>
-            <td><div class="grid grid-cols-2 gap-x-2 gap-y-0.5">${incomeChecks}</div></td>
-          </tr>
-          <tr>
-            <td class="doc-field-label" style="text-transform:none;font-size:9px;color:#334155;">PEP Disclosure</td>
-            <td><span class="doc-check checked">✓</span> Not a Politically Exposed Person</td>
-          </tr>
-          ${showEmployer ? `
-          <tr>
-            <td class="doc-field-label" style="text-transform:none;font-size:9px;color:#334155;">In case of Salaried</td>
-            <td>Name of Employer: ${escapeHtml(fstate.employerName) || '—'} &nbsp;&nbsp; Place of Work: ${escapeHtml(fstate.placeOfWork) || '—'}</td>
-          </tr>` : ''}
-          ${showBusiness ? `
-          <tr>
-            <td class="doc-field-label" style="text-transform:none;font-size:9px;color:#334155;">In case Occupation stated as Business</td>
-            <td>Name of Business: ${escapeHtml(fstate.businessName) || '—'} &nbsp;&nbsp; Nature of Business: ${escapeHtml(fstate.businessNature) || '—'}</td>
-          </tr>` : ''}
-        </table>
+        <div class="doc-page">
+          <div class="doc-section-title">IV &nbsp; Bank Account Details</div>
+          <p class="text-[8px] text-slate-500 mb-1">Attach a copy of cheque leaf / bank statement / bank passbook (not older than 2 months)</p>
+          <table class="mb-2">
+            <tr><td colspan="3">
+              <span class="doc-field-label">Account Number / IBAN</span>${renderBoxes(c.bank.account, 16)}
+            </td></tr>
+            <tr>
+              <td><span class="doc-check checked">✓</span> Savings &nbsp; <span class="doc-check"></span> Current &nbsp; <span class="doc-check"></span> RFC &nbsp; <span class="doc-check"></span> FCA (GIFT City)</td>
+              <td><span class="doc-field-label">Name of Bank / Branch</span>${escapeHtml(c.bank.bankName)}, ${escapeHtml(c.bank.branch)}</td>
+              <td><span class="doc-field-label">IFSC Code</span>${renderBoxes(c.bank.ifsc, 11)}</td>
+            </tr>
+          </table>
 
-        <div class="doc-section-title">III &nbsp; Foreign Account Tax Compliance Act (FATCA) &amp; CRS Details</div>
-        <table class="mb-2">
-          <tr><th style="width:35%">Category</th><th>Sole / First Applicant</th></tr>
-          <tr><td class="doc-field-label" style="text-transform:none;font-size:9px;color:#334155;">Country of Birth</td><td><span class="doc-check checked">✓</span> India</td></tr>
-          <tr><td class="doc-field-label" style="text-transform:none;font-size:9px;color:#334155;">Citizenship / Nationality</td><td><span class="doc-check checked">✓</span> Indian</td></tr>
-          <tr><td class="doc-field-label" style="text-transform:none;font-size:9px;color:#334155;">Resident of any other country for tax purposes?</td><td><span class="doc-check checked">✓</span> No &nbsp;&nbsp; <span class="doc-check"></span> Yes</td></tr>
-          <tr><td class="doc-field-label" style="text-transform:none;font-size:9px;color:#334155;">US Person</td><td><span class="doc-check checked">✓</span> No &nbsp;&nbsp; <span class="doc-check"></span> Yes</td></tr>
-        </table>
+          <div class="doc-section-title">V &nbsp; Bank Account Details (in case Redemption Account is different)</div>
+          <table class="mb-2">
+            <tr><td class="text-slate-400 text-[9px]">Not applicable — redemption proceeds go to the account registered above.</td></tr>
+          </table>
 
-        <div class="doc-section-title">IV &nbsp; Bank Account Details</div>
-        <table class="mb-2">
-          <tr><td colspan="3">
-            <span class="doc-field-label">Account Number / IBAN</span>${renderBoxes(c.bank.account, 16)}
-          </td></tr>
-          <tr>
-            <td><span class="doc-check checked">✓</span> Savings &nbsp; <span class="doc-check"></span> Current &nbsp; <span class="doc-check"></span> RFC &nbsp; <span class="doc-check"></span> FCA (GIFT City)</td>
-            <td><span class="doc-field-label">Name of Bank / Branch</span>${escapeHtml(c.bank.bankName)}, ${escapeHtml(c.bank.branch)}</td>
-            <td><span class="doc-field-label">IFSC Code</span>${renderBoxes(c.bank.ifsc, 11)}</td>
-          </tr>
-        </table>
+          <div class="doc-section-title">VI &nbsp; Nomination Details</div>
+          <table class="mb-2">
+            <tr>
+              <th style="width:6%">Sr.</th><th>Nominee Name</th><th>Date of Birth</th><th style="width:10%">Share %</th><th>Mobile No. &amp; Email ID</th><th>Guardian / Relationship</th>
+            </tr>
+            <tr>
+              <td>1</td>
+              <td>${escapeHtml(c.nominee.name)}</td>
+              <td>${escapeHtml(c.nominee.dob)}</td>
+              <td>100%</td>
+              <td>${escapeHtml(c.nominee.mobile)}</td>
+              <td>${escapeHtml(c.nominee.relation)}</td>
+            </tr>
+            <tr><td>2</td><td colspan="5" class="text-slate-400">—</td></tr>
+            <tr><td>3</td><td colspan="5" class="text-slate-400">—</td></tr>
+          </table>
+          <p class="text-[8px] text-slate-500">Share of nominee: if % is not specified, assets shall be distributed equally amongst all nominees. Identity number: PAN, driving licence, or Aadhaar (last 4 digits) is sufficient.</p>
+        </div>
 
-        <div class="doc-section-title">V &nbsp; Nomination Details</div>
-        <table class="mb-2">
-          <tr>
-            <th style="width:6%">Sr.</th><th>Nominee Name</th><th>Date of Birth</th><th style="width:10%">Share %</th><th>Mobile No. &amp; Email ID</th><th>Guardian / Relationship</th>
-          </tr>
-          <tr>
-            <td>1</td>
-            <td>${escapeHtml(c.nominee.name)}</td>
-            <td>${escapeHtml(c.nominee.dob)}</td>
-            <td>100%</td>
-            <td>${escapeHtml(c.nominee.mobile)}</td>
-            <td>${escapeHtml(c.nominee.relation)}</td>
-          </tr>
-          <tr><td>2</td><td colspan="5" class="text-slate-400">—</td></tr>
-          <tr><td>3</td><td colspan="5" class="text-slate-400">—</td></tr>
-        </table>
+        <div class="doc-page">
+          <div class="doc-section-title">VII &nbsp; Declarations and Signature(s)</div>
+          <table class="mb-2">
+            <tr>
+              <td class="text-[9px] text-slate-600 leading-relaxed">
+                <p class="mb-1.5">I/We hereby declare and certify that all the information and particulars given by me/us in this application form are true, complete and accurate. I/We agree to immediately inform mfAPI GIFT and ${escapeHtml(FUND_AMC_NAME)} ("the FME") if there is any change in any of the information given in this Application Form. I/We confirm that the funds invested through this Application Form and any other details and documents provided post Application Form belong to me/us, and I/we have neither received nor been induced by any rebate or gifts, directly or indirectly, in making this investment.</p>
+                <p class="mb-1.5">I/We also authorise such further information as the FME, or any regulatory authority may require or pursuant to any law, regulation, or direction of any regulatory authority, order/decree/award of any court/tribunal from me/us in relation to the holdings of Units of the Schemes, and further due diligence to be undertaken and I/we shall have the right to return funds and not allot Units and report the same to the applicable regulators. I/We understand that there is no assurance on the returns of the Schemes.</p>
+                <p class="mb-1.5">I/We understand that if I/we are categorised as high risk investors as per the policies/procedures adopted by the FME, additional documents/declarations may be sought, in absence of which my/our application may be put on hold.</p>
+                <p class="mb-1.5">I/We declare and confirm that the investment complies with the provisions of the IFSCA, the Reserve Bank of India (RBI) and Government of India rules, regulations, directions and guidelines issued thereunder by the RBI, and the Foreign Exchange Management Act, 1999 (FEMA Act) and the Foreign Exchange Management (Overseas Investment) Rules/Regulations, 2022, as amended from time to time. I/We confirm that the source of funds for the proposed investment is through permissible means and that this investment does not involve any contravention of FEMA and other applicable disclosure requirements. I/We undertake to comply with all reporting/filings, including but not limited to Form FC, Form ODI, Form FLA and Annual Performance Reports (APR), as applicable, and that the proposed investment is within the overall limit prescribed by the RBI from time to time.</p>
+                <p class="mb-1.5">I/We hereby accord my/our consent to the FME/Schemes for collecting, receiving, possessing, storing, dealing, handling or disclosure of my/our personal data and authorise disclosure to any third party or agency acting in a lawful contract with the FME, for utilising the same folio number and other relevant information for all future eligible transactions. I/We hereby grant my/our consent to be contacted for all communications/reports relating to this investment on all email addresses and mobile numbers specified in this form.</p>
+                <p class="mb-1.5">I/We hereby accord my/our consent to mfAPI GIFT and ${escapeHtml(FUND_AMC_NAME)} for receiving promotional material/information relating to this and other schemes via email, SMS, or telemarketing calls on the mobile number and email address provided by me/us in this Application Form. I/We have read, understood, and agree to the terms and conditions mentioned in the offer document of the Scheme, and the rules and regulations of the IFSCA, Prevention of Money Laundering Act, 2002, and any other applicable regulations, as amended from time to time, and agree to comply with and be bound by the same.</p>
+              </td>
+            </tr>
+          </table>
+          <table class="mb-2">
+            <tr><th>Sole / First Applicant</th><th>Second Applicant</th><th>Third Applicant</th></tr>
+            <tr>
+              <td><div class="doc-sig-box">Awaiting e-signature</div></td>
+              <td><div class="doc-sig-box">Not Applicable</div></td>
+              <td><div class="doc-sig-box">Not Applicable</div></td>
+            </tr>
+          </table>
+          <table>
+            <tr>
+              <td>Place: INDIA &nbsp;&nbsp;&nbsp; Date: ${renderBoxes(todayFormatted(), 8)}</td>
+            </tr>
+          </table>
+        </div>
 
-        <div class="doc-section-title">VI &nbsp; Declarations &amp; Signature</div>
-        <table class="mb-2">
-          <tr>
-            <td class="text-[9px] text-slate-600 leading-relaxed">
-              I/We hereby declare that all the information and particulars given in this application form are true, complete and accurate to the best of my/our knowledge, and I/we agree to promptly inform mfAPI GIFT and the Fund Management Entity (FME) of any change to this information. I/We confirm that the funds invested belong to me/us and have not been derived from any illegal activity, and I/we authorise the FME and its authorised agents, distributors and service providers to collect, process, and share my/our KYC and account information as required under applicable FEMA, IFSCA, and AML/KYC regulations for the purpose of administering this investment. I/We have read and understood the terms and conditions and scheme documents applicable to this investment and agree to be bound by them.
-            </td>
-          </tr>
-        </table>
-        <table class="mb-2">
-          <tr><th>Sole / First Applicant</th><th>Second Applicant</th><th>Third Applicant</th></tr>
-          <tr>
-            <td><div class="doc-sig-box">Awaiting e-signature</div></td>
-            <td><div class="doc-sig-box">Not Applicable</div></td>
-            <td><div class="doc-sig-box">Not Applicable</div></td>
-          </tr>
-        </table>
-        <table>
-          <tr>
-            <td>Place: INDIA &nbsp;&nbsp;&nbsp; Date: ${renderBoxes(todayFormatted(), 8)}</td>
-          </tr>
-        </table>
+        <div class="doc-page">
+          <div class="doc-section-title">Instructions to Form</div>
+          <ol class="text-[8.5px] text-slate-600 leading-relaxed" style="padding-left:14px; list-style:decimal;">
+            <li class="mb-1">Please fill the form in BLOCK LETTERS in English.</li>
+            <li class="mb-1">The name of the investor, including joint account holder(s), should be as per PAN card.</li>
+            <li class="mb-1">CKYC – KIN is mandatory if not provided, or if there are changes in any KYC details.</li>
+            <li class="mb-1">In case of joint investors, provide self-attested KYC documents for all investors. Documents are to be signed by the guardian on behalf of a minor.</li>
+            <li class="mb-1">Please provide a correct email ID and mobile number to ensure all critical updates are not missed.</li>
+            <li class="mb-1">Any cancellation/correction should be countersigned by the investor(s).</li>
+            <li class="mb-1">Please make payments from your own account only. Third-party payments are not accepted.</li>
+            <li class="mb-1">"US Person" — an individual, entity, or resident of the United States, or under the laws of the United States, is required to disclose relevant FATCA/CRS details as applicable.</li>
+            <li class="mb-1">Scanned copies of the completed and signed form, along with supporting documents, may be e-mailed to <span class="text-blue-700">onboarding@mfapigift.in</span>.</li>
+            <li>FATCA and CRS details are mandatory for all applicants/unit holders as per the Central Board of Direct Taxes (CBDT) notified Rules 114F to 114H under the Income Tax Rules, 1962.</li>
+          </ol>
+        </div>
 
-        <div class="doc-section-title">VII &nbsp; Uploaded Documents</div>
-        <div class="doc-thumb-grid mb-1">${thumbHtml}</div>
+        <div class="doc-page">
+          <div class="doc-section-title">Uploaded Documents</div>
+          <div class="doc-thumb-grid mb-1">${thumbHtml}</div>
+        </div>
 
       </div>
 
@@ -722,7 +769,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // --------------------------------------------------------------------------
   async function downloadReviewPdf() {
     const original = stepBody.querySelector('.folio-doc');
-    if (!original) return;
+    const pageNodes = original ? Array.from(original.querySelectorAll('.doc-page')) : [];
+    if (!original || !pageNodes.length) return;
     if (typeof window.html2canvas === 'undefined' || typeof window.jspdf === 'undefined') {
       alert('PDF export library failed to load. Check your connection and try again.');
       return;
@@ -734,31 +782,43 @@ document.addEventListener('DOMContentLoaded', () => {
     if (btn) btn.disabled = true;
     if (label) label.textContent = 'Preparing…';
 
-    // Clone the doc without its modal scroll-clipping so the PDF captures the
-    // FULL form, not just the currently-scrolled-into-view portion.
-    // IMPORTANT: html2canvas has a well-known bug where `position:fixed`
-    // off-screen elements get shifted by the page's current scroll offset
-    // during its internal document clone, which is what caused the
-    // "zoomed in and cut off" PDF. Using `position:absolute` (anchored to
-    // the top of the document, not the viewport) avoids that entirely, and
-    // passing explicit scrollX/scrollY/windowWidth/windowHeight makes sure
-    // html2canvas ignores the real page's scroll position altogether.
-    const clone = original.cloneNode(true);
-    clone.style.maxHeight = 'none';
-    clone.style.overflow = 'visible';
-    clone.style.width = `${original.offsetWidth}px`;
-    clone.style.margin = '0';
-    clone.style.position = 'absolute';
-    clone.style.left = '-9999px';
-    clone.style.top = '0px';
-    clone.removeAttribute('id');
-    document.body.appendChild(clone);
+    // Render each logical section (.doc-page) as its OWN PDF page, instead
+    // of one long screenshot sliced by height. That old approach could cut
+    // a table or paragraph in half wherever a page boundary happened to
+    // fall; capturing per-page matches the real, printed form where the
+    // cover, KYC/FATCA, bank/nomination, declarations, instructions, and
+    // uploaded-documents sections are each on their own page.
+    //
+    // The container is `position:absolute` (not `fixed`) and anchored at
+    // the real top of the document — html2canvas has a known bug where
+    // `position:fixed` off-screen elements get shifted by the page's
+    // current scroll offset during its internal document clone, which is
+    // what caused the earlier "zoomed in and cut off" PDF.
+    const container = document.createElement('div');
+    container.style.position = 'absolute';
+    container.style.left = '-9999px';
+    container.style.top = '0px';
+    container.style.width = `${original.offsetWidth}px`;
+    container.style.background = '#ffffff';
+    document.body.appendChild(container);
 
-    // The clone's <img> tags (uploaded-document thumbnails) are freshly
-    // created DOM nodes, so even though the same blob: URL was already
-    // loaded once in the original element, the clone has to load it again.
-    // Capturing before that finishes is what produced blank thumbnail boxes.
-    const cloneImages = Array.from(clone.querySelectorAll('img'));
+    const pageClones = pageNodes.map(node => {
+      const clone = node.cloneNode(true);
+      clone.classList.add('folio-doc', 'pdf-export-scale');
+      clone.style.border = 'none';
+      clone.style.borderBottom = 'none';
+      clone.style.margin = '0';
+      clone.style.padding = '20px';
+      clone.style.width = `${original.offsetWidth}px`;
+      clone.removeAttribute('id');
+      container.appendChild(clone);
+      return clone;
+    });
+
+    // Freshly cloned <img> tags (uploaded-document thumbnails) have to load
+    // their blob: URL again even though the original element already had —
+    // capturing before that finishes is what produced blank thumbnail boxes.
+    const cloneImages = Array.from(container.querySelectorAll('img'));
     await Promise.all(cloneImages.map(img => {
       if (img.complete && img.naturalWidth > 0) return Promise.resolve();
       return new Promise(resolve => {
@@ -768,32 +828,41 @@ document.addEventListener('DOMContentLoaded', () => {
     }));
 
     try {
-      const canvas = await window.html2canvas(clone, {
-        scale: 2,
-        backgroundColor: '#ffffff',
-        useCORS: true,
-        scrollX: 0,
-        scrollY: 0,
-        windowWidth: clone.scrollWidth,
-        windowHeight: clone.scrollHeight,
-      });
       const { jsPDF } = window.jspdf;
       const pdf = new jsPDF('p', 'pt', 'a4');
       const pageWidth = pdf.internal.pageSize.getWidth();
-      const pageHeight = pdf.internal.pageSize.getHeight();
-      const imgWidth = pageWidth;
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      const imgData = canvas.toDataURL('image/png');
+      const pageHeightPt = pdf.internal.pageSize.getHeight();
 
-      let heightLeft = imgHeight;
-      let position = 0;
-      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-      heightLeft -= pageHeight;
-      while (heightLeft > 0) {
-        position = heightLeft - imgHeight;
-        pdf.addPage();
-        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-        heightLeft -= pageHeight;
+      for (let i = 0; i < pageClones.length; i++) {
+        const clone = pageClones[i];
+        // scale:1.5 (not 2) plus JPEG at 0.85 quality (not PNG) — seven
+        // full-resolution PNG pages, several with photo thumbnails, produced
+        // a 70MB+ PDF that's unusable as a download/e-mail attachment. This
+        // combination keeps the form sharp and readable at a few MB instead.
+        const canvas = await window.html2canvas(clone, {
+          scale: 1.5,
+          backgroundColor: '#ffffff',
+          useCORS: true,
+          scrollX: 0,
+          scrollY: 0,
+          windowWidth: clone.scrollWidth,
+          windowHeight: clone.scrollHeight,
+        });
+        const imgData = canvas.toDataURL('image/jpeg', 0.85);
+        let renderWidth = pageWidth;
+        let renderHeight = (canvas.height * renderWidth) / canvas.width;
+        // If a section is taller than one A4 page (e.g. a very long
+        // declarations paragraph), scale it down to fit on a single page
+        // rather than slicing it across two — every section keeps its own
+        // page, same as the printed form.
+        if (renderHeight > pageHeightPt) {
+          const shrink = pageHeightPt / renderHeight;
+          renderHeight = pageHeightPt;
+          renderWidth = pageWidth * shrink;
+        }
+        const xOffset = (pageWidth - renderWidth) / 2;
+        if (i > 0) pdf.addPage();
+        pdf.addImage(imgData, 'JPEG', xOffset, 0, renderWidth, renderHeight, undefined, 'MEDIUM');
       }
 
       const c = getClient();
@@ -803,7 +872,7 @@ document.addEventListener('DOMContentLoaded', () => {
       console.error('PDF export failed:', err);
       alert('Could not generate the PDF. Please try again.');
     } finally {
-      document.body.removeChild(clone);
+      document.body.removeChild(container);
       if (btn) btn.disabled = false;
       if (label) label.textContent = prevLabel || 'Download PDF';
     }
