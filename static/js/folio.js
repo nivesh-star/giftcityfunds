@@ -527,36 +527,75 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="doc-title-scheme">Scheme Applied For: ${escapeHtml(SCHEME_NAME)}</div>
           </div>
 
-          <div class="doc-section-title">Checklist for Individuals</div>
-          <p class="text-[8.5px] text-slate-500 mb-1">For Individual / Joint holder / Minor</p>
-          <table class="mb-2">
-            <tr><th style="width:8%">Sr.</th><th>Description</th><th style="width:14%">Check Box</th></tr>
+          <div class="doc-plain-title">Checklist for Individuals</div>
+          <p class="text-[8.5px] text-slate-600 mb-1" style="text-decoration:underline;">For Individual/ Joint holder/ Minor</p>
+          <table class="mb-1">
+            <tr><th style="width:16%">Sr. No.</th><th>Description</th><th style="width:12%">Check Box</th></tr>
             <tr>
-              <td>1</td>
+              <td>1.</td>
               <td>Documentation</td>
               <td><span class="doc-check ${allDocsUploaded ? 'checked' : ''}">${allDocsUploaded ? '✓' : ''}</span></td>
             </tr>
             <tr>
-              <td rowspan="2">For individual / joint holders</td>
-              <td>Self-attested copy of identity proof — Copy of PAN Card</td>
-              <td><span class="doc-check ${fstate.documents.pan ? 'checked' : ''}">${fstate.documents.pan ? '✓' : ''}</span></td>
+              <td rowspan="1">For individual/ joint holders</td>
+              <td>
+                Self-attested copies of identity proof &amp; address proof of individual/ joint holders.
+                <ol style="padding-left:14px;margin:2px 0 0;">
+                  <li>Copy of PAN Card</li>
+                  <li>Copy of Address Proof</li>
+                </ol>
+                <span class="text-slate-400" style="font-style:italic;">(If correspondence address and permanent address are different, then proof of address to be provided for both addresses)</span>
+              </td>
+              <td>
+                <div class="flex flex-col gap-1">
+                  <span class="doc-check ${fstate.documents.pan ? 'checked' : ''}">${fstate.documents.pan ? '✓' : ''}</span>
+                  <span class="doc-check ${fstate.documents.aadhaar ? 'checked' : ''}">${fstate.documents.aadhaar ? '✓' : ''}</span>
+                </div>
+              </td>
             </tr>
             <tr>
-              <td>Self-attested copy of address proof — Masked Aadhaar</td>
-              <td><span class="doc-check ${fstate.documents.aadhaar ? 'checked' : ''}">${fstate.documents.aadhaar ? '✓' : ''}</span></td>
+              <td>For Minor</td>
+              <td>
+                <div>Age proof of minor (Birth certificate or school certificate) attested by the guardian</div>
+              </td>
+              <td><span class="doc-check"></span></td>
             </tr>
             <tr>
-              <td>Bank Details</td>
-              <td>Proof: cancelled cheque leaf / bank statement (not more than 2 months old), personalised and bearing the name of the investor</td>
+              <td></td>
+              <td>Copies of PAN Card &amp; address proof of minor attested by guardian</td>
+              <td><span class="doc-check"></span></td>
+            </tr>
+            <tr>
+              <td></td>
+              <td>Self-attested copy of PAN Card &amp; address proof of guardian</td>
+              <td><span class="doc-check"></span></td>
+            </tr>
+            <tr>
+              <td></td>
+              <td>Photograph of both minor and Guardian to be affixed in the Application Form</td>
+              <td><span class="doc-check"></span></td>
+            </tr>
+            <tr>
+              <td>Acceptable Address Proofs</td>
+              <td class="text-[8px]">Copy of Masked Aadhaar Card or Passport or Driving License or copy of utility bill (not more than two months old), property/ municipal tax receipt, Post Office savings bank account statement or statement of a bank account, letter of allotment of accommodation from employer issued by State Government or Central Government departments, statutory or regulatory bodies, public sector undertakings, scheduled commercial banks, financial institutions and listed companies and leave and license agreements with such employers allotting official accommodation</td>
+              <td></td>
+            </tr>
+            <tr>
+              <td rowspan="2">Bank Details</td>
+              <td>Proof: Cancelled cheque leaf for registered bank/ bank statement (not more than 2 months old) <span style="font-style:italic;">(should be personalised and bearing the name of the Investor)</span></td>
               <td><span class="doc-check ${fstate.documents.bank ? 'checked' : ''}">${fstate.documents.bank ? '✓' : ''}</span></td>
             </tr>
             <tr>
-              <td>2</td>
-              <td>CERSAI Form — only required if CKYC is not done and KIN is not available</td>
+              <td class="text-[8px]">Bank Details for International Bank Accounts should be as per any global Fund format capturing details for 3 segments: Beneficiary, Correspondent Bank, Intermediary Bank. Along with SWIFT/BIC code</td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>2.</td>
+              <td>CERSAI Form if CKYC is not done and KIN is not available</td>
               <td><span class="doc-check ${fstate.ckyc ? '' : 'checked'}">${fstate.ckyc ? '' : '✓'}</span></td>
             </tr>
           </table>
-          <p class="text-[8px] text-slate-500 leading-relaxed">In case of joint investors, please provide the KYC documents for each investor; full signature and initials are to be done by each investor. Documents to be signed by the Guardian on behalf of a minor.</p>
+          <p class="text-[8px] text-slate-500 leading-relaxed">In case of joint Investors, please provide the KYC documents for each Investor and full signature and initial is to be done by each Investor. Documents to be signed by the Guardian on behalf of minor.</p>
 
           <table class="mb-2 mt-2">
             <tr>
@@ -566,6 +605,14 @@ document.addEventListener('DOMContentLoaded', () => {
               <td>mfAPI GIFT</td><td>GC100450</td><td>onboarding@mfapigift.in</td><td>9999900000</td>
             </tr>
           </table>
+
+          <div class="doc-brand-mark">
+            <svg viewBox="0 0 40 40" width="30" height="30"><circle cx="20" cy="20" r="18" fill="#0f172a"/><path d="M20 8c6 4 9 8 9 13a9 9 0 11-18 0c0-5 3-9 9-13z" fill="#22c55e"/><circle cx="20" cy="23" r="3.4" fill="#0f172a"/></svg>
+            <span>
+              <span class="doc-brand-mark-top">mfAPI</span>
+              <span class="doc-brand-mark-bottom">GIFT</span>
+            </span>
+          </div>
         </div>
 
         <div class="doc-page">
@@ -609,78 +656,109 @@ document.addEventListener('DOMContentLoaded', () => {
         <div class="doc-page">
           <div class="doc-section-title">II &nbsp; KYC Details</div>
           <table class="mb-2">
-            <tr><th style="width:35%">Category</th><th>Sole / First Applicant</th></tr>
+            <tr><th style="width:20%">Categories</th><th>Sole/First Applicant/Guardian</th><th>Second Applicant</th><th>Third Applicant</th></tr>
             <tr>
               <td class="doc-field-label" style="text-transform:none;font-size:9px;color:#334155;">Occupation</td>
               <td><div class="grid grid-cols-2 gap-x-2 gap-y-0.5">${occChecks}</div></td>
+              <td class="text-slate-400 text-[8.5px]">Not Applicable</td>
+              <td class="text-slate-400 text-[8.5px]">Not Applicable</td>
             </tr>
             <tr>
               <td class="doc-field-label" style="text-transform:none;font-size:9px;color:#334155;">Gross Annual Income</td>
-              <td><div class="grid grid-cols-2 gap-x-2 gap-y-0.5">${incomeChecks}</div></td>
+              <td><div class="grid grid-cols-1 gap-y-0.5">${incomeChecks}</div></td>
+              <td class="text-slate-400 text-[8.5px]">Not Applicable</td>
+              <td class="text-slate-400 text-[8.5px]">Not Applicable</td>
             </tr>
             <tr>
               <td class="doc-field-label" style="text-transform:none;font-size:9px;color:#334155;">PEP Disclosure</td>
               <td><span class="doc-check checked">✓</span> Not a Politically Exposed Person</td>
+              <td class="text-slate-400 text-[8.5px]">Not Applicable</td>
+              <td class="text-slate-400 text-[8.5px]">Not Applicable</td>
             </tr>
-            ${showEmployer ? `
             <tr>
               <td class="doc-field-label" style="text-transform:none;font-size:9px;color:#334155;">In case of Salaried</td>
-              <td>Name of Employer: ${escapeHtml(fstate.employerName) || '—'} &nbsp;&nbsp; Place of Work: ${escapeHtml(fstate.placeOfWork) || '—'}</td>
-            </tr>` : ''}
-            ${showBusiness ? `
+              <td>${showEmployer ? `Name of Employer: ${escapeHtml(fstate.employerName) || '—'}<br/>Place of Work: ${escapeHtml(fstate.placeOfWork) || '—'}` : '<span class="text-slate-400">—</span>'}</td>
+              <td class="text-slate-400 text-[8.5px]">Not Applicable</td>
+              <td class="text-slate-400 text-[8.5px]">Not Applicable</td>
+            </tr>
             <tr>
               <td class="doc-field-label" style="text-transform:none;font-size:9px;color:#334155;">In case Occupation stated as Business</td>
-              <td>Name of Business: ${escapeHtml(fstate.businessName) || '—'} &nbsp;&nbsp; Nature of Business: ${escapeHtml(fstate.businessNature) || '—'}</td>
-            </tr>` : ''}
+              <td>${showBusiness ? `Name of Business: ${escapeHtml(fstate.businessName) || '—'}<br/>Nature of Business: ${escapeHtml(fstate.businessNature) || '—'}` : '<span class="text-slate-400">—</span>'}</td>
+              <td class="text-slate-400 text-[8.5px]">Not Applicable</td>
+              <td class="text-slate-400 text-[8.5px]">Not Applicable</td>
+            </tr>
           </table>
 
           <div class="doc-section-title">III &nbsp; Foreign Account Tax Compliance Act (FATCA) &amp; CRS Details</div>
           <table class="mb-2">
-            <tr><th style="width:35%">Category</th><th>Sole / First Applicant</th></tr>
-            <tr><td class="doc-field-label" style="text-transform:none;font-size:9px;color:#334155;">Country of Birth</td><td><span class="doc-check checked">✓</span> India</td></tr>
-            <tr><td class="doc-field-label" style="text-transform:none;font-size:9px;color:#334155;">Place of Birth</td><td>India</td></tr>
-            <tr><td class="doc-field-label" style="text-transform:none;font-size:9px;color:#334155;">Citizenship / Nationality</td><td><span class="doc-check checked">✓</span> Indian</td></tr>
-            <tr><td class="doc-field-label" style="text-transform:none;font-size:9px;color:#334155;">Resident of any other country for tax purposes?</td><td><span class="doc-check checked">✓</span> No &nbsp;&nbsp; <span class="doc-check"></span> Yes</td></tr>
-            <tr><td class="doc-field-label" style="text-transform:none;font-size:9px;color:#334155;">US Person</td><td><span class="doc-check checked">✓</span> No &nbsp;&nbsp; <span class="doc-check"></span> Yes</td></tr>
+            <tr><th style="width:20%">Categories</th><th>Sole/First Applicant/Guardian</th><th>Second Applicant</th><th>Third Applicant</th></tr>
+            <tr><td class="doc-field-label" style="text-transform:none;font-size:9px;color:#334155;">Country of Birth</td><td><span class="doc-check checked">✓</span> India &nbsp; <span class="doc-check"></span> Others</td><td class="text-slate-400 text-[8.5px]">—</td><td class="text-slate-400 text-[8.5px]">—</td></tr>
+            <tr><td colspan="4" class="text-center" style="font-size:9px;">Place of Birth: <strong>INDIA</strong></td></tr>
+            <tr><td class="doc-field-label" style="text-transform:none;font-size:9px;color:#334155;">Citizenship/ Nationality</td><td><span class="doc-check checked">✓</span> Indian &nbsp; <span class="doc-check"></span> Others</td><td class="text-slate-400 text-[8.5px]">—</td><td class="text-slate-400 text-[8.5px]">—</td></tr>
+            <tr><td class="doc-field-label" style="text-transform:none;font-size:9px;color:#334155;">Are you also a Resident of any other country(ies) for Tax Purposes?</td><td><span class="doc-check checked">✓</span> No &nbsp; <span class="doc-check"></span> Yes</td><td class="text-slate-400 text-[8.5px]">—</td><td class="text-slate-400 text-[8.5px]">—</td></tr>
+            <tr><td class="doc-field-label" style="text-transform:none;font-size:9px;color:#334155;">US Person</td><td><span class="doc-check checked">✓</span> No &nbsp; <span class="doc-check"></span> Yes</td><td class="text-slate-400 text-[8.5px]">—</td><td class="text-slate-400 text-[8.5px]">—</td></tr>
+            <tr><td class="doc-field-label" style="text-transform:none;font-size:9px;color:#334155;">Country of Tax Residency 1</td><td class="text-slate-400 text-[8.5px]">Not applicable — resident Indian only</td><td class="text-slate-400 text-[8.5px]">—</td><td class="text-slate-400 text-[8.5px]">—</td></tr>
+            <tr><td class="doc-field-label" style="text-transform:none;font-size:9px;color:#334155;">TIN 1 / Identification Type 1</td><td class="text-slate-400 text-[8.5px]">—</td><td class="text-slate-400 text-[8.5px]">—</td><td class="text-slate-400 text-[8.5px]">—</td></tr>
+            <tr><td class="doc-field-label" style="text-transform:none;font-size:9px;color:#334155;">If TIN not available, Reason</td><td><span class="doc-check"></span> A &nbsp; <span class="doc-check"></span> B &nbsp; <span class="doc-check"></span> C</td><td class="text-slate-400 text-[8.5px]">—</td><td class="text-slate-400 text-[8.5px]">—</td></tr>
           </table>
         </div>
 
         <div class="doc-page">
           <div class="doc-section-title">IV &nbsp; Bank Account Details</div>
-          <p class="text-[8px] text-slate-500 mb-1">Attach a copy of cheque leaf / bank statement / bank passbook (not older than 2 months)</p>
+          <p class="text-[8px] text-slate-500 mb-1">Attach copy of cheque leaf/ Bank Statement/ Bank Passbook (Not older than 2 months)</p>
           <table class="mb-2">
-            <tr><td colspan="3">
-              <span class="doc-field-label">Account Number / IBAN</span>${renderBoxes(c.bank.account, 16)}
+            <tr><td colspan="2">
+              <span class="doc-field-label">Account Number/IBAN</span>${renderBoxes(c.bank.account, 16)}
             </td></tr>
             <tr>
-              <td><span class="doc-check checked">✓</span> Savings &nbsp; <span class="doc-check"></span> Current &nbsp; <span class="doc-check"></span> RFC &nbsp; <span class="doc-check"></span> FCA (GIFT City)</td>
-              <td><span class="doc-field-label">Name of Bank / Branch</span>${escapeHtml(c.bank.bankName)}, ${escapeHtml(c.bank.branch)}</td>
+              <td>
+                <span class="doc-check checked">✓</span> Savings &nbsp; <span class="doc-check"></span> Current &nbsp; <span class="doc-check"></span> RFC &nbsp; <span class="doc-check"></span> FCA (GIFT CITY) &nbsp; <span class="doc-check"></span> Others (Please Specify) ____________
+              </td>
               <td><span class="doc-field-label">IFSC Code</span>${renderBoxes(c.bank.ifsc, 11)}</td>
             </tr>
+            <tr>
+              <td><span class="doc-field-label">Name of Bank / Branch</span>${escapeHtml(c.bank.bankName)}, ${escapeHtml(c.bank.branch)}</td>
+              <td><span class="doc-field-label">SWIFT Code</span>${renderBoxes('', 11)}</td>
+            </tr>
+            <tr><td colspan="2"><span class="doc-field-label">Address</span>${escapeHtml(c.address.line)}, ${escapeHtml(c.address.city)}, ${escapeHtml(c.address.state)} – ${escapeHtml(c.address.pincode)}</td></tr>
+            <tr><td colspan="2"><span class="doc-field-label">Correspondent Bank/ Intermediate Bank &amp; Branch Name*</span><span class="text-slate-400 text-[8.5px]">—</span></td></tr>
+            <tr><td colspan="2"><span class="doc-field-label">Correspondent Bank/ Intermediate Bank SWIFT Code*</span><span class="text-slate-400 text-[8.5px]">—</span></td></tr>
           </table>
+          <p class="text-[7.5px] text-slate-400 mb-2">*Mandatory for International Bank Account</p>
 
-          <div class="doc-section-title">V &nbsp; Bank Account Details (in case Redemption Account is different)</div>
+          <div class="doc-section-title">V &nbsp; Bank Account Details (In case Redemption Account is different)</div>
+          <p class="text-[8px] text-slate-500 mb-1">Attach copy of cheque leaf/ Bank Statement/ Bank Passbook (Not older than 2 months)</p>
           <table class="mb-2">
-            <tr><td class="text-slate-400 text-[9px]">Not applicable — redemption proceeds go to the account registered above.</td></tr>
+            <tr><td colspan="2"><span class="doc-field-label">Account Number/IBAN</span><span class="text-slate-400 text-[8.5px]">Not applicable — redemption proceeds go to the account registered above</span></td></tr>
+            <tr>
+              <td><span class="doc-check"></span> Savings &nbsp; <span class="doc-check"></span> Current &nbsp; <span class="doc-check"></span> RFC &nbsp; <span class="doc-check"></span> FCA (GIFT CITY) &nbsp; <span class="doc-check"></span> Others (Please Specify) ____________</td>
+              <td><span class="doc-field-label">Name of Bank / Branch</span><span class="text-slate-400 text-[8.5px]">—</span></td>
+            </tr>
           </table>
+          <p class="text-[7.5px] text-slate-400 mb-2">*Mandatory for International Bank Account</p>
 
           <div class="doc-section-title">VI &nbsp; Nomination Details</div>
           <table class="mb-2">
             <tr>
-              <th style="width:6%">Sr.</th><th>Nominee Name</th><th>Date of Birth</th><th style="width:10%">Share %</th><th>Mobile No. &amp; Email ID</th><th>Guardian / Relationship</th>
+              <th style="width:5%">Sr No</th><th>Nominee Name</th><th>Date of Birth</th><th style="width:9%">Share of Nominee %</th><th>Identity Number</th><th>Mobile No. and Email ID</th><th>Guardian Name &amp; Relationship (In case Nominee is Minor)</th><th>Nominee/Guardian Signature</th>
             </tr>
             <tr>
               <td>1</td>
               <td>${escapeHtml(c.nominee.name)}</td>
               <td>${escapeHtml(c.nominee.dob)}</td>
-              <td>100%</td>
+              <td>100</td>
+              <td class="text-[8px]">Aadhaar/PAN on file</td>
               <td>${escapeHtml(c.nominee.mobile)}</td>
               <td>${escapeHtml(c.nominee.relation)}</td>
+              <td></td>
             </tr>
-            <tr><td>2</td><td colspan="5" class="text-slate-400">—</td></tr>
-            <tr><td>3</td><td colspan="5" class="text-slate-400">—</td></tr>
+            <tr><td>2</td><td colspan="7" class="text-slate-400">—</td></tr>
+            <tr><td>3</td><td colspan="7" class="text-slate-400">—</td></tr>
           </table>
-          <p class="text-[8px] text-slate-500">Share of nominee: if % is not specified, assets shall be distributed equally amongst all nominees. Identity number: PAN, driving licence, or Aadhaar (last 4 digits) is sufficient.</p>
+          <p class="text-[7.5px] text-slate-500 leading-relaxed">*Share of nominee: if % is not specified, then the assets shall be distributed equally amongst all the nominees. #Identity number: Provide only number: PAN or driving license or Aadhaar (last 4 digits). Passport number (in case of NRI/OCI/PIO). Copy of the document is not required.</p>
+          <table class="mt-1">
+            <tr><td><span class="doc-check"></span> <strong>OPT OUT Declaration:</strong> I/We hereby confirm that I/We do not wish to appoint any nominee for my/our units held in my/our folio, and understand the issues involved in non-appointment of nominee(s) and further am/are aware that in case of death of all account holders, my/our legal heirs would need to submit all the requisite documents issued by Court or other such competent authority based on the value of assets held in the folio.</td></tr>
+          </table>
         </div>
 
         <div class="doc-page">
@@ -693,7 +771,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 <p class="mb-1.5">I/We understand that if I/we are categorised as high risk investors as per the policies/procedures adopted by the FME, additional documents/declarations may be sought, in absence of which my/our application may be put on hold.</p>
                 <p class="mb-1.5">I/We declare and confirm that the investment complies with the provisions of the IFSCA, the Reserve Bank of India (RBI) and Government of India rules, regulations, directions and guidelines issued thereunder by the RBI, and the Foreign Exchange Management Act, 1999 (FEMA Act) and the Foreign Exchange Management (Overseas Investment) Rules/Regulations, 2022, as amended from time to time. I/We confirm that the source of funds for the proposed investment is through permissible means and that this investment does not involve any contravention of FEMA and other applicable disclosure requirements. I/We undertake to comply with all reporting/filings, including but not limited to Form FC, Form ODI, Form FLA and Annual Performance Reports (APR), as applicable, and that the proposed investment is within the overall limit prescribed by the RBI from time to time.</p>
                 <p class="mb-1.5">I/We hereby accord my/our consent to the FME/Schemes for collecting, receiving, possessing, storing, dealing, handling or disclosure of my/our personal data and authorise disclosure to any third party or agency acting in a lawful contract with the FME, for utilising the same folio number and other relevant information for all future eligible transactions. I/We hereby grant my/our consent to be contacted for all communications/reports relating to this investment on all email addresses and mobile numbers specified in this form.</p>
-                <p class="mb-1.5">I/We hereby accord my/our consent to mfAPI GIFT and ${escapeHtml(FUND_AMC_NAME)} for receiving promotional material/information relating to this and other schemes via email, SMS, or telemarketing calls on the mobile number and email address provided by me/us in this Application Form. I/We have read, understood, and agree to the terms and conditions mentioned in the offer document of the Scheme, and the rules and regulations of the IFSCA, Prevention of Money Laundering Act, 2002, and any other applicable regulations, as amended from time to time, and agree to comply with and be bound by the same.</p>
+                <p class="mb-1.5">I/We agree and accept that the FME, their authorised agents, representatives, distributors, settlor, trustee, their employees, service providers and representatives (Authorised Parties) are not liable or responsible for any losses, costs, damages arising out of any actions undertaken or as a consequence of this investment or activities performed by them on the basis of the information provided by me/us as also due to any not intimating/ delay in intimating such changes.</p>
+                <p class="mb-1.5">I/We hereby accord my/our consent to the FME to disclose, share, remit in any form, mode or manner, all/ any of the information provided by me to the Authorised Parties along with any change/ modification to the above information as and when required by any regulatory or judicial authorities/ agencies including Financial Intelligence Unit-India (FIU-IND), the Authorised Dealer or other regulatory or judicial authorities, without any obligation of advising me/us of the same.</p>
+                <p class="mb-1.5">I/We hereby accord my/our consent to mfAPI GIFT and ${escapeHtml(FUND_AMC_NAME)} for receiving promotional material/information relating to this and other schemes via email, SMS, or telemarketing calls on the mobile number and email address provided by me/us in this Application Form. mfAPI GIFT reserves the right to inform the existing Distributor/ Referral Agent of any request received from investors which can directly or indirectly impact the distributor's/ referral agent's interest. I/We have read, understood, and agree to the terms and conditions mentioned in the offer document of the Scheme, and the rules and regulations of the IFSCA, Prevention of Money Laundering Act, 2002, and any other applicable regulations, as amended from time to time, and agree to comply with and be bound by the same.</p>
               </td>
             </tr>
           </table>
@@ -716,15 +796,21 @@ document.addEventListener('DOMContentLoaded', () => {
           <div class="doc-section-title">Instructions to Form</div>
           <ol class="text-[8.5px] text-slate-600 leading-relaxed" style="padding-left:14px; list-style:decimal;">
             <li class="mb-1">Please fill the form in BLOCK LETTERS in English.</li>
-            <li class="mb-1">The name of the investor, including joint account holder(s), should be as per PAN card.</li>
-            <li class="mb-1">CKYC – KIN is mandatory if not provided, or if there are changes in any KYC details.</li>
-            <li class="mb-1">In case of joint investors, provide self-attested KYC documents for all investors. Documents are to be signed by the guardian on behalf of a minor.</li>
-            <li class="mb-1">Please provide a correct email ID and mobile number to ensure all critical updates are not missed.</li>
-            <li class="mb-1">Any cancellation/correction should be countersigned by the investor(s).</li>
-            <li class="mb-1">Please make payments from your own account only. Third-party payments are not accepted.</li>
-            <li class="mb-1">"US Person" — an individual, entity, or resident of the United States, or under the laws of the United States, is required to disclose relevant FATCA/CRS details as applicable.</li>
-            <li class="mb-1">Scanned copies of the completed and signed form, along with supporting documents, may be e-mailed to <span class="text-blue-700">onboarding@mfapigift.in</span>.</li>
-            <li>FATCA and CRS details are mandatory for all applicants/unit holders as per the Central Board of Direct Taxes (CBDT) notified Rules 114F to 114H under the Income Tax Rules, 1962.</li>
+            <li class="mb-1">The name of investor including joint account holder should be as per PAN card details. CKYC – Cersai form is required if KIN not provided or there are changes in the KYC details. It must have Original seen &amp; verified ("OSV") stamp on all documents with Employee Name, Designation, Employee Code, Signature, Date &amp; stamp of Organization (SEBI/IFSCA registered intermediaries).</li>
+            <li class="mb-1">In case of Joint investors, please provide the self-attested KYC documents for all Investors. Documents to be signed by the Guardian on behalf of Minor.</li>
+            <li class="mb-1">Please provide correct Email ID and mobile number to ensure that critical updates are not missed.</li>
+            <li class="mb-1">The address proof and communication set on the application form must be as per KYC. If your communication address is different from the registered address, proof of both addresses should be provided.</li>
+            <li class="mb-1">Any specify mode of operations in case there is more than one Applicant. If not specified, all will be treated as Joint.</li>
+            <li class="mb-1">In case the application is under Power of Attorney (PoA), a duly notarized copy of the PoA must be submitted along with the application form. All supporting documents must be signed by all holders including the PoA holder.</li>
+            <li class="mb-1">Please make payments from your own accounts only; third-party payments are not accepted on the Bank Account from which funds are remitted.</li>
+            <li class="mb-1">Residence for tax purposes — this field requires an indication of the country of residence for income tax purposes. If the individual is considered a resident for tax purposes of more than one country, then mention the final position after considering the tie breaker rules.</li>
+            <li class="mb-1">"US Person" — the term United States person means: (a) an individual, citizen or resident of the United States of America; (b) a partnership or corporation organized in the laws of the United States of America or any State thereof; (c) a trust if a court within the United States would have authority under applicable law to render orders or judgements concerning substantially all issues regarding administration of the trust, and one or more US persons have authority to control all substantial decisions of the trust; (d) an estate of a decedent who is a citizen or resident of the United States of America.</li>
+            <li class="mb-1">Applicants like Individuals (including sole proprietorship firm), joint applicants, are required to provide, in the applicable Application Form, details of country(ies) of Citizenship/Nationality mandatory. If the Place of Birth and Country of Citizenship/Nationality is other than India, then it is mandatory to provide the country of tax residence and relevant Taxpayer Identification Number to the Applicant(s)/Unit holders.</li>
+            <li class="mb-1">If you have any questions about your tax residency or other definitions or terms, please contact your tax advisor. If you are a US citizen or resident or Green Card holder, please include United States in the foreign country information field along with any other country information, if applicable.</li>
+            <li class="mb-1">It is mandatory to supply the Tax Identification Number (TIN) or functional equivalent like Social Security Number, National Insurance Number, Citizen/Company Identification Number or Resident Registration Number, if you do not have a TIN, then attach a copy of the documents mentioned in this section self-attested for status.</li>
+            <li class="mb-1">Applicant/Unit holder should note that they also specifically authorize to disclose, share or remit in any form, mode or manner, all/any of the information provided by me/us, including all changes, updates to such information as and when provided to the FME, the Authorized Parties or any Indian or foreign governmental or statutory or judicial authorities/agencies including but not limited to the Financial Intelligence Unit-India (FIU-IND), the Authorised Dealer or other regulatory authorities/agencies without any obligation of advising me/us of the same.</li>
+            <li class="mb-1">Please note that the specified information provided by the applicant/unit holder is found to be false or untrue or misrepresenting, applicant/unit holder will be solely liable and shall indemnify the FME, Trustees, their employees / associated persons / Service Providers.</li>
+            <li>Scanned copies of the completed and duly signed form along with supporting documents to be e-mailed to <span class="text-blue-700">investoronboarding.gift@ppfas.com</span> and <span class="text-blue-700">gift_investoronboarding@mfapigift.in</span>. The Registrar &amp; Transfer Agent (RTA) will check the forms and confirm if the documents are in order. The physical application form along with documents should be courier'd to Computer Age Management Services Ltd (CAMS), Unit No. 409, BIFC Building, Zone-1, GIFT City, Gandhinagar, Gujarat – 382355. FATCA and CRS details are mandatory for all applicants/unit holders as per the Central Board of Direct Taxes (CBDT) notified Rules 114F to 114H under the Income Tax Rules, 1962.</li>
           </ol>
         </div>
 

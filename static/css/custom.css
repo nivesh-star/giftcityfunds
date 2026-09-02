@@ -511,6 +511,18 @@ body {
   padding: 5px 6px;
 }
 
+.folio-doc.pdf-export-scale .doc-plain-title {
+  font-size: 13px;
+}
+
+.folio-doc.pdf-export-scale .doc-brand-mark-top {
+  font-size: 13px;
+}
+
+.folio-doc.pdf-export-scale .doc-brand-mark-bottom {
+  font-size: 12px;
+}
+
 /* Each logical page of the generated form (cover, general info, KYC/FATCA,
    bank/nomination, declarations, instructions, uploaded documents). On
    screen these stack with a dashed divider; in the PDF export each one
@@ -525,6 +537,42 @@ body {
   border-bottom: none;
   margin-bottom: 0;
   padding-bottom: 0;
+}
+
+/* Plain bold section heading (no shaded bar) used only for the checklist
+   header on the cover page, matching the real form's styling there. */
+.folio-doc .doc-plain-title {
+  font-weight: 800;
+  font-size: 11px;
+  color: #1e293b;
+  margin-bottom: 2px;
+}
+
+/* Small distributor brand mark, bottom-right of the cover page. */
+.folio-doc .doc-brand-mark {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  justify-content: flex-end;
+  margin-top: 10px;
+}
+
+.folio-doc .doc-brand-mark-top {
+  display: block;
+  font-weight: 800;
+  font-size: 11px;
+  color: #0f172a;
+  line-height: 1.1;
+}
+
+.folio-doc .doc-brand-mark-bottom {
+  display: block;
+  font-weight: 800;
+  font-size: 10px;
+  color: #1d4ed8;
+  letter-spacing: 0.04em;
+  border-top: 2px solid #1d4ed8;
+  line-height: 1.2;
 }
 
 /* Rounded title block at the top of the generated form, matching the AMC's
