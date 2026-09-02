@@ -927,12 +927,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
       for (let i = 0; i < pageClones.length; i++) {
         const clone = pageClones[i];
-        // scale:1.5 (not 2) plus JPEG at 0.85 quality (not PNG) — seven
-        // full-resolution PNG pages, several with photo thumbnails, produced
-        // a 70MB+ PDF that's unusable as a download/e-mail attachment. This
-        // combination keeps the form sharp and readable at a few MB instead.
+        // scale:2 plus JPEG at 0.92 quality gives sharp, print-quality text
+        // (the earlier scale:1.5/0.85 combo was chosen purely to shrink an
+        // over-large file, but went far enough to make text look soft/
+        // blurry). Even at these higher settings the file stays a few MB —
+        // nowhere near the 70MB+ that scale:2 + PNG produced originally.
         const canvas = await window.html2canvas(clone, {
-          scale: 1.5,
+          scale: 2,
           backgroundColor: '#ffffff',
           useCORS: true,
           scrollX: 0,
@@ -940,7 +941,7 @@ document.addEventListener('DOMContentLoaded', () => {
           windowWidth: clone.scrollWidth,
           windowHeight: clone.scrollHeight,
         });
-        const imgData = canvas.toDataURL('image/jpeg', 0.85);
+        const imgData = canvas.toDataURL('image/jpeg', 0.92);
         const fullImgHeight = (canvas.height * pageWidth) / canvas.width;
 
         if (i > 0) pdf.addPage();
@@ -948,12 +949,23 @@ document.addEventListener('DOMContentLoaded', () => {
         if (fullImgHeight <= pageHeightPt) {
           // Fits on one page at full width — the normal case.
           pdf.addImage(imgData, 'JPEG', 0, 0, pageWidth, fullImgHeight, undefined, 'MEDIUM');
+        } else if (fullImgHeight <= pageHeightPt * 1.15) {
+          // Only slightly taller than one page (e.g. the declarations text
+          // running a line or two long). Slicing this would leave an
+          // almost-empty trailing page with just one line on it — the
+          // "one page was empty" complaint. A small, barely-noticeable
+          // shrink keeps the whole section on a single page instead.
+          const shrink = pageHeightPt / fullImgHeight;
+          const renderWidth = pageWidth * shrink;
+          const renderHeight = pageHeightPt;
+          const xOffset = (pageWidth - renderWidth) / 2;
+          pdf.addImage(imgData, 'JPEG', xOffset, 0, renderWidth, renderHeight, undefined, 'MEDIUM');
         } else {
-          // Section is legitimately longer than one A4 page at full width
-          // (e.g. the checklist or declarations page). Slice it across as
-          // many PDF pages as it needs at FULL WIDTH, instead of shrinking
-          // it down to squeeze onto one page — shrinking is what produced
-          // the tiny, squashed-looking tables reported earlier.
+          // Genuinely much longer than one A4 page at full width (e.g. the
+          // full checklist). Slice it across as many PDF pages as it needs
+          // at FULL WIDTH, instead of shrinking it down to squeeze onto one
+          // page — shrinking a lot is what produced the tiny, squashed
+          // tables reported earlier.
           let heightLeft = fullImgHeight;
           let position = 0;
           let firstSlice = true;
