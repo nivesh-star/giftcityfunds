@@ -880,11 +880,21 @@ document.addEventListener('DOMContentLoaded', () => {
     // `position:fixed` off-screen elements get shifted by the page's
     // current scroll offset during its internal document clone, which is
     // what caused the earlier "zoomed in and cut off" PDF.
+    //
+    // IMPORTANT: capture at a FIXED print width, not the on-screen modal's
+    // width. The modal is a fixed-max-width side panel, so on a smaller
+    // browser window `original.offsetWidth` could be quite narrow — the
+    // export then had a very tall/narrow aspect ratio, and shrinking that
+    // to fit an A4 page (below) squeezed every table into a thin vertical
+    // strip, which is the "cropped, not full size" PDF that was reported.
+    // A fixed, generous width makes the exported form's layout identical
+    // no matter what size window it was downloaded from.
+    const PDF_EXPORT_WIDTH = 760;
     const container = document.createElement('div');
     container.style.position = 'absolute';
     container.style.left = '-9999px';
     container.style.top = '0px';
-    container.style.width = `${original.offsetWidth}px`;
+    container.style.width = `${PDF_EXPORT_WIDTH}px`;
     container.style.background = '#ffffff';
     document.body.appendChild(container);
 
@@ -895,7 +905,7 @@ document.addEventListener('DOMContentLoaded', () => {
       clone.style.borderBottom = 'none';
       clone.style.margin = '0';
       clone.style.padding = '20px';
-      clone.style.width = `${original.offsetWidth}px`;
+      clone.style.width = `${PDF_EXPORT_WIDTH}px`;
       clone.removeAttribute('id');
       container.appendChild(clone);
       return clone;
@@ -935,20 +945,30 @@ document.addEventListener('DOMContentLoaded', () => {
           windowHeight: clone.scrollHeight,
         });
         const imgData = canvas.toDataURL('image/jpeg', 0.85);
-        let renderWidth = pageWidth;
-        let renderHeight = (canvas.height * renderWidth) / canvas.width;
-        // If a section is taller than one A4 page (e.g. a very long
-        // declarations paragraph), scale it down to fit on a single page
-        // rather than slicing it across two — every section keeps its own
-        // page, same as the printed form.
-        if (renderHeight > pageHeightPt) {
-          const shrink = pageHeightPt / renderHeight;
-          renderHeight = pageHeightPt;
-          renderWidth = pageWidth * shrink;
-        }
-        const xOffset = (pageWidth - renderWidth) / 2;
+        const fullImgHeight = (canvas.height * pageWidth) / canvas.width;
+
         if (i > 0) pdf.addPage();
-        pdf.addImage(imgData, 'JPEG', xOffset, 0, renderWidth, renderHeight, undefined, 'MEDIUM');
+
+        if (fullImgHeight <= pageHeightPt) {
+          // Fits on one page at full width — the normal case.
+          pdf.addImage(imgData, 'JPEG', 0, 0, pageWidth, fullImgHeight, undefined, 'MEDIUM');
+        } else {
+          // Section is legitimately longer than one A4 page at full width
+          // (e.g. the checklist or declarations page). Slice it across as
+          // many PDF pages as it needs at FULL WIDTH, instead of shrinking
+          // it down to squeeze onto one page — shrinking is what produced
+          // the tiny, squashed-looking tables reported earlier.
+          let heightLeft = fullImgHeight;
+          let position = 0;
+          let firstSlice = true;
+          while (heightLeft > 0) {
+            if (!firstSlice) pdf.addPage();
+            firstSlice = false;
+            pdf.addImage(imgData, 'JPEG', 0, position, pageWidth, fullImgHeight, undefined, 'MEDIUM');
+            heightLeft -= pageHeightPt;
+            position -= pageHeightPt;
+          }
+        }
       }
 
       const c = getClient();
