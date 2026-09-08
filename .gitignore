@@ -7,3 +7,4 @@ gift_city_funds.db
 work/
 Untitled.ipynb
 *.xlsx.inspect.ndjson
+.vercel
