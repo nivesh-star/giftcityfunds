@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>My Portfolio | GIFT360</title>
+  <title>My Portfolio | GiftCityFunds</title>
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/address_bar.png') }}">
 
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -39,8 +40,7 @@
   <nav class="sticky top-0 z-40 border-b border-[var(--color-border)] px-4 md:px-8 py-3" style="background-color: var(--color-bg-subtle); backdrop-filter: blur(8px);">
     <div class="max-w-6xl mx-auto flex items-center justify-between gap-4">
       <a href="/" class="flex items-center gap-2.5">
-        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 to-blue-700 flex items-center justify-center shadow-md shadow-blue-500/20 text-white font-black text-lg">G</div>
-        <span class="font-extrabold text-lg tracking-tight">GIFT<span class="text-blue-500">360</span></span>
+        <img src="{{ url_for('static', filename='img/logo.png') }}" alt="GiftCityFunds" class="h-9 w-auto">
       </a>
       <div class="flex items-center gap-3 text-xs font-bold">
         <span id="portfolioUserName" class="text-[var(--color-text-subtle)] hidden sm:inline"></span>

@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Sign Up | GIFT360</title>
+  <title>Sign Up | GiftCityFunds</title>
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/address_bar.png') }}">
 
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -49,8 +50,7 @@
       <div class="absolute inset-0 opacity-30" style="background-image: radial-gradient(circle at 15% 15%, rgba(37,99,235,0.35), transparent 45%), radial-gradient(circle at 85% 80%, rgba(121,254,12,0.16), transparent 40%);"></div>
 
       <a href="/" class="relative z-10 flex items-center gap-2 mb-8">
-        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 to-blue-700 flex items-center justify-center shadow-md shadow-blue-500/20 text-white font-black text-base">G</div>
-        <span class="font-extrabold text-lg tracking-tight text-white">GIFT<span class="text-blue-400">360</span></span>
+        <img src="{{ url_for('static', filename='img/logo.png') }}" alt="GiftCityFunds" class="h-9 w-auto">
       </a>
 
       <h1 class="relative z-10 text-xl font-black text-white mb-1">Create your investor account</h1>
