@@ -66,12 +66,12 @@
     <div class="max-w-7xl mx-auto flex items-center justify-between gap-4">
       
       <!-- Brand Logo -->
-      <a href="/" class="flex items-center gap-2.5 group">
-        <img src="{{ url_for('static', filename='img/logo.png') }}" alt="GiftCityFunds" class="h-14 w-auto">
+      <a href="/" class="flex items-center gap-2.5 group shrink-0">
+        <img src="{{ url_for('static', filename='img/logo.png') }}" alt="GiftCityFunds" class="h-11 w-auto shrink-0">
       </a>
 
       <!-- Navigation Links -->
-      <ul class="hidden 2xl:flex items-center gap-3 xl:gap-5 text-xs font-bold tracking-wide text-[var(--color-text-muted)] whitespace-nowrap shrink-0 min-w-0">
+      <ul class="hidden 2xl:flex items-center gap-3 xl:gap-4 text-xs font-bold tracking-wide text-[var(--color-text-muted)] whitespace-nowrap shrink-0 min-w-0">
         <li><a href="#dashboard" class="hover:text-blue-500 transition-colors flex items-center gap-1">Dashboard</a></li>
         <li><a href="#screener" class="hover:text-blue-500 transition-colors flex items-center gap-1">Fund Screener</a></li>
         <li><a href="/gift-city-outbound" class="hover:text-blue-500 transition-colors flex items-center gap-1">Outbound Funds</a></li>
@@ -81,10 +81,10 @@
       </ul>
 
       <!-- Action Area -->
-      <div class="flex items-center gap-1 xl:gap-2 shrink-0 ml-auto min-w-0">
+      <div class="flex items-center gap-1 xl:gap-1.5 shrink-0 ml-auto min-w-0">
         <!-- Quick Search -->
-        <div class="relative hidden 2xl:block w-40 shrink-0">
-          <input type="text" id="navQuickSearch" placeholder="Search 75 funds..." class="w-full bg-[var(--color-card)] border border-[var(--color-border)] rounded-xl px-3 py-1.5 text-xs text-[var(--color-text)] placeholder-[var(--color-text-subtle)] focus:outline-none focus:border-blue-500 transition-all" />
+        <div class="relative hidden 2xl:block w-36 shrink-0">
+          <input type="text" id="navQuickSearch" placeholder="Search funds..." class="w-full bg-[var(--color-card)] border border-[var(--color-border)] rounded-xl px-3 py-1.5 text-xs text-[var(--color-text)] placeholder-[var(--color-text-subtle)] focus:outline-none focus:border-blue-500 transition-all" />
           <span class="absolute right-2.5 top-2 text-[10px] text-[var(--color-text-subtle)]">⌘K</span>
         </div>
 
