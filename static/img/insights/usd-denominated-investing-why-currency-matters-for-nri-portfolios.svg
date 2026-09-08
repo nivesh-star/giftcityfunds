@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="g-usd-denomina" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#059669"/>
+      <stop offset="100%" stop-color="#0f4c43"/>
+    </linearGradient>
+    <radialGradient id="g-usd-denomina-glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.22"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="g-usd-denomina-dots" width="26" height="26" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r="1.4" fill="#ffffff" opacity="0.16"/>
+    </pattern>
+  </defs>
+  <rect width="800" height="450" fill="url(#g-usd-denomina)"/>
+  <rect width="800" height="450" fill="url(#g-usd-denomina-dots)"/>
+  <circle cx="540" cy="100" r="260" fill="url(#g-usd-denomina-glow)"/>
+  <g transform="translate(580 140) rotate(-6) scale(1.55)"
+     fill="none" stroke="#ffffff" stroke-opacity="0.2"
+     stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="0" cy="0" r="75"/>
+    <circle cx="0" cy="0" r="58"/>
+    <path d="M -18 25 C -18 40 40 40 40 20 C 40 0 -18 5 -18 -18 C -18 -38 30 -38 30 -22"/>
+    <line x1="10" y1="-52" x2="10" y2="52"/>
+  </g>
+</svg>

@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="g-ifsca-fund-m" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#059669"/>
+      <stop offset="100%" stop-color="#0f4c43"/>
+    </linearGradient>
+    <radialGradient id="g-ifsca-fund-m-glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.22"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="g-ifsca-fund-m-dots" width="26" height="26" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r="1.4" fill="#ffffff" opacity="0.16"/>
+    </pattern>
+  </defs>
+  <rect width="800" height="450" fill="url(#g-ifsca-fund-m)"/>
+  <rect width="800" height="450" fill="url(#g-ifsca-fund-m-dots)"/>
+  <circle cx="540" cy="110" r="260" fill="url(#g-ifsca-fund-m-glow)"/>
+  <g transform="translate(580 150) rotate(-6) scale(1.55)"
+     fill="none" stroke="#ffffff" stroke-opacity="0.2"
+     stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M 0 -70 L 55 -45 L 55 10 C 55 55 20 75 0 85 C -20 75 -55 55 -55 10 L -55 -45 Z"/>
+    <path d="M -25 5 L -5 28 L 30 -25"/>
+  </g>
+</svg>

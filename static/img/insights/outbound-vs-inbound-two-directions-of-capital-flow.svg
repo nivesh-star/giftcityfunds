@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="g-outbound-vs-" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2563eb"/>
+      <stop offset="100%" stop-color="#1e3a8a"/>
+    </linearGradient>
+    <radialGradient id="g-outbound-vs--glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.22"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="g-outbound-vs--dots" width="26" height="26" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r="1.4" fill="#ffffff" opacity="0.16"/>
+    </pattern>
+  </defs>
+  <rect width="800" height="450" fill="url(#g-outbound-vs-)"/>
+  <rect width="800" height="450" fill="url(#g-outbound-vs--dots)"/>
+  <circle cx="520" cy="110" r="260" fill="url(#g-outbound-vs--glow)"/>
+  <g transform="translate(560 150) rotate(-6) scale(1.55)"
+     fill="none" stroke="#ffffff" stroke-opacity="0.2"
+     stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round">
+    <line x1="-70" y1="-25" x2="55" y2="-25"/>
+    <path d="M 30 -45 L 55 -25 L 30 -5"/>
+    <line x1="70" y1="25" x2="-55" y2="25"/>
+    <path d="M -30 5 L -55 25 L -30 45"/>
+  </g>
+</svg>

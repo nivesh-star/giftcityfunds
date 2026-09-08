@@ -68,7 +68,8 @@
   <!-- ARTICLE HERO -->
   <!-- ========================================================================= -->
   <header class="relative overflow-hidden bg-gradient-to-br {{ ac.grad }}">
-    <div class="absolute inset-0 opacity-20" style="background-image: radial-gradient(circle at 20% 20%, white, transparent 45%);"></div>
+    <img src="{{ url_for('static', filename=article.cover) }}" alt="" class="absolute inset-0 w-full h-full object-cover">
+    <div class="absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-transparent"></div>
     <div class="max-w-3xl mx-auto relative px-4 md:px-8 pt-10 pb-12">
       <a href="/insights" class="inline-flex items-center gap-1 text-xs font-bold text-white/80 hover:text-white mb-6 transition-colors">
         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"></path></svg>
@@ -125,7 +126,9 @@
         {% for r in related %}
         {% set rc = ACCENTS[r.accent] %}
         <a href="{{ url_for('pages.insight_detail', slug=r.slug) }}" class="group glass-card rounded-2xl overflow-hidden flex flex-col">
-          <div class="relative h-24 bg-gradient-to-br {{ rc.grad }} shrink-0"></div>
+          <div class="relative h-24 bg-gradient-to-br {{ rc.grad }} shrink-0 overflow-hidden">
+            <img src="{{ url_for('static', filename=r.cover) }}" alt="" class="absolute inset-0 w-full h-full object-cover">
+          </div>
           <div class="p-4">
             <span class="text-[9px] px-2 py-0.5 rounded-full font-bold {{ rc.bg }} {{ rc.text }} border {{ rc.border }}">{{ r.category }}</span>
             <h4 class="text-sm font-bold text-[var(--color-text)] leading-snug mt-2 group-hover:text-blue-400 transition-colors">{{ r.title }}</h4>

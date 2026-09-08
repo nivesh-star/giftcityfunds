@@ -315,6 +315,12 @@ ARTICLES = [
     },
 ]
 
+# Each article gets a generated SVG cover -- a gradient panel plus a
+# topic-specific line-icon motif (see scripts that produced the files
+# under static/img/insights/) instead of a stock photo.
+for _article in ARTICLES:
+    _article["cover"] = f"img/insights/{_article['slug']}.svg"
+
 
 def get_article(slug: str):
     """Returns the article dict matching `slug`, or None if no article

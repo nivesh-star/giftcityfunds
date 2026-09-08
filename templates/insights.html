@@ -104,9 +104,8 @@
             </span>
           </div>
           <div class="relative order-1 md:order-2 h-40 md:h-full bg-gradient-to-br {{ fa.grad }} overflow-hidden">
-            <div class="absolute inset-0 opacity-25" style="background-image: radial-gradient(circle at 25% 25%, white, transparent 45%);"></div>
+            <img src="{{ url_for('static', filename=featured.cover) }}" alt="" class="absolute inset-0 w-full h-full object-cover">
             <div class="absolute bottom-4 right-4 text-[10px] font-black tracking-widest text-white/70 uppercase">Featured</div>
-            <svg class="absolute -bottom-6 -right-6 w-40 h-40 text-white/10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
           </div>
         </div>
       </a>
@@ -129,8 +128,8 @@
         {% if a.slug != featured.slug %}
         {% set ac = ACCENTS[a.accent] %}
         <a href="{{ url_for('pages.insight_detail', slug=a.slug) }}" data-category="{{ a.category }}" class="insight-card group glass-card rounded-2xl overflow-hidden flex flex-col">
-          <div class="relative h-28 bg-gradient-to-br {{ ac.grad }} shrink-0">
-            <div class="absolute inset-0 opacity-20" style="background-image: radial-gradient(circle at 75% 30%, white, transparent 50%);"></div>
+          <div class="relative h-28 bg-gradient-to-br {{ ac.grad }} shrink-0 overflow-hidden">
+            <img src="{{ url_for('static', filename=a.cover) }}" alt="" class="absolute inset-0 w-full h-full object-cover">
           </div>
           <div class="p-4 flex flex-col flex-1">
             <div class="flex items-center gap-2 mb-2">

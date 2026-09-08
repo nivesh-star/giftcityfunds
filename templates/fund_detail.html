@@ -63,6 +63,7 @@
           <svg class="w-4 h-4 block dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
         </button>
 
+        {# Account Area -- commented out for now, not deleted
         {% if session.user_id %}
         <a href="/portfolio" class="inline-flex items-center gap-1.5 px-2.5 xl:px-3 py-1.5 rounded-lg border border-[var(--color-border)] hover:border-blue-500/40 text-xs font-bold text-[var(--color-text-muted)] hover:text-blue-400 bg-[var(--color-card)] transition-all whitespace-nowrap shrink-0">
           <span class="hidden xl:inline">My Portfolio</span>
@@ -73,6 +74,7 @@
           Login
         </a>
         {% endif %}
+        #}
       </div>
     </div>
   </nav>

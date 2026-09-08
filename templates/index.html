@@ -101,14 +101,15 @@
           <svg class="w-4 h-4 block dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
         </button>
 
-        <!-- Onboard Investor CTA (Folio Creation Flow) -->
+        {# Onboard Investor CTA (Folio Creation Flow) -- commented out for now, not deleted
         <button id="navOnboardBtn" type="button" class="btn-blue text-xs px-2 xl:px-3 py-1.5 rounded-lg flex items-center gap-1 xl:gap-1.5 shadow-sm whitespace-nowrap shrink-0">
           <span class="hidden xl:inline">Onboard Investor</span>
           <span class="xl:hidden">Onboard</span>
           <svg class="w-3 h-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
         </button>
+        #}
 
-        <!-- Account Area -->
+        {# Account Area -- commented out for now, not deleted
         {% if session.user_id %}
         <a href="/portfolio" class="inline-flex items-center gap-1 xl:gap-1.5 px-2 xl:px-3 py-1.5 rounded-lg border border-[var(--color-border)] hover:border-blue-500/40 text-xs font-bold text-[var(--color-text-muted)] hover:text-blue-400 bg-[var(--color-card)] transition-all whitespace-nowrap shrink-0">
           <span class="hidden xl:inline">My Portfolio</span>
@@ -119,6 +120,7 @@
           Login
         </a>
         {% endif %}
+        #}
       </div>
 
     </div>
@@ -126,7 +128,7 @@
 
   <!-- ========================================================================= -->
   <!-- GIFT OUTBOUND ONBOARDING PROMO STRIP -->
-  <!-- ========================================================================= -->
+  {# Commented out for now (Onboard Clients flow disabled) -- not deleted
   <div class="max-w-7xl mx-auto w-full px-4 md:px-8 pt-6">
     <div class="glass-card rounded-2xl px-5 py-3.5 flex flex-col sm:flex-row items-center justify-between gap-3">
       <div class="flex items-center gap-3">
@@ -144,6 +146,7 @@
       </button>
     </div>
   </div>
+  #}
 
   <!-- ========================================================================= -->
   <!-- HERO SECTION -->
@@ -779,6 +782,7 @@
   <!-- ========================================================================= -->
   <!-- FOLIO CREATION / ONBOARD INVESTOR MODAL (GIFT Outbound) -->
   <!-- ========================================================================= -->
+  {# Folio modal commented out for now (Login/Onboard/Folio disabled) -- not deleted
   <div id="folioModal" class="fixed inset-0 z-[60] bg-black/80 backdrop-blur-sm hidden items-center justify-center p-3 sm:p-4">
     <div class="bg-[var(--color-card)] border border-[var(--color-border)] rounded-3xl max-w-4xl w-full shadow-2xl relative max-h-[92vh] overflow-hidden grid md:grid-cols-2">
 
@@ -831,6 +835,7 @@
 
     </div>
   </div>
+  #}
 
   <!-- Demo session flag for the Buy panel -->
   <script>
@@ -839,9 +844,12 @@
 
   <!-- Main Application Script -->
   <script src="/static/js/app.js"></script>
-  <!-- PDF export libraries for the onboarding wizard's "Download PDF" button -->
+  {# PDF export libraries for the onboarding wizard's "Download PDF" button,
+     and folio.js itself -- commented out along with the rest of the
+     Login/Onboard/Folio flow above; not deleted.
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="/static/js/folio.js"></script>
+  #}
 </body>
 </html>
