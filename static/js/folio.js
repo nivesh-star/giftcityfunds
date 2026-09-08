@@ -70,11 +70,23 @@ document.addEventListener('DOMContentLoaded', () => {
   const EMPLOYER_OCCUPATIONS = ['Private Sector Service', 'Public Sector Service', 'Government Service', 'Professional'];
   const BUSINESS_OCCUPATIONS = ['Business'];
 
-  const SCHEME_NAME = "Parag Parikh IFSC – S&P 500 Fund of Fund (Direct Plan)";
   // The AMC that actually issues the application form for the selected
   // scheme — shown on the form's cover page — kept separate from the
-  // distributor identity (mfAPI GIFT) shown in the Distributor row below it.
+  // distributor identity shown in the Distributor row below it.
+  //
+  // The scheme name itself is deliberately not printed on the form: the
+  // application is AMC-level, and the scheme is selected separately, matching
+  // how the Creso form is laid out.
   const FUND_AMC_NAME = "PPFAS Alternate Asset Managers IFSC Private Limited";
+
+  // Distributor identity shown in the Distributor row on the form's first
+  // page -- separate from FUND_AMC_NAME above, which is the AMC issuing the
+  // scheme. Hardcoded for now; move to a config/API lookup when more than
+  // one distributor uses this flow.
+  const DISTRIBUTOR_NAME = "Swati Goyal";
+  const DISTRIBUTOR_CODE = "PG201188";
+  const DISTRIBUTOR_EMAIL = "onboarding@mfapigift.in";
+  const DISTRIBUTOR_MOBILE = "9999900000";
 
   const SIDE_PANELS = [
     {
@@ -524,7 +536,6 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="doc-title-line">${escapeHtml(FUND_AMC_NAME)}</div>
             <div class="doc-title-line">Application Form for Outbound Funds</div>
             <div class="doc-title-line">(Individual)</div>
-            <div class="doc-title-scheme">Scheme Applied For: ${escapeHtml(SCHEME_NAME)}</div>
           </div>
 
           <div class="doc-plain-title">Checklist for Individuals</div>
@@ -602,7 +613,7 @@ document.addEventListener('DOMContentLoaded', () => {
               <th style="width:25%">Distributor</th><th style="width:25%">Code</th><th style="width:30%">Email</th><th style="width:20%">Mobile</th>
             </tr>
             <tr>
-              <td>mfAPI GIFT</td><td>GC100450</td><td>onboarding@mfapigift.in</td><td>9999900000</td>
+              <td>${escapeHtml(DISTRIBUTOR_NAME)}</td><td>${escapeHtml(DISTRIBUTOR_CODE)}</td><td>${escapeHtml(DISTRIBUTOR_EMAIL)}</td><td>${escapeHtml(DISTRIBUTOR_MOBILE)}</td>
             </tr>
           </table>
 
