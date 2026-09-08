@@ -218,6 +218,78 @@ pytest tests/ -v
 
 ---
 
+## Deployment (Vercel)
+
+The web platform (`app.py`) is deployed to Vercel as a Python serverless
+function. `api/index.py` is the WSGI entry point and `vercel.json` already
+declares the build and routes — no dashboard configuration is needed.
+
+Fund data is served live from the shared **mf-engine-v2 API**
+(`https://app2.mfapis.club`), so the deployed app does **not** ship the SQLite
+database. Only the ETL pipeline above uses SQLite; production reads the API.
+
+### 1. One-time setup
+```bash
+npm i -g vercel
+vercel login
+vercel link            # select / create the project (root directory: ./)
+```
+
+### 2. Configure environment variables
+Required for every environment (`production`, `preview`, `development`):
+
+| Variable | Purpose |
+| :--- | :--- |
+| `MF_ENGINE_IDENTIFIER` | mf-engine partner login (email or mobile) |
+| `MF_ENGINE_PASSWORD`   | mf-engine partner password |
+| `SECRET_KEY`           | Flask session cookie signing key |
+
+```bash
+vercel env add MF_ENGINE_IDENTIFIER production
+vercel env add MF_ENGINE_PASSWORD   production
+vercel env add SECRET_KEY           production   # python3 -c "import secrets;print(secrets.token_hex(32))"
+```
+
+Optional overrides (sensible defaults exist in `services/mf_engine.py`):
+`MF_ENGINE_BASE_URL`, `MF_ENGINE_TOKEN_TTL`, `MF_ENGINE_FUND_CACHE_TTL`.
+`DEMO_DATABASE_URL` (Postgres) is only needed for the demo login / portfolio
+pages; the fund APIs work without it.
+
+### 3. Deploy
+```bash
+vercel            # preview deployment
+vercel --prod     # promote to production
+```
+
+Verify:
+```bash
+curl -s https://<project>.vercel.app/api/funds | head -c 200   # {"success":true,...}
+```
+
+### 4. Custom domain (GoDaddy)
+Keep GoDaddy's default nameservers and point DNS records at Vercel:
+
+```bash
+vercel domains add example.co.in <project>
+vercel domains add www.example.co.in <project>
+vercel domains inspect example.co.in            # confirm the expected records
+```
+
+GoDaddy DNS (via API — `Authorization: Bearer <gd_pat_...>`), or the same
+values by hand in the DNS Records tab:
+
+| Type | Name | Value |
+| :--- | :--- | :--- |
+| A     | `@`   | `76.76.21.21` |
+| CNAME | `www` | `cname.vercel-dns.com` |
+
+Vercel provisions the TLS certificate automatically once the A record
+resolves (`vercel certs ls` to check). Run
+`vercel certs issue example.co.in www.example.co.in` to force a combined
+cert if `www` is slow to appear.
+
+---
+
 ## Automated Data Quality & Web Platform Tests
 
 The test suite in `tests/` executes 17 automated checks across database integrity and web APIs:
