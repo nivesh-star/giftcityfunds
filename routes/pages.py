@@ -13,11 +13,13 @@ only its storage moved from SQLite to Postgres (services/demo_db.py), since
 SQLite can't work on Vercel.
 """
 
+from datetime import datetime
 from typing import Optional
 
 from flask import Blueprint, redirect, render_template, url_for
 
 from content.faqs import FAQ_SOURCE_ATTRIBUTION, INBOUND_FAQS, OUTBOUND_FAQS
+from content.insights import ARTICLES, CATEGORIES, get_article, related_articles
 from routes.auth import login_required
 from services import adapters
 from services.funds import slugify
@@ -126,4 +128,35 @@ def fund_detail_page(fund_id: int, slug: Optional[str] = None):
         fund_id=fund_id,
         fund_name=fund["fund_name"],
         amc_name=fund.get("amc_name") or (fund.get("amc") or {}).get("name"),
+    )
+
+
+@pages_bp.route("/insights")
+def insights_index():
+    """Listing page for GIFT360's in-house editorial section -- explainers
+    and analysis on GIFT City IFSC investing, written to give readers a
+    plain-English reference for the concepts the rest of the dashboard
+    assumes they already know."""
+    articles = sorted(ARTICLES, key=lambda a: a["published"], reverse=True)
+    return render_template(
+        "insights.html",
+        articles=articles,
+        featured=articles[0],
+        categories=CATEGORIES,
+    )
+
+
+@pages_bp.route("/insights/<slug>")
+def insight_detail(slug: str):
+    """Single article page. An unknown/stale slug redirects to the
+    Insights index rather than dead-ending the reader on a 404."""
+    article = get_article(slug)
+    if not article:
+        return redirect(url_for("pages.insights_index"))
+    published_display = datetime.strptime(article["published"], "%Y-%m-%d").strftime("%d %b %Y")
+    return render_template(
+        "insight_detail.html",
+        article=article,
+        published_display=published_display,
+        related=related_articles(slug),
     )

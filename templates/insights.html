@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Insights | GiftCityFunds</title>
+  <meta name="description" content="Explainers and analysis on GIFT City IFSC investing — NRI routes, fund structures, IFSCA regulation, and the market trends shaping India's newest financial hub." />
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/address_bar.png') }}">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            'gcf-blue': '#2563eb',
+            'gcf-blue-dark': '#1d4ed8',
+            'gcf-neon': '#79FE0C',
+            'gcf-neon-dark': '#67e600',
+            'fin-dark': '#0b0f19',
+            'fin-card': '#131d31',
+          }
+        }
+      }
+    }
+  </script>
+
+  <link rel="stylesheet" href="/static/css/custom.css" />
+</head>
+<body class="min-h-screen flex flex-col antialiased">
+
+  {% set ACCENTS = {
+    'blue':    {'grad': 'from-blue-600 to-blue-800',       'text': 'text-blue-400',    'bg': 'bg-blue-500/10',    'border': 'border-blue-500/25',    'ring': 'hover:border-blue-500/40'},
+    'indigo':  {'grad': 'from-indigo-600 to-violet-800',   'text': 'text-indigo-400',  'bg': 'bg-indigo-500/10',  'border': 'border-indigo-500/25',  'ring': 'hover:border-indigo-500/40'},
+    'emerald': {'grad': 'from-emerald-600 to-teal-800',    'text': 'text-emerald-400', 'bg': 'bg-emerald-500/10', 'border': 'border-emerald-500/25', 'ring': 'hover:border-emerald-500/40'},
+    'orange':  {'grad': 'from-orange-600 to-rose-800',     'text': 'text-orange-400',  'bg': 'bg-orange-500/10',  'border': 'border-orange-500/25',  'ring': 'hover:border-orange-500/40'},
+  } %}
+
+  <!-- ========================================================================= -->
+  <!-- NAVIGATION BAR -->
+  <!-- ========================================================================= -->
+  <nav class="sticky top-0 z-40 bg-[var(--color-bg-subtle)]/90 backdrop-blur-md border-b border-[var(--color-border)] px-4 md:px-8 py-3 transition-colors">
+    <div class="max-w-7xl mx-auto flex items-center justify-between gap-4">
+      <a href="/" class="flex items-center gap-2.5 group shrink-0">
+        <img src="{{ url_for('static', filename='img/logo.png') }}" alt="GiftCityFunds" class="h-11 w-auto shrink-0">
+      </a>
+
+      <ul class="hidden md:flex items-center gap-6 text-xs font-bold tracking-wide text-[var(--color-text-muted)] shrink-0">
+        <li><a href="/" class="hover:text-blue-500 transition-colors">Dashboard</a></li>
+        <li><a href="/gift-city-outbound" class="hover:text-blue-500 transition-colors">Outbound Funds</a></li>
+        <li><a href="/gift-city-inbound" class="hover:text-blue-500 transition-colors">Inbound Funds</a></li>
+        <li><a href="/insights" class="text-blue-500">Insights</a></li>
+      </ul>
+
+      <div class="flex items-center gap-2.5 shrink-0">
+        <button id="themeToggleBtn" aria-label="Toggle Theme" class="w-8 h-8 rounded-lg bg-[var(--color-card)] border border-[var(--color-border)] flex items-center justify-center text-[var(--color-text-muted)] hover:text-yellow-400 transition-colors">
+          <svg class="w-4 h-4 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+          <svg class="w-4 h-4 block dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ========================================================================= -->
+  <!-- HERO -->
+  <!-- ========================================================================= -->
+  <header class="relative pt-12 pb-8 px-4 md:px-8 overflow-hidden bg-gradient-to-b from-blue-900/10 via-transparent to-transparent">
+    <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[280px] bg-blue-600/15 blur-[120px] rounded-full pointer-events-none"></div>
+    <div class="max-w-7xl mx-auto relative text-center">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/25 text-blue-400 text-xs font-bold tracking-wide mb-4">
+        <span class="w-2 h-2 rounded-full bg-gcf-neon animate-pulse"></span>
+        GIFTCITYFUNDS INSIGHTS
+      </div>
+      <h1 class="text-3xl sm:text-5xl font-black tracking-tight text-[var(--color-text)] leading-tight mb-3">
+        Perspectives on <span class="text-blue-500">GIFT City</span> Investing
+      </h1>
+      <p class="text-sm md:text-base text-[var(--color-text-muted)] max-w-2xl mx-auto">
+        Plain-English explainers and analysis on NRI investing, IFSCA regulation, and the fund structures reshaping India's newest financial hub — written in-house, not reproduced from anywhere else.
+      </p>
+    </div>
+  </header>
+
+  <main class="flex-1 px-4 md:px-8 pb-16">
+    <div class="max-w-7xl mx-auto">
+
+      <!-- ===================================================================== -->
+      <!-- FEATURED ARTICLE -->
+      <!-- ===================================================================== -->
+      {% set fa = ACCENTS[featured.accent] %}
+      <a href="{{ url_for('pages.insight_detail', slug=featured.slug) }}" class="group block glass-card rounded-3xl overflow-hidden mb-10">
+        <div class="grid md:grid-cols-[1.1fr_1fr]">
+          <div class="p-6 md:p-8 flex flex-col justify-center order-2 md:order-1">
+            <div class="flex items-center gap-2 mb-3">
+              <span class="text-[10px] px-2 py-0.5 rounded-full font-bold {{ fa.bg }} {{ fa.text }} border {{ fa.border }}">{{ featured.category }}</span>
+              <span class="text-[10px] text-[var(--color-text-subtle)] font-mono">{{ featured.read_minutes }} min read</span>
+            </div>
+            <h2 class="text-xl md:text-2xl font-black text-[var(--color-text)] leading-snug mb-2 group-hover:text-blue-400 transition-colors">{{ featured.title }}</h2>
+            <p class="text-sm text-[var(--color-text-muted)] leading-relaxed mb-4">{{ featured.excerpt }}</p>
+            <span class="inline-flex items-center gap-1 text-xs font-bold {{ fa.text }}">
+              Read the full article
+              <svg class="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+            </span>
+          </div>
+          <div class="relative order-1 md:order-2 h-40 md:h-full bg-gradient-to-br {{ fa.grad }} overflow-hidden">
+            <div class="absolute inset-0 opacity-25" style="background-image: radial-gradient(circle at 25% 25%, white, transparent 45%);"></div>
+            <div class="absolute bottom-4 right-4 text-[10px] font-black tracking-widest text-white/70 uppercase">Featured</div>
+            <svg class="absolute -bottom-6 -right-6 w-40 h-40 text-white/10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
+          </div>
+        </div>
+      </a>
+
+      <!-- ===================================================================== -->
+      <!-- CATEGORY FILTER -->
+      <!-- ===================================================================== -->
+      <div class="flex items-center gap-2 mb-6 overflow-x-auto pb-1" id="insightFilterBar">
+        <button type="button" data-filter="all" class="insight-filter-btn active whitespace-nowrap text-xs font-bold px-3.5 py-1.5 rounded-full border border-blue-500 bg-blue-500 text-white transition-colors">All Articles</button>
+        {% for cat in categories %}
+        <button type="button" data-filter="{{ cat }}" class="insight-filter-btn whitespace-nowrap text-xs font-bold px-3.5 py-1.5 rounded-full border border-[var(--color-border)] text-[var(--color-text-muted)] hover:border-blue-500/40 hover:text-blue-400 transition-colors">{{ cat }}</button>
+        {% endfor %}
+      </div>
+
+      <!-- ===================================================================== -->
+      <!-- ARTICLE GRID -->
+      <!-- ===================================================================== -->
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5" id="insightGrid">
+        {% for a in articles %}
+        {% if a.slug != featured.slug %}
+        {% set ac = ACCENTS[a.accent] %}
+        <a href="{{ url_for('pages.insight_detail', slug=a.slug) }}" data-category="{{ a.category }}" class="insight-card group glass-card rounded-2xl overflow-hidden flex flex-col">
+          <div class="relative h-28 bg-gradient-to-br {{ ac.grad }} shrink-0">
+            <div class="absolute inset-0 opacity-20" style="background-image: radial-gradient(circle at 75% 30%, white, transparent 50%);"></div>
+          </div>
+          <div class="p-4 flex flex-col flex-1">
+            <div class="flex items-center gap-2 mb-2">
+              <span class="text-[9px] px-2 py-0.5 rounded-full font-bold {{ ac.bg }} {{ ac.text }} border {{ ac.border }}">{{ a.category }}</span>
+              <span class="text-[9px] text-[var(--color-text-subtle)] font-mono">{{ a.read_minutes }} min</span>
+            </div>
+            <h3 class="text-sm font-bold text-[var(--color-text)] leading-snug mb-1.5 group-hover:text-blue-400 transition-colors">{{ a.title }}</h3>
+            <p class="text-xs text-[var(--color-text-subtle)] leading-relaxed line-clamp-3 flex-1">{{ a.excerpt }}</p>
+          </div>
+        </a>
+        {% endif %}
+        {% endfor %}
+      </div>
+      <p id="insightEmptyState" class="hidden text-center text-xs text-[var(--color-text-subtle)] py-10">No articles in this category yet.</p>
+
+    </div>
+  </main>
+
+  <!-- ========================================================================= -->
+  <!-- FOOTER -->
+  <!-- ========================================================================= -->
+  <footer class="border-t border-[var(--color-border)] px-4 md:px-8 py-6">
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3 text-[11px] text-[var(--color-text-subtle)]">
+      <span>© 2026 GiftCityFunds. Insights are written in-house for general information and are not investment advice.</span>
+      <a href="/" class="font-bold text-blue-400 hover:underline">← Back to Full Dashboard</a>
+    </div>
+  </footer>
+
+  <style>
+    .line-clamp-3 { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+  </style>
+
+  <script>
+    (function () {
+      const root = document.documentElement;
+      const themeBtn = document.getElementById('themeToggleBtn');
+      if (themeBtn) {
+        themeBtn.addEventListener('click', function () {
+          root.classList.toggle('light');
+          root.classList.toggle('dark');
+        });
+      }
+
+      const filterBtns = document.querySelectorAll('.insight-filter-btn');
+      const cards = document.querySelectorAll('.insight-card');
+      const emptyState = document.getElementById('insightEmptyState');
+
+      filterBtns.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          filterBtns.forEach(function (b) {
+            b.classList.remove('active', 'bg-blue-500', 'border-blue-500', 'text-white');
+            b.classList.add('border-[var(--color-border)]', 'text-[var(--color-text-muted)]');
+          });
+          btn.classList.add('active', 'bg-blue-500', 'border-blue-500', 'text-white');
+          btn.classList.remove('border-[var(--color-border)]', 'text-[var(--color-text-muted)]');
+
+          const filter = btn.getAttribute('data-filter');
+          let visibleCount = 0;
+          cards.forEach(function (card) {
+            const show = filter === 'all' || card.getAttribute('data-category') === filter;
+            card.style.display = show ? '' : 'none';
+            if (show) visibleCount++;
+          });
+          emptyState.classList.toggle('hidden', visibleCount !== 0);
+        });
+      });
+    })();
+  </script>
+</body>
+</html>

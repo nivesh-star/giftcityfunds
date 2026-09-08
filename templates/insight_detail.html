@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{ article.title }} | GiftCityFunds Insights</title>
+  <meta name="description" content="{{ article.excerpt }}" />
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/address_bar.png') }}">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            'gcf-blue': '#2563eb',
+            'gcf-blue-dark': '#1d4ed8',
+            'gcf-neon': '#79FE0C',
+            'gcf-neon-dark': '#67e600',
+            'fin-dark': '#0b0f19',
+            'fin-card': '#131d31',
+          }
+        }
+      }
+    }
+  </script>
+
+  <link rel="stylesheet" href="/static/css/custom.css" />
+</head>
+<body class="min-h-screen flex flex-col antialiased">
+
+  {% set ACCENTS = {
+    'blue':    {'grad': 'from-blue-600 to-blue-800',       'text': 'text-blue-400',    'bg': 'bg-blue-500/10',    'border': 'border-blue-500/25'},
+    'indigo':  {'grad': 'from-indigo-600 to-violet-800',   'text': 'text-indigo-400',  'bg': 'bg-indigo-500/10',  'border': 'border-indigo-500/25'},
+    'emerald': {'grad': 'from-emerald-600 to-teal-800',    'text': 'text-emerald-400', 'bg': 'bg-emerald-500/10', 'border': 'border-emerald-500/25'},
+    'orange':  {'grad': 'from-orange-600 to-rose-800',     'text': 'text-orange-400',  'bg': 'bg-orange-500/10',  'border': 'border-orange-500/25'},
+  } %}
+  {% set ac = ACCENTS[article.accent] %}
+
+  <!-- ========================================================================= -->
+  <!-- NAVIGATION BAR -->
+  <!-- ========================================================================= -->
+  <nav class="sticky top-0 z-40 bg-[var(--color-bg-subtle)]/90 backdrop-blur-md border-b border-[var(--color-border)] px-4 md:px-8 py-3 transition-colors">
+    <div class="max-w-7xl mx-auto flex items-center justify-between gap-4">
+      <a href="/" class="flex items-center gap-2.5 group shrink-0">
+        <img src="{{ url_for('static', filename='img/logo.png') }}" alt="GiftCityFunds" class="h-11 w-auto shrink-0">
+      </a>
+
+      <ul class="hidden md:flex items-center gap-6 text-xs font-bold tracking-wide text-[var(--color-text-muted)] shrink-0">
+        <li><a href="/" class="hover:text-blue-500 transition-colors">Dashboard</a></li>
+        <li><a href="/gift-city-outbound" class="hover:text-blue-500 transition-colors">Outbound Funds</a></li>
+        <li><a href="/gift-city-inbound" class="hover:text-blue-500 transition-colors">Inbound Funds</a></li>
+        <li><a href="/insights" class="text-blue-500">Insights</a></li>
+      </ul>
+
+      <div class="flex items-center gap-2.5 shrink-0">
+        <button id="themeToggleBtn" aria-label="Toggle Theme" class="w-8 h-8 rounded-lg bg-[var(--color-card)] border border-[var(--color-border)] flex items-center justify-center text-[var(--color-text-muted)] hover:text-yellow-400 transition-colors">
+          <svg class="w-4 h-4 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+          <svg class="w-4 h-4 block dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ========================================================================= -->
+  <!-- ARTICLE HERO -->
+  <!-- ========================================================================= -->
+  <header class="relative overflow-hidden bg-gradient-to-br {{ ac.grad }}">
+    <div class="absolute inset-0 opacity-20" style="background-image: radial-gradient(circle at 20% 20%, white, transparent 45%);"></div>
+    <div class="max-w-3xl mx-auto relative px-4 md:px-8 pt-10 pb-12">
+      <a href="/insights" class="inline-flex items-center gap-1 text-xs font-bold text-white/80 hover:text-white mb-6 transition-colors">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"></path></svg>
+        Back to Insights
+      </a>
+      <span class="inline-block text-[10px] px-2.5 py-1 rounded-full font-bold bg-white/15 text-white mb-4">{{ article.category }}</span>
+      <h1 class="text-2xl md:text-4xl font-black tracking-tight text-white leading-tight mb-4">{{ article.title }}</h1>
+      <div class="flex items-center gap-3 text-xs text-white/80 font-medium">
+        <span>GiftCityFunds Insights</span>
+        <span class="w-1 h-1 rounded-full bg-white/40"></span>
+        <span>{{ published_display }}</span>
+        <span class="w-1 h-1 rounded-full bg-white/40"></span>
+        <span>{{ article.read_minutes }} min read</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="flex-1 px-4 md:px-8 py-10">
+    <article class="max-w-3xl mx-auto">
+
+      {% for block in article.body %}
+        {% if block.type == 'p' %}
+        <p class="text-[15px] text-[var(--color-text-muted)] leading-relaxed mb-4">{{ block.text }}</p>
+        {% elif block.type == 'h2' %}
+        <h2 class="text-lg md:text-xl font-black text-[var(--color-text)] mt-8 mb-3">{{ block.text }}</h2>
+        {% elif block.type == 'ul' %}
+        <ul class="space-y-2 text-[15px] text-[var(--color-text-muted)] mb-4 pl-1">
+          {% for item in block.points %}
+          <li class="flex items-start gap-2.5">
+            <span class="mt-2 w-1.5 h-1.5 rounded-full {{ ac.bg }} {{ ac.text }} shrink-0"></span>
+            <span>{{ item }}</span>
+          </li>
+          {% endfor %}
+        </ul>
+        {% elif block.type == 'quote' %}
+        <blockquote class="border-l-4 {{ ac.border }} {{ ac.bg }} rounded-r-xl px-5 py-4 my-6 text-sm font-semibold text-[var(--color-text)] italic">
+          {{ block.text }}
+        </blockquote>
+        {% endif %}
+      {% endfor %}
+
+      <div class="mt-10 pt-6 border-t border-[var(--color-border)] text-[11px] text-[var(--color-text-subtle)] italic">
+        Written in-house by the GiftCityFunds Insights team for general information. This is not investment, tax, or legal advice — confirm specifics with a qualified advisor and the fund's own offer documents before investing.
+      </div>
+    </article>
+
+    <!-- ===================================================================== -->
+    <!-- RELATED ARTICLES -->
+    <!-- ===================================================================== -->
+    {% if related %}
+    <div class="max-w-5xl mx-auto mt-16">
+      <h3 class="text-sm font-bold uppercase tracking-wide text-[var(--color-text-subtle)] mb-4">More from Insights</h3>
+      <div class="grid sm:grid-cols-3 gap-5">
+        {% for r in related %}
+        {% set rc = ACCENTS[r.accent] %}
+        <a href="{{ url_for('pages.insight_detail', slug=r.slug) }}" class="group glass-card rounded-2xl overflow-hidden flex flex-col">
+          <div class="relative h-24 bg-gradient-to-br {{ rc.grad }} shrink-0"></div>
+          <div class="p-4">
+            <span class="text-[9px] px-2 py-0.5 rounded-full font-bold {{ rc.bg }} {{ rc.text }} border {{ rc.border }}">{{ r.category }}</span>
+            <h4 class="text-sm font-bold text-[var(--color-text)] leading-snug mt-2 group-hover:text-blue-400 transition-colors">{{ r.title }}</h4>
+          </div>
+        </a>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+  </main>
+
+  <!-- ========================================================================= -->
+  <!-- FOOTER -->
+  <!-- ========================================================================= -->
+  <footer class="border-t border-[var(--color-border)] px-4 md:px-8 py-6">
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3 text-[11px] text-[var(--color-text-subtle)]">
+      <span>© 2026 GiftCityFunds. Insights are written in-house for general information and are not investment advice.</span>
+      <a href="/" class="font-bold text-blue-400 hover:underline">← Back to Full Dashboard</a>
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      const root = document.documentElement;
+      const btn = document.getElementById('themeToggleBtn');
+      if (btn) {
+        btn.addEventListener('click', function () {
+          root.classList.toggle('light');
+          root.classList.toggle('dark');
+        });
+      }
+    })();
+  </script>
+</body>
+</html>
