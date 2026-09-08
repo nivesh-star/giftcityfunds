@@ -3,21 +3,26 @@ app.py
 GIFT360 -- GIFT City (IFSC) Funds Intelligence Platform.
 
 This is the application's single entry point. Its only job is to build the
-Flask app and wire the three blueprints that make up the whole backend onto
-it -- every actual route lives in routes/, every piece of reusable logic
-lives in services/, and every database access goes through db.py. Nothing
-else should be added to this file; if it starts growing, that's a sign new
-logic belongs in one of those modules instead.
+Flask app and wire the blueprints that make up the whole backend onto it --
+every actual route lives in routes/, every piece of reusable logic lives in
+services/. Nothing else should be added to this file; if it starts growing,
+that's a sign new logic belongs in one of those modules instead.
 
 Layout:
-    config.py          constants: DB path, secret key, demo "Buy" assumptions
-    db.py               the one place that opens a SQLite connection
-    content/faqs.py     static FAQ copy for the outbound/inbound pages
-    services/funds.py   fund-related business logic (slugs, plan labels, min-investment parsing)
-    services/orders.py  the demo "Buy" simulator (quotes, folio numbers, validation)
-    routes/auth.py      /login, /signup, /logout + the @login_required guard
-    routes/pages.py     server-rendered HTML pages
-    routes/api.py       the JSON REST API under /api
+    config.py             application constants (secret key)
+    services/mf_engine.py the one place that talks to the mf-engine-v2 API
+    services/adapters.py  maps the API's shape to the frontend's field names
+    content/faqs.py       static FAQ copy for the outbound/inbound pages
+    services/funds.py     fund-related helpers (slugs, plan labels)
+    services/demo_db.py   Postgres connection for the demo account tables
+    routes/auth.py        /login, /signup, /logout + the @login_required guard
+    routes/pages.py       server-rendered HTML pages
+    routes/api.py         the JSON REST API under /api
+
+Fund data comes from the shared mf-engine-v2 API (app2.mfapis.club), so
+GIFT360 and Zinni serve identical numbers from one source of truth. The demo
+account / Buy simulator keeps its own small set of tables, moved from a local
+SQLite file to Postgres so it works on a serverless host.
 """
 
 from __future__ import annotations
@@ -46,10 +51,9 @@ def create_app() -> Flask:
     return flask_app
 
 
-# Module-level `app` so both `python app.py` (local dev, below) and
-# `gunicorn app:app` (the production entry point on Render) work unchanged.
+# Module-level `app` so `python app.py` (local dev, below), `gunicorn app:app`
+# and Vercel's api/index.py entry point all work unchanged.
 app = create_app()
-
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))

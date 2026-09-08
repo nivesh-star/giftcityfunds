@@ -8,6 +8,11 @@ generate_password_hash/check_password_hash) so it isn't trivially insecure,
 but there is no email verification, no password reset, and no real KYC --
 see signup()'s docstring for what the Bank Details / Nominee steps actually
 mean.
+
+STORAGE CHANGE: these tables now live in Postgres (services/demo_db.py)
+rather than a local SQLite file. SQLite can't work on Vercel -- serverless
+filesystems are read-only apart from /tmp, which is wiped between
+invocations, so every signup would have silently vanished.
 """
 
 import re
@@ -16,7 +21,7 @@ from functools import wraps
 from flask import Blueprint, redirect, render_template, request, session, url_for
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from db import get_db_connection
+from services.demo_db import DemoDbError, execute, fetch_one, get_db_connection
 
 auth_bp = Blueprint("auth", __name__)
 
@@ -37,15 +42,20 @@ def login_required(view_func):
 @auth_bp.route("/login", methods=["GET", "POST"])
 def login():
     """Demo login. This entire purchase flow is a DEMO SIMULATION: no real
-    money moves, no real fund units are allotted. See demo_holdings table
-    comment. New accounts come from signup() below -- both routes write to
-    the same demo_users table."""
+    money moves, no real fund units are allotted. New accounts come from
+    signup() below -- both routes write to the same demo_users table."""
     error = None
     if request.method == "POST":
         email = (request.form.get("email") or "").strip().lower()
         password = request.form.get("password") or ""
-        with get_db_connection() as conn:
-            user = conn.execute("SELECT * FROM demo_users WHERE email = ?", (email,)).fetchone()
+        try:
+            with get_db_connection() as conn:
+                user = fetch_one(
+                    conn, "SELECT * FROM demo_users WHERE email = %s", (email,)
+                )
+        except DemoDbError as exc:
+            return render_template("login.html", error=str(exc)), 503
+
         if user and check_password_hash(user["password_hash"], password):
             session["user_id"] = user["user_id"]
             session["user_email"] = user["email"]
@@ -97,29 +107,39 @@ def signup():
         elif not form["nominee_relationship"]:
             error = "Please select the nominee's relationship to you."
         else:
-            with get_db_connection() as conn:
-                existing = conn.execute("SELECT user_id FROM demo_users WHERE email = ?", (email,)).fetchone()
-                if existing:
-                    error = "An account with this email already exists."
-                else:
-                    cur = conn.execute(
-                        "INSERT INTO demo_users (email, password_hash, full_name) VALUES (?, ?, ?)",
-                        (email, generate_password_hash(password), form["full_name"])
+            try:
+                with get_db_connection() as conn:
+                    existing = fetch_one(
+                        conn, "SELECT user_id FROM demo_users WHERE email = %s", (email,)
                     )
-                    user_id = cur.lastrowid
-                    conn.execute(
-                        """INSERT INTO demo_investor_profile
-                           (user_id, mobile_number, bank_name, account_number, ifsc_code,
-                            nominee_name, nominee_relationship)
-                           VALUES (?, ?, ?, ?, ?, ?, ?)""",
-                        (user_id, form["mobile_number"], form["bank_name"], form["account_number"],
-                         form["ifsc_code"].upper(), form["nominee_name"], form["nominee_relationship"])
-                    )
-                    conn.commit()
-                    session["user_id"] = user_id
-                    session["user_email"] = email
-                    session["user_name"] = form["full_name"]
-                    return redirect(url_for("pages.portfolio"))
+                    if existing:
+                        error = "An account with this email already exists."
+                    else:
+                        row = execute(
+                            conn,
+                            """INSERT INTO demo_users (email, password_hash, full_name)
+                               VALUES (%s, %s, %s) RETURNING user_id""",
+                            (email, generate_password_hash(password), form["full_name"]),
+                        )
+                        user_id = row["user_id"]
+                        execute(
+                            conn,
+                            """INSERT INTO demo_investor_profile
+                               (user_id, mobile_number, bank_name, account_number, ifsc_code,
+                                nominee_name, nominee_relationship)
+                               VALUES (%s, %s, %s, %s, %s, %s, %s)""",
+                            (user_id, form["mobile_number"], form["bank_name"],
+                             form["account_number"], form["ifsc_code"].upper(),
+                             form["nominee_name"], form["nominee_relationship"]),
+                        )
+            except DemoDbError as exc:
+                return render_template("signup.html", error=str(exc), **form), 503
+
+            if not error:
+                session["user_id"] = user_id
+                session["user_email"] = email
+                session["user_name"] = form["full_name"]
+                return redirect(url_for("pages.portfolio"))
     else:
         form = {k: "" for k in field_names}
 
