@@ -17,6 +17,8 @@ walk in order:
 routes/pages.py uses to resolve /insights/<slug>.
 """
 
+from pathlib import Path
+
 CATEGORIES = [
     "For NRIs",
     "Regulation",
@@ -315,11 +317,24 @@ ARTICLES = [
     },
 ]
 
-# Each article gets a generated SVG cover -- a gradient panel plus a
-# topic-specific line-icon motif (see scripts that produced the files
-# under static/img/insights/) instead of a stock photo.
+# Every article gets a generated SVG placeholder cover (a gradient panel
+# plus a topic-specific line-icon motif). Dropping a real photo in as
+# static/img/insights/<slug>.<jpg|jpeg|png|webp> swaps it in automatically --
+# no code change needed to replace a placeholder as real photography
+# becomes available.
+_INSIGHTS_IMG_DIR = Path(__file__).resolve().parent.parent / "static" / "img" / "insights"
+_PHOTO_EXTENSIONS = ("jpg", "jpeg", "png", "webp")
+
+
+def _resolve_cover(slug: str) -> str:
+    for ext in _PHOTO_EXTENSIONS:
+        if (_INSIGHTS_IMG_DIR / f"{slug}.{ext}").exists():
+            return f"img/insights/{slug}.{ext}"
+    return f"img/insights/{slug}.svg"
+
+
 for _article in ARTICLES:
-    _article["cover"] = f"img/insights/{_article['slug']}.svg"
+    _article["cover"] = _resolve_cover(_article["slug"])
 
 
 def get_article(slug: str):
