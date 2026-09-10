@@ -17,8 +17,9 @@ document.addEventListener('DOMContentLoaded', () => {
   // --------------------------------------------------------------------------
   // Theme Management
   // --------------------------------------------------------------------------
-  const themeToggleBtn = document.getElementById('themeToggleBtn');
-  const storedTheme = localStorage.getItem('gift360-theme') || 'dark';
+  const themeToggleLight = document.getElementById('themeToggleLight');
+  const themeToggleDark = document.getElementById('themeToggleDark');
+  const storedTheme = localStorage.getItem('gift360-theme') || 'light';
 
   function applyTheme(theme) {
     if (theme === 'light') {
@@ -29,17 +30,18 @@ document.addEventListener('DOMContentLoaded', () => {
       document.documentElement.classList.remove('light');
     }
     localStorage.setItem('gift360-theme', theme);
+    if (themeToggleLight) themeToggleLight.classList.toggle('active', theme === 'light');
+    if (themeToggleDark) themeToggleDark.classList.toggle('active', theme === 'dark');
   }
 
   applyTheme(storedTheme);
 
-  if (themeToggleBtn) {
-    themeToggleBtn.addEventListener('click', () => {
-      const isLight = document.documentElement.classList.contains('light');
-      applyTheme(isLight ? 'dark' : 'light');
-      if (state.currentModalFund && state.fullNavHistory) updateNavChart(state.navRange || 'ALL');
-    });
+  function onThemeButtonClick(theme) {
+    applyTheme(theme);
+    if (state.currentModalFund && state.fullNavHistory) updateNavChart(state.navRange || 'ALL');
   }
+  if (themeToggleLight) themeToggleLight.addEventListener('click', () => onThemeButtonClick('light'));
+  if (themeToggleDark) themeToggleDark.addEventListener('click', () => onThemeButtonClick('dark'));
 
   // --------------------------------------------------------------------------
   // Utility

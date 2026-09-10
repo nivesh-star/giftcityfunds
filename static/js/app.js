@@ -27,9 +27,10 @@ document.addEventListener('DOMContentLoaded', () => {
   // --------------------------------------------------------------------------
   // Theme Management
   // --------------------------------------------------------------------------
-  const themeToggleBtn = document.getElementById('themeToggleBtn');
-  const storedTheme = localStorage.getItem('gift360-theme') || 'dark';
-  
+  const themeToggleLight = document.getElementById('themeToggleLight');
+  const themeToggleDark = document.getElementById('themeToggleDark');
+  const storedTheme = localStorage.getItem('gift360-theme') || 'light';
+
   function applyTheme(theme) {
     if (theme === 'light') {
       document.documentElement.classList.add('light');
@@ -39,14 +40,21 @@ document.addEventListener('DOMContentLoaded', () => {
       document.documentElement.classList.remove('light');
     }
     localStorage.setItem('gift360-theme', theme);
+    if (themeToggleLight) themeToggleLight.classList.toggle('active', theme === 'light');
+    if (themeToggleDark) themeToggleDark.classList.toggle('active', theme === 'dark');
   }
 
   applyTheme(storedTheme);
 
-  if (themeToggleBtn) {
-    themeToggleBtn.addEventListener('click', () => {
-      const isLight = document.documentElement.classList.contains('light');
-      applyTheme(isLight ? 'dark' : 'light');
+  if (themeToggleLight) {
+    themeToggleLight.addEventListener('click', () => {
+      applyTheme('light');
+      updateChartThemes();
+    });
+  }
+  if (themeToggleDark) {
+    themeToggleDark.addEventListener('click', () => {
+      applyTheme('dark');
       updateChartThemes();
     });
   }

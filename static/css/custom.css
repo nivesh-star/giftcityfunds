@@ -198,6 +198,22 @@ body {
   box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
 }
 
+/* Light/Dark theme switch (sun | moon segmented pill) */
+.theme-switch-btn {
+  color: var(--color-text-subtle);
+  transition: color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.theme-switch-btn:hover {
+  color: var(--color-text);
+}
+
+.theme-switch-btn.active {
+  color: #22d3ee;
+  background-color: rgba(34, 211, 238, 0.14);
+  box-shadow: 0 0 0 1.5px #22d3ee, 0 0 10px rgba(34, 211, 238, 0.55);
+}
+
 /* Badge styles */
 .badge-tier1 {
   background-color: var(--color-badge-tier1-bg);
