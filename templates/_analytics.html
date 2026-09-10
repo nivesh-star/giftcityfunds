@@ -1,0 +1,11 @@
+<!-- Vercel Web Analytics -- plain-HTML snippet (no npm package needed for
+     a non-Next.js app). The queue stub must run before the deferred
+     script loads so any early page-view call isn't dropped. This only
+     actually collects data once Web Analytics is turned on for this
+     project in the Vercel dashboard (Project -> Analytics -> Enable);
+     until then it's a harmless no-op. Included on every page from this
+     one partial so the snippet only ever needs to change in one place. -->
+<script>
+  window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+</script>
+<script defer src="/_vercel/insights/script.js"></script>
