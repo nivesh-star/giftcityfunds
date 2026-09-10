@@ -89,12 +89,6 @@
           <span class="absolute right-2.5 top-2 text-[10px] text-[var(--color-text-subtle)]">⌘K</span>
         </div>
 
-        <!-- Export CSV Button -->
-        <a href="/api/export/csv" class="hidden 2xl:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[var(--color-border)] hover:border-blue-500/40 text-xs font-bold text-[var(--color-text-muted)] hover:text-blue-400 bg-[var(--color-card)] transition-all whitespace-nowrap shrink-0" title="Download clean dataset">
-          <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-          Export CSV
-        </a>
-
         <!-- Dark/Light Theme Toggle -->
         <button id="themeToggleBtn" aria-label="Toggle Theme" class="w-8 h-8 shrink-0 rounded-lg bg-[var(--color-card)] border border-[var(--color-border)] flex items-center justify-center text-[var(--color-text-muted)] hover:text-yellow-400 transition-colors">
           <svg class="w-4 h-4 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
@@ -763,18 +757,17 @@
       <div class="flex flex-col md:flex-row items-center justify-between gap-4">
         <div class="flex items-center gap-2">
           <img src="{{ url_for('static', filename='img/logo.png') }}" alt="" class="h-9 w-auto">
-          <span class="font-bold text-sm text-[var(--color-text)]">GIFT360 Platform</span>
+          <span class="font-bold text-sm text-[var(--color-text)]">GiftCityFunds Platform</span>
         </div>
         <div class="flex items-center gap-6 text-[var(--color-text-muted)] font-medium">
           <a href="#dashboard" class="hover:text-blue-400">Dashboard</a>
           <a href="#screener" class="hover:text-blue-400">Fund Screener</a>
           <a href="#analytics" class="hover:text-blue-400">Analytics</a>
-          <a href="/api/export/csv" class="hover:text-blue-400">CSV Export</a>
         </div>
       </div>
 
       <div class="border-t border-[var(--color-border)] pt-4 text-[11px] text-[var(--color-text-subtle)] leading-relaxed text-center md:text-left">
-        <p>© 2026 GIFT360. All Rights Reserved. Fund data sourced directly from IFSCA-registered Asset Management Companies and official factsheets. Institutional AIFs are regulated under IFSCA (Fund Management) Regulations, 2022. For educational and analytical purposes only.</p>
+        <p>© 2026 GiftCityFunds. All Rights Reserved. Fund data sourced directly from IFSCA-registered Asset Management Companies and official factsheets. Institutional AIFs are regulated under IFSCA (Fund Management) Regulations, 2022. For educational and analytical purposes only.</p>
       </div>
     </div>
   </footer>
