@@ -28,7 +28,7 @@
   <link rel="stylesheet" href="/static/css/custom.css" />
   <script>
     (function () {
-      var t = localStorage.getItem('gift360-theme') || 'light';
+      var t = localStorage.getItem('gcf-theme') || 'light';
       document.documentElement.classList.add(t);
       document.documentElement.classList.remove(t === 'light' ? 'dark' : 'light');
     })();
@@ -44,6 +44,7 @@
       </a>
       <div class="flex items-center gap-3 text-xs font-bold">
         <span id="portfolioUserName" class="text-[var(--color-text-subtle)] hidden sm:inline"></span>
+        {% include '_contact_us.html' %}
         <a href="/insights" class="px-3 py-1.5 rounded-lg border border-[var(--color-border)] hover:border-blue-500/40 transition-all">Insights</a>
         <a href="/" class="px-3 py-1.5 rounded-lg border border-[var(--color-border)] hover:border-blue-500/40 transition-all">Dashboard</a>
         <a href="/logout" class="px-3 py-1.5 rounded-lg border border-[var(--color-border)] hover:border-red-500/40 hover:text-red-400 transition-all">Logout</a>

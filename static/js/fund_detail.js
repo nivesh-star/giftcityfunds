@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // --------------------------------------------------------------------------
   const themeToggleLight = document.getElementById('themeToggleLight');
   const themeToggleDark = document.getElementById('themeToggleDark');
-  const storedTheme = localStorage.getItem('gift360-theme') || 'light';
+  const storedTheme = localStorage.getItem('gcf-theme') || 'light';
 
   function applyTheme(theme) {
     if (theme === 'light') {
@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
       document.documentElement.classList.add('dark');
       document.documentElement.classList.remove('light');
     }
-    localStorage.setItem('gift360-theme', theme);
+    localStorage.setItem('gcf-theme', theme);
     if (themeToggleLight) themeToggleLight.classList.toggle('active', theme === 'light');
     if (themeToggleDark) themeToggleDark.classList.toggle('active', theme === 'dark');
   }
