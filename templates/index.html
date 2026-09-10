@@ -548,7 +548,12 @@
         </div>
       </div>
 
-      <!-- Buy Panel (Demo Simulation) -->
+      {# Buy Panel (Demo Simulation) -- commented out for now, not deleted.
+         setupBuyPanel() in app.js guards on `!loggedOutEl || !formEl` and
+         returns early, so removing this whole section from the DOM is
+         safe -- no null-reference errors. Depends entirely on Login, which
+         is itself disabled sitewide right now, so there's no reachable
+         logged-in state left to show here.
       <div id="modalBuySection" class="mb-5 rounded-2xl border border-[var(--color-border)] p-4 bg-[var(--color-bg-subtle)]">
         <div class="flex items-center justify-between mb-3">
           <h3 class="text-xs font-bold text-[var(--color-text)] uppercase tracking-wider">Invest in this Fund</h3>
@@ -610,6 +615,7 @@
           <a href="/portfolio" class="inline-block mt-3 text-xs font-bold text-blue-400 hover:underline">View in My Portfolio →</a>
         </div>
       </div>
+      #}
 
       <!-- Interactive NAV Performance Simulation Chart -->
       <div class="mb-5">

@@ -241,7 +241,12 @@
           </div>
         </div>
 
-        <!-- Buy Panel -->
+        {# Buy Panel (Demo Simulation) -- commented out for now, not deleted.
+           setupBuyPanel() in fund_detail.js guards on `!loggedOutEl || !formEl`
+           and returns early, so removing this whole section from the DOM is
+           safe -- no null-reference errors. Depends entirely on Login, which
+           is itself disabled sitewide right now, so there's no reachable
+           logged-in state left to show here.
         <div id="modalBuySection" class="rounded-2xl border border-[var(--color-border)] p-4 bg-[var(--color-bg-subtle)] glass-card shadow-xl">
           <div class="flex items-center justify-between mb-3">
             <h3 class="text-xs font-bold text-[var(--color-text)] uppercase tracking-wider">Invest in this Fund</h3>
@@ -298,6 +303,7 @@
             <a href="/portfolio" class="inline-block mt-3 text-xs font-bold text-blue-400 hover:underline">View in My Portfolio →</a>
           </div>
         </div>
+        #}
 
       </div>
     </div>
