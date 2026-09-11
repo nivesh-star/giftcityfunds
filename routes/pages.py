@@ -16,7 +16,7 @@ SQLite can't work on Vercel.
 from datetime import datetime
 from typing import Optional
 
-from flask import Blueprint, redirect, render_template, url_for
+from flask import Blueprint, Response, redirect, render_template, url_for
 
 from content.faqs import FAQ_SOURCE_ATTRIBUTION, INBOUND_FAQS, OUTBOUND_FAQS
 from content.insights import ARTICLES, CATEGORIES, get_article, related_articles
@@ -160,3 +160,35 @@ def insight_detail(slug: str):
         published_display=published_display,
         related=related_articles(slug),
     )
+
+
+@pages_bp.route("/robots.txt")
+def robots_txt():
+    body = "User-agent: *\nAllow: /\nDisallow: /login\nDisallow: /signup\nDisallow: /portfolio\n" \
+           f"Sitemap: {url_for('pages.sitemap_xml', _external=True)}\n"
+    return Response(body, mimetype="text/plain")
+
+
+@pages_bp.route("/sitemap.xml")
+def sitemap_xml():
+    """Static routes plus every Insights article -- generated from
+    content/insights.py rather than a hand-maintained URL list, so a new
+    article is included automatically the day it's added."""
+    static_urls = [
+        (url_for("pages.index", _external=True), "1.0", "daily"),
+        (url_for("pages.gift_city_outbound", _external=True), "0.9", "daily"),
+        (url_for("pages.gift_city_inbound", _external=True), "0.9", "daily"),
+        (url_for("pages.insights_index", _external=True), "0.9", "daily"),
+    ]
+    article_urls = [
+        (url_for("pages.insight_detail", slug=a["slug"], _external=True), "0.7", "monthly")
+        for a in ARTICLES
+    ]
+
+    entries = "".join(
+        f"<url><loc>{loc}</loc><changefreq>{freq}</changefreq><priority>{prio}</priority></url>"
+        for loc, prio, freq in static_urls + article_urls
+    )
+    xml = f'<?xml version="1.0" encoding="UTF-8"?>' \
+          f'<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">{entries}</urlset>'
+    return Response(xml, mimetype="application/xml")

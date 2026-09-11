@@ -5,6 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>{{ fund_name }} | GiftCityFunds</title>
   <meta name="description" content="{{ fund_name }} — {{ amc_name }}. Live NAV, expense ratio, holdings and statutory fund intelligence on GiftCityFunds." />
+  <link rel="canonical" href="{{ request.url }}" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="{{ fund_name }} | GiftCityFunds" />
+  <meta property="og:description" content="{{ fund_name }} — {{ amc_name }}. Live NAV, expense ratio, holdings and statutory fund intelligence on GiftCityFunds." />
+  <meta property="og:url" content="{{ request.url }}" />
+  {% include '_seo_meta.html' %}
   <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/address_bar.png') }}">
 
   <!-- Tailwind CSS CDN -->

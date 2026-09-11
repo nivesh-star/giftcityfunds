@@ -5,6 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Insights | GiftCityFunds</title>
   <meta name="description" content="Explainers and analysis on GIFT City IFSC investing — NRI routes, fund structures, IFSCA regulation, and the market trends shaping India's newest financial hub." />
+  <link rel="canonical" href="{{ request.url }}" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Insights | GiftCityFunds" />
+  <meta property="og:description" content="Explainers and analysis on GIFT City IFSC investing — NRI routes, fund structures, IFSCA regulation, and the market trends shaping India's newest financial hub." />
+  <meta property="og:url" content="{{ request.url }}" />
+  <meta property="og:image" content="{{ url_for('static', filename=featured.cover, _external=True) }}" />
+  <meta name="twitter:title" content="Insights | GiftCityFunds" />
+  <meta name="twitter:description" content="Explainers and analysis on GIFT City IFSC investing." />
+  {% include '_seo_meta.html' %}
   <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/address_bar.png') }}">
 
   <!-- Tailwind CSS CDN -->

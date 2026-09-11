@@ -1,0 +1,38 @@
+<!-- Site-wide SEO + geo tags, identical on every page, defined once here.
+     Page-specific bits (canonical URL, Open Graph title/description/image)
+     stay in each template's own <head> since those vary per page. -->
+
+<!-- Geo tags -- GIFT City, Gandhinagar, Gujarat, India -->
+<meta name="geo.region" content="IN-GJ" />
+<meta name="geo.placename" content="GIFT City, Gandhinagar, Gujarat, India" />
+<meta name="geo.position" content="23.1697;72.6870" />
+<meta name="ICBM" content="23.1697, 72.6870" />
+
+<meta name="robots" content="{{ seo_robots|default('index, follow') }}" />
+<meta name="author" content="GiftCityFunds" />
+<meta property="og:site_name" content="GiftCityFunds" />
+<meta property="og:locale" content="en_IN" />
+<meta name="twitter:card" content="summary_large_image" />
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "GiftCityFunds",
+  "url": "https://giftcityfunds.co.in/",
+  "logo": "https://giftcityfunds.co.in/static/img/address_bar.png",
+  "description": "GIFT City (IFSC) mutual funds, feeder funds, and Alternative Investment Funds (AIFs) intelligence platform -- NAVs, expense ratios, outbound and inbound fund tracking, and NRI investing guides.",
+  "address": {
+    "@type": "PostalAddress",
+    "addressLocality": "Gandhinagar",
+    "addressRegion": "Gujarat",
+    "addressCountry": "IN"
+  },
+  "contactPoint": {
+    "@type": "ContactPoint",
+    "telephone": "+91-70096-48426",
+    "email": "giftcityfunds@gmail.com",
+    "contactType": "customer service"
+  }
+}
+</script>

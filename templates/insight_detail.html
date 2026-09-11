@@ -5,6 +5,33 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>{{ article.title }} | GiftCityFunds Insights</title>
   <meta name="description" content="{{ article.excerpt }}" />
+  <link rel="canonical" href="{{ request.url }}" />
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="{{ article.title }}" />
+  <meta property="og:description" content="{{ article.excerpt }}" />
+  <meta property="og:url" content="{{ request.url }}" />
+  <meta property="og:image" content="{{ url_for('static', filename=article.cover, _external=True) }}" />
+  <meta name="twitter:title" content="{{ article.title }}" />
+  <meta name="twitter:description" content="{{ article.excerpt }}" />
+  <meta name="twitter:image" content="{{ url_for('static', filename=article.cover, _external=True) }}" />
+  {% include '_seo_meta.html' %}
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": {{ article.title|tojson }},
+    "description": {{ article.excerpt|tojson }},
+    "datePublished": "{{ article.published }}",
+    "image": "{{ url_for('static', filename=article.cover, _external=True) }}",
+    "author": { "@type": "Organization", "name": "GiftCityFunds" },
+    "publisher": {
+      "@type": "Organization",
+      "name": "GiftCityFunds",
+      "logo": { "@type": "ImageObject", "url": "{{ url_for('static', filename='img/address_bar.png', _external=True) }}" }
+    },
+    "mainEntityOfPage": "{{ request.url }}"
+  }
+  </script>
   <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/address_bar.png') }}">
 
   <!-- Tailwind CSS CDN -->

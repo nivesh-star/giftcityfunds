@@ -5,6 +5,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>GiftCityFunds | India's First GIFT City IFSC Funds Intelligence Platform</title>
   <meta name="description" content="Discover, compare, and track GIFT City (IFSC) mutual funds, feeder funds, and Alternative Investment Funds (AIFs) with real-time NAV, expense ratios, and statutory intelligence." />
+  <meta name="keywords" content="GIFT City, GIFT City IFSC, GIFT City funds, GIFT City NAV, IFSCA, NRI investing, GIFT City outbound funds, GIFT City inbound funds, Gujarat International Finance Tec-City" />
+  <link rel="canonical" href="{{ request.url_root }}" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="GiftCityFunds | India's First GIFT City IFSC Funds Intelligence Platform" />
+  <meta property="og:description" content="Discover, compare, and track GIFT City (IFSC) mutual funds, feeder funds, and Alternative Investment Funds (AIFs) with real-time NAV, expense ratios, and statutory intelligence." />
+  <meta property="og:url" content="{{ request.url_root }}" />
+  <meta property="og:image" content="{{ url_for('static', filename='img/address_bar.png', _external=True) }}" />
+  <meta name="twitter:title" content="GiftCityFunds | India's First GIFT City IFSC Funds Intelligence Platform" />
+  <meta name="twitter:description" content="Discover, compare, and track GIFT City (IFSC) mutual funds, feeder funds, and Alternative Investment Funds (AIFs) with real-time NAV, expense ratios, and statutory intelligence." />
+  <meta name="twitter:image" content="{{ url_for('static', filename='img/address_bar.png', _external=True) }}" />
+  {% include '_seo_meta.html' %}
   <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/address_bar.png') }}">
 
   <!-- Tailwind CSS CDN -->

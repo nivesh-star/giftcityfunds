@@ -5,6 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>{{ page_title }} | GiftCityFunds</title>
   <meta name="description" content="{{ page_subtitle }}" />
+  <link rel="canonical" href="{{ request.url }}" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="{{ page_title }} | GiftCityFunds" />
+  <meta property="og:description" content="{{ page_subtitle }}" />
+  <meta property="og:url" content="{{ request.url }}" />
+  <meta name="twitter:title" content="{{ page_title }} | GiftCityFunds" />
+  <meta name="twitter:description" content="{{ page_subtitle }}" />
+  {% include '_seo_meta.html' %}
   <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/address_bar.png') }}">
 
   <!-- Tailwind CSS CDN -->
