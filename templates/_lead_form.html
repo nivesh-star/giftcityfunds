@@ -1,0 +1,98 @@
+<!-- Lead capture -- "Talk to an Expert" trigger button + modal form, posts to
+     /api/leads (services/leads.py). Self-contained (button, modal, JS) like
+     _contact_us.html so any nav can pull it in with a single include. -->
+<div class="shrink-0">
+  <button type="button" id="leadFormBtn" class="inline-flex items-center gap-1.5 px-2.5 xl:px-3 py-1.5 rounded-lg text-xs font-bold text-white bg-blue-600 hover:bg-blue-500 transition-colors whitespace-nowrap shrink-0">
+    <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636a9 9 0 010 12.728m-3.536-3.536a3 3 0 000-4.243m-9.9-3.484A9 9 0 003 12c0 4.97 4.03 9 9 9s9-4.03 9-9-4.03-9-9-9c-.34 0-.677.02-1.007.058"></path></svg>
+    <span class="hidden sm:inline">Talk to an Expert</span>
+  </button>
+</div>
+
+<div id="leadFormOverlay" class="hidden fixed inset-0 z-[100] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+  <div class="w-full max-w-sm rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] shadow-2xl p-5 relative">
+    <button type="button" id="leadFormClose" aria-label="Close" class="absolute top-3 right-3 text-[var(--color-text-subtle)] hover:text-[var(--color-text)] transition-colors">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+    </button>
+
+    <h3 class="text-sm font-extrabold text-[var(--color-text)]">Talk to a GIFT City Expert</h3>
+    <p class="text-[11px] text-[var(--color-text-subtle)] mt-1 mb-4">Share your details and we'll get in touch to help you invest.</p>
+
+    <form id="leadForm" class="space-y-3">
+      <div>
+        <label class="block text-[10px] font-bold uppercase tracking-widest text-[var(--color-text-subtle)] mb-1" for="leadPhone">Phone</label>
+        <input type="tel" id="leadPhone" name="phone" required placeholder="+91 98765 43210" class="w-full bg-[var(--color-bg-subtle)] border border-[var(--color-border)] rounded-xl px-3 py-2 text-xs text-[var(--color-text)] placeholder-[var(--color-text-subtle)] focus:outline-none focus:border-blue-500 transition-all" />
+      </div>
+      <div>
+        <label class="block text-[10px] font-bold uppercase tracking-widest text-[var(--color-text-subtle)] mb-1" for="leadEmail">Email</label>
+        <input type="email" id="leadEmail" name="email" required placeholder="you@example.com" class="w-full bg-[var(--color-bg-subtle)] border border-[var(--color-border)] rounded-xl px-3 py-2 text-xs text-[var(--color-text)] placeholder-[var(--color-text-subtle)] focus:outline-none focus:border-blue-500 transition-all" />
+      </div>
+      <div>
+        <label class="block text-[10px] font-bold uppercase tracking-widest text-[var(--color-text-subtle)] mb-1" for="leadNotes">Notes (optional)</label>
+        <textarea id="leadNotes" name="notes" rows="3" placeholder="What are you looking to invest in?" class="w-full bg-[var(--color-bg-subtle)] border border-[var(--color-border)] rounded-xl px-3 py-2 text-xs text-[var(--color-text)] placeholder-[var(--color-text-subtle)] focus:outline-none focus:border-blue-500 transition-all resize-none"></textarea>
+      </div>
+
+      <p id="leadFormMsg" class="hidden text-[11px] font-semibold"></p>
+
+      <button type="submit" id="leadFormSubmit" class="w-full py-2 rounded-xl text-xs font-bold text-white bg-blue-600 hover:bg-blue-500 transition-colors">
+        Submit
+      </button>
+    </form>
+  </div>
+</div>
+
+<script>
+  (function () {
+    var openBtn = document.getElementById('leadFormBtn');
+    var overlay = document.getElementById('leadFormOverlay');
+    var closeBtn = document.getElementById('leadFormClose');
+    var form = document.getElementById('leadForm');
+    var submitBtn = document.getElementById('leadFormSubmit');
+    var msg = document.getElementById('leadFormMsg');
+    if (!openBtn || !overlay || !form) return;
+
+    function open() { overlay.classList.remove('hidden'); }
+    function close() { overlay.classList.add('hidden'); }
+
+    openBtn.addEventListener('click', open);
+    closeBtn.addEventListener('click', close);
+    overlay.addEventListener('click', function (e) { if (e.target === overlay) close(); });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') close(); });
+
+    function showMsg(text, ok) {
+      msg.textContent = text;
+      msg.className = 'text-[11px] font-semibold ' + (ok ? 'text-emerald-500' : 'text-red-500');
+    }
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Submitting...';
+
+      fetch('/api/leads', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          phone: document.getElementById('leadPhone').value,
+          email: document.getElementById('leadEmail').value,
+          notes: document.getElementById('leadNotes').value,
+          source_page: window.location.pathname,
+        }),
+      })
+        .then(function (res) { return res.json().then(function (data) { return { ok: res.ok, data: data }; }); })
+        .then(function (result) {
+          if (result.ok && result.data.success) {
+            showMsg("Thanks! We'll be in touch shortly.", true);
+            form.reset();
+            setTimeout(close, 1500);
+          } else {
+            showMsg(result.data.error || 'Something went wrong. Please try again.', false);
+          }
+        })
+        .catch(function () { showMsg('Network error. Please try again.', false); })
+        .finally(function () {
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Submit';
+        });
+    });
+  })();
+</script>

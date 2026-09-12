@@ -42,6 +42,7 @@ from flask import Blueprint, Response, jsonify, request, session
 from routes.auth import login_required
 from services import adapters
 from services.demo_db import DemoDbError, execute, fetch_all, get_db_connection
+from services.leads import save_lead, validate_lead
 from services.mf_engine import MfEngineError, fetch_fund, fetch_funds
 from services.orders import build_quote, validate_buy_request
 
@@ -400,6 +401,26 @@ def api_buy():
         "message": "Payment notification sent",
         "order": quote,
     })
+
+
+# --- Lead generation --------------------------------------------------------
+
+@api_bp.route("/leads", methods=["POST"])
+def create_lead():
+    """Stores a phone/email/notes submission from the "Talk to an Expert"
+    form available on every page. No login required -- this is how a
+    prospective investor first gets in touch."""
+    data = request.get_json(silent=True) or {}
+    fields, error = validate_lead(data)
+    if error:
+        return jsonify({"success": False, "error": error}), 400
+
+    try:
+        lead_id = save_lead(fields["phone"], fields["email"], fields["notes"], fields["source_page"])
+    except DemoDbError as exc:
+        return jsonify({"success": False, "error": str(exc)}), 503
+
+    return jsonify({"success": True, "lead_id": lead_id})
 
 
 # --- Bulk export -----------------------------------------------------------
