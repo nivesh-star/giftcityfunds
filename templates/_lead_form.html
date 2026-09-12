@@ -1,6 +1,8 @@
-<!-- Lead capture -- "Talk to an Expert" trigger button + modal form, posts to
-     /api/leads (services/leads.py). Self-contained (button, modal, JS) like
-     _contact_us.html so any nav can pull it in with a single include. -->
+<!-- Lead capture -- "Talk to an Expert" trigger button + modal form. Posts
+     to /api/leads, which routes/api.py + services/leads.py forward straight
+     through to mf-engine-v2's own lead_capture endpoint -- this app stores
+     nothing itself. Self-contained (button, modal, JS) like _contact_us.html
+     so any nav can pull it in with a single include. -->
 <div class="shrink-0">
   <button type="button" id="leadFormBtn" class="inline-flex items-center gap-1.5 px-2.5 xl:px-3 py-1.5 rounded-lg text-xs font-bold text-white bg-blue-600 hover:bg-blue-500 transition-colors whitespace-nowrap shrink-0">
     <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636a9 9 0 010 12.728m-3.536-3.536a3 3 0 000-4.243m-9.9-3.484A9 9 0 003 12c0 4.97 4.03 9 9 9s9-4.03 9-9-4.03-9-9-9c-.34 0-.677.02-1.007.058"></path></svg>
@@ -19,6 +21,10 @@
 
     <form id="leadForm" class="space-y-3">
       <div>
+        <label class="block text-[10px] font-bold uppercase tracking-widest text-[var(--color-text-subtle)] mb-1" for="leadName">Name</label>
+        <input type="text" id="leadName" name="name" required minlength="2" placeholder="Your name" class="w-full bg-[var(--color-bg-subtle)] border border-[var(--color-border)] rounded-xl px-3 py-2 text-xs text-[var(--color-text)] placeholder-[var(--color-text-subtle)] focus:outline-none focus:border-blue-500 transition-all" />
+      </div>
+      <div>
         <label class="block text-[10px] font-bold uppercase tracking-widest text-[var(--color-text-subtle)] mb-1" for="leadPhone">Phone</label>
         <input type="tel" id="leadPhone" name="phone" required placeholder="+91 98765 43210" class="w-full bg-[var(--color-bg-subtle)] border border-[var(--color-border)] rounded-xl px-3 py-2 text-xs text-[var(--color-text)] placeholder-[var(--color-text-subtle)] focus:outline-none focus:border-blue-500 transition-all" />
       </div>
@@ -27,8 +33,8 @@
         <input type="email" id="leadEmail" name="email" required placeholder="you@example.com" class="w-full bg-[var(--color-bg-subtle)] border border-[var(--color-border)] rounded-xl px-3 py-2 text-xs text-[var(--color-text)] placeholder-[var(--color-text-subtle)] focus:outline-none focus:border-blue-500 transition-all" />
       </div>
       <div>
-        <label class="block text-[10px] font-bold uppercase tracking-widest text-[var(--color-text-subtle)] mb-1" for="leadNotes">Notes (optional)</label>
-        <textarea id="leadNotes" name="notes" rows="3" placeholder="What are you looking to invest in?" class="w-full bg-[var(--color-bg-subtle)] border border-[var(--color-border)] rounded-xl px-3 py-2 text-xs text-[var(--color-text)] placeholder-[var(--color-text-subtle)] focus:outline-none focus:border-blue-500 transition-all resize-none"></textarea>
+        <label class="block text-[10px] font-bold uppercase tracking-widest text-[var(--color-text-subtle)] mb-1" for="leadMessage">Message</label>
+        <textarea id="leadMessage" name="message" rows="3" required minlength="10" placeholder="What are you looking to invest in?" class="w-full bg-[var(--color-bg-subtle)] border border-[var(--color-border)] rounded-xl px-3 py-2 text-xs text-[var(--color-text)] placeholder-[var(--color-text-subtle)] focus:outline-none focus:border-blue-500 transition-all resize-none"></textarea>
       </div>
 
       <p id="leadFormMsg" class="hidden text-[11px] font-semibold"></p>
@@ -59,6 +65,7 @@
     document.addEventListener('keydown', function (e) { if (e.key === 'Escape') close(); });
 
     function showMsg(text, ok) {
+      msg.classList.remove('hidden');
       msg.textContent = text;
       msg.className = 'text-[11px] font-semibold ' + (ok ? 'text-emerald-500' : 'text-red-500');
     }
@@ -72,10 +79,11 @@
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          name: document.getElementById('leadName').value,
           phone: document.getElementById('leadPhone').value,
           email: document.getElementById('leadEmail').value,
-          notes: document.getElementById('leadNotes').value,
-          source_page: window.location.pathname,
+          message: document.getElementById('leadMessage').value,
+          page_path: window.location.pathname,
         }),
       })
         .then(function (res) { return res.json().then(function (data) { return { ok: res.ok, data: data }; }); })

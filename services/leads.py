@@ -1,65 +1,79 @@
 """
 services/leads.py
-Lead-generation form storage: phone, email, and an optional note, submitted
-from the "Talk to an Expert" modal available on every page.
 
-Uses the same Postgres database as the demo account tables
-(services/demo_db.py, DEMO_DATABASE_URL) -- there's no separate database for
-this, just one more table in the one Postgres instance already provisioned
-for anything that isn't fund data.
+Forwards "Talk to an Expert" form submissions to mf-engine-v2's own
+lead_capture endpoint (see src/modules/lead_capture in that repo). GiftCityFunds
+does not store leads itself -- this is a thin proxy, same relationship this
+app already has with mf-engine for fund data (services/mf_engine.py).
+
+The endpoint is public (no partner token required), so this is a plain HTTP
+call rather than the authenticated flow mf_engine.py uses for fund data.
 """
 
 from __future__ import annotations
 
 import re
+from typing import Any, Dict, Optional, Tuple
 
-from services.demo_db import DemoDbError, execute, get_db_connection
+import requests
+
+from services.mf_engine import BASE_URL, MfEngineError
 
 _EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 
-CREATE_TABLE_SQL = """
-CREATE TABLE IF NOT EXISTS leads (
-    lead_id SERIAL PRIMARY KEY,
-    phone TEXT NOT NULL,
-    email TEXT NOT NULL,
-    notes TEXT,
-    source_page TEXT,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-)
-"""
+# Identifies submissions from this site in mf-engine's shared lead_capture
+# table, which is also fed by other properties (e.g. Zinni).
+LEAD_SOURCE = "giftcityfunds_web"
 
 
-def ensure_schema(conn) -> None:
-    with conn.cursor() as cur:
-        cur.execute(CREATE_TABLE_SQL)
-
-
-def validate_lead(data: dict) -> tuple[dict, str | None]:
-    """Returns (cleaned_fields, error). error is None when the submission is valid."""
+def validate_lead(data: dict) -> Tuple[dict, Optional[str]]:
+    """Returns (cleaned_fields, error). error is None when the submission is
+    valid. Mirrors mf-engine's own createLeadCaptureSchema validation
+    (src/modules/lead_capture/lead_capture.validation.ts) so a bad
+    submission is rejected here rather than round-tripping to that API."""
+    name = (data.get("name") or "").strip()
     phone = (data.get("phone") or "").strip()
     email = (data.get("email") or "").strip()
-    notes = (data.get("notes") or "").strip() or None
-    source_page = (data.get("source_page") or "").strip() or None
-    fields = {"phone": phone, "email": email, "notes": notes, "source_page": source_page}
+    message = (data.get("message") or "").strip()
+    page_path = (data.get("page_path") or "").strip() or None
+    fields = {"name": name, "phone": phone, "email": email, "message": message, "page_path": page_path}
 
-    if not phone or not email:
-        return fields, "Phone and email are required."
+    if not name or not phone or not email or not message:
+        return fields, "Name, phone, email and message are all required."
     if not _EMAIL_RE.match(email):
         return fields, "Enter a valid email address."
     if len(phone) < 7:
         return fields, "Enter a valid phone number."
+    if len(message) < 10:
+        return fields, "Message must be at least 10 characters."
     return fields, None
 
 
-def save_lead(phone: str, email: str, notes: str | None, source_page: str | None) -> int:
-    """Inserts a lead row, creating the table on first use. Returns the new
-    lead_id. Raises DemoDbError on any connection/database problem."""
-    with get_db_connection() as conn:
-        ensure_schema(conn)
-        row = execute(
-            conn,
-            """INSERT INTO leads (phone, email, notes, source_page)
-               VALUES (%s, %s, %s, %s) RETURNING lead_id""",
-            (phone, email, notes, source_page),
+def submit_lead(name: str, phone: str, email: str, message: str, page_path: Optional[str]) -> Dict[str, Any]:
+    """POSTs to mf-engine-v2's lead_capture endpoint. Raises MfEngineError on
+    any connection failure or non-2xx response."""
+    try:
+        resp = requests.post(
+            f"{BASE_URL}/api/v2/lead_capture",
+            json={
+                "name": name,
+                "phone": phone,
+                "email": email,
+                "message": message,
+                "source": LEAD_SOURCE,
+                "pagePath": page_path,
+            },
+            timeout=15,
         )
-        return row["lead_id"]
+    except requests.RequestException as exc:
+        raise MfEngineError(f"Could not reach mf-engine lead_capture: {exc}") from exc
+
+    if resp.status_code not in (200, 201):
+        detail = None
+        try:
+            detail = resp.json().get("message")
+        except ValueError:
+            pass
+        raise MfEngineError(detail or f"mf-engine lead_capture returned HTTP {resp.status_code}")
+
+    return resp.json()

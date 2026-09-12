@@ -42,7 +42,7 @@ from flask import Blueprint, Response, jsonify, request, session
 from routes.auth import login_required
 from services import adapters
 from services.demo_db import DemoDbError, execute, fetch_all, get_db_connection
-from services.leads import save_lead, validate_lead
+from services.leads import submit_lead, validate_lead
 from services.mf_engine import MfEngineError, fetch_fund, fetch_funds
 from services.orders import build_quote, validate_buy_request
 
@@ -407,20 +407,22 @@ def api_buy():
 
 @api_bp.route("/leads", methods=["POST"])
 def create_lead():
-    """Stores a phone/email/notes submission from the "Talk to an Expert"
-    form available on every page. No login required -- this is how a
-    prospective investor first gets in touch."""
+    """Forwards a "Talk to an Expert" form submission to mf-engine-v2's
+    lead_capture endpoint. GiftCityFunds is UI-only here -- no login
+    required, and nothing is stored in this app's own database."""
     data = request.get_json(silent=True) or {}
     fields, error = validate_lead(data)
     if error:
         return jsonify({"success": False, "error": error}), 400
 
     try:
-        lead_id = save_lead(fields["phone"], fields["email"], fields["notes"], fields["source_page"])
-    except DemoDbError as exc:
-        return jsonify({"success": False, "error": str(exc)}), 503
+        result = submit_lead(
+            fields["name"], fields["phone"], fields["email"], fields["message"], fields["page_path"]
+        )
+    except MfEngineError as exc:
+        return _api_error(exc)
 
-    return jsonify({"success": True, "lead_id": lead_id})
+    return jsonify({"success": True, "lead": result.get("data", result)})
 
 
 # --- Bulk export -----------------------------------------------------------
