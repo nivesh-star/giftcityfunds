@@ -104,6 +104,9 @@
 
         {% include '_contact_us.html' %}
 
+        {% set mobile_menu_breakpoint = '2xl' %}
+        {% include '_mobile_menu_button.html' %}
+
         <!-- Dark/Light Theme Toggle -->
         <div class="theme-switch inline-flex items-center gap-1 p-1 rounded-full border border-[var(--color-border)] bg-[var(--color-card)] shrink-0">
           <button type="button" id="themeToggleLight" aria-label="Light mode" class="theme-switch-btn active w-7 h-7 rounded-full flex items-center justify-center">
@@ -871,5 +874,6 @@
   #}
   {% include '_analytics.html' %}
   {% include '_lead_form_modal.html' %}
+  {% include '_mobile_menu_panel.html' %}
 </body>
 </html>
