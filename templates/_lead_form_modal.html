@@ -1,15 +1,9 @@
-<!-- Lead capture -- "Talk to an Expert" trigger button + modal form. Posts
-     to /api/leads, which routes/api.py + services/leads.py forward straight
-     through to mf-engine-v2's own lead_capture endpoint -- this app stores
-     nothing itself. Self-contained (button, modal, JS) like _contact_us.html
-     so any nav can pull it in with a single include. -->
-<div class="shrink-0">
-  <button type="button" id="leadFormBtn" class="inline-flex items-center gap-1.5 px-2.5 xl:px-3 py-1.5 rounded-lg text-xs font-bold text-white bg-blue-600 hover:bg-blue-500 transition-colors whitespace-nowrap shrink-0">
-    <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636a9 9 0 010 12.728m-3.536-3.536a3 3 0 000-4.243m-9.9-3.484A9 9 0 003 12c0 4.97 4.03 9 9 9s9-4.03 9-9-4.03-9-9-9c-.34 0-.677.02-1.007.058"></path></svg>
-    <span class="hidden sm:inline">Talk to an Expert</span>
-  </button>
-</div>
-
+<!-- Lead capture modal -- must be included right before </body>, as a
+     sibling of <nav>, never nested inside it (see _lead_form_button.html
+     for why: nav's backdrop-blur-md breaks position:fixed for descendants).
+     Posts to /api/leads, which routes/api.py + services/leads.py forward
+     straight through to mf-engine-v2's own lead_capture endpoint -- this
+     app stores nothing itself. -->
 <div id="leadFormOverlay" class="hidden fixed inset-0 z-[100] bg-black/50 backdrop-blur-sm overflow-y-auto p-4">
   <div class="w-full max-w-sm mx-auto my-8 rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] shadow-2xl p-5 relative">
     <button type="button" id="leadFormClose" aria-label="Close" class="absolute top-3 right-3 text-[var(--color-text-subtle)] hover:text-[var(--color-text)] transition-colors">

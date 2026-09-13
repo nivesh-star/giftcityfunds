@@ -1,0 +1,14 @@
+<!-- "Talk to an Expert" trigger button only -- goes in the nav. The actual
+     modal (templates/_lead_form_modal.html) must be included elsewhere,
+     right before </body>, NOT inside <nav>: nav has backdrop-blur-md (a
+     CSS filter), and a filter on an ancestor creates a new containing
+     block for position:fixed descendants -- so a fixed-positioned modal
+     nested inside a blurred nav resolves its "fixed inset-0" against the
+     nav's own small box instead of the full viewport, cropping it down to
+     nav height. Keeping the modal as a sibling of <body> avoids that. -->
+<div class="shrink-0">
+  <button type="button" id="leadFormBtn" class="inline-flex items-center gap-1.5 px-2.5 xl:px-3 py-1.5 rounded-lg text-xs font-bold text-white bg-blue-600 hover:bg-blue-500 transition-colors whitespace-nowrap shrink-0">
+    <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636a9 9 0 010 12.728m-3.536-3.536a3 3 0 000-4.243m-9.9-3.484A9 9 0 003 12c0 4.97 4.03 9 9 9s9-4.03 9-9-4.03-9-9-9c-.34 0-.677.02-1.007.058"></path></svg>
+    <span class="hidden sm:inline">Talk to an Expert</span>
+  </button>
+</div>
