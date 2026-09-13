@@ -84,7 +84,7 @@
         Learn Directly from <span class="text-blue-500">GIFT City</span> Fund Houses
       </h1>
       <p class="text-sm md:text-base text-[var(--color-text-muted)] max-w-2xl mx-auto">
-        Webinars and sessions run by GIFT City AMCs -- registration happens on the host's own event page, not here.
+        Webinars and sessions on GIFT City investing, organized by GIFT360.
       </p>
     </div>
   </header>
@@ -108,7 +108,7 @@
             <h2 class="text-lg font-bold text-[var(--color-text)] leading-snug mt-2 mb-1.5">{{ e.title }}</h2>
             <p class="text-xs text-[var(--color-text-muted)] leading-relaxed mb-3">{{ e.card_description }}</p>
             <div class="flex flex-wrap gap-x-5 gap-y-1 text-[11px] text-[var(--color-text-subtle)] mb-4">
-              <span><span class="font-bold text-[var(--color-text-muted)]">Host</span> · {{ e.host }}</span>
+              <span><span class="font-bold text-[var(--color-text-muted)]">Organized by</span> · {{ e.organizer }}</span>
               <span><span class="font-bold text-[var(--color-text-muted)]">Date</span> · {{ e.date_display }}, {{ e.time_display }}</span>
             </div>
             <div class="flex items-center gap-3">
@@ -128,7 +128,7 @@
   <!-- ========================================================================= -->
   <footer class="border-t border-[var(--color-border)] px-4 md:px-8 py-6">
     <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3 text-[11px] text-[var(--color-text-subtle)]">
-      <span>© 2026 GiftCityFunds. Events are hosted and run by their listed organizers, not GIFT360.</span>
+      <span>© 2026 GiftCityFunds. Events are organized by GIFT360; registration is handled through each event's listed platform.</span>
       <a href="/" class="font-bold text-blue-400 hover:underline">← Back to Full Dashboard</a>
     </div>
   </footer>
@@ -149,7 +149,7 @@
       <h3 class="text-lg font-bold text-[var(--color-text)] mt-2 mb-3">{{ e.title }}</h3>
 
       <div class="flex flex-wrap gap-x-5 gap-y-1 text-[11px] text-[var(--color-text-subtle)] mb-4">
-        <span><span class="font-bold text-[var(--color-text-muted)]">Host</span> · {{ e.host }}</span>
+        <span><span class="font-bold text-[var(--color-text-muted)]">Organized by</span> · {{ e.organizer }}</span>
         <span><span class="font-bold text-[var(--color-text-muted)]">Date</span> · {{ e.date_display }}, {{ e.time_display }}</span>
         <span><span class="font-bold text-[var(--color-text-muted)]">Format</span> · {{ e.format_display }}</span>
       </div>
@@ -158,9 +158,15 @@
       <p class="text-xs text-[var(--color-text-subtle)] leading-relaxed mb-4"><span class="font-bold text-[var(--color-text-muted)]">Speakers</span> · {{ e.speakers }}</p>
 
       <div class="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-subtle)] p-3.5 mb-5">
-        <p class="text-[10px] font-bold uppercase tracking-widest text-[var(--color-text-subtle)] mb-1.5">Why this matters</p>
-        <p class="text-xs text-[var(--color-text-muted)] leading-relaxed mb-1.5">{{ e.context_note }}</p>
-        <a href="{{ e.context_source_url }}" target="_blank" rel="noopener noreferrer" class="text-[10px] font-bold text-blue-500 hover:underline">Source: {{ e.context_source_name }} →</a>
+        <p class="text-[10px] font-bold uppercase tracking-widest text-[var(--color-text-subtle)] mb-2">Agenda</p>
+        <ul class="space-y-1.5">
+          {% for point in e.agenda %}
+          <li class="text-xs text-[var(--color-text-muted)] leading-relaxed flex gap-2">
+            <span class="text-blue-500 shrink-0">•</span>
+            <span>{{ point }}</span>
+          </li>
+          {% endfor %}
+        </ul>
       </div>
 
       <a href="{{ e.register_url }}" target="_blank" rel="noopener noreferrer" class="block w-full text-center py-2.5 rounded-xl text-xs font-bold text-white bg-blue-600 hover:bg-blue-500 transition-colors">Register on Luma</a>

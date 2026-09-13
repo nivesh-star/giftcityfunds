@@ -1,14 +1,8 @@
 """
 content/events.py
-GIFT City-related events GIFT360 surfaces for visitors -- currently just the
-webinars/sessions run by GIFT City AMCs themselves, listed with a link to
-their actual registration page (Luma, in this case) rather than reproduced
-as a GIFT360-hosted event.
-
-`context_note` is a short, cited summary of why the event's topic matters,
-drawn from published third-party coverage (see `context_source_url` /
-`context_source_name`) -- not GIFT360's own editorial claim, so it's kept
-separate from the event's own official description.
+GIFT City-related events GIFT360 organizes or co-hosts. Registration for
+each event happens on its actual registration page (Luma, for now) --
+listed here, not reproduced as a form on this site.
 """
 
 EVENTS = [
@@ -16,16 +10,19 @@ EVENTS = [
         "slug": "gift-city-alternative-investments-ppfas-webinar",
         "title": "Understanding Alternative Investments & Opportunities in GIFT City",
         "badge": "Webinar",
-        "host": "PPFAS GIFT Fund",
+        "organizer": "GIFT360",
         "speakers": "Akshay Falgunia (Fund Manager, PPFAS GIFT Fund) and Hema Thakkar (Head, Business Development -- Alternatives)",
         "date_display": "Fri, 18 Sep 2026",
         "time_display": "4:00 -- 5:00 PM IST",
         "format_display": "Online",
         "card_description": "PPFAS GIFT Fund's Akshay Falgunia and Hema Thakkar unpack the alternative investments landscape in GIFT City -- strategy, portfolio construction, and where the space is headed.",
-        "detail_description": "An exclusive session with PPFAS GIFT City's own fund and business development teams, covering the PPFAS GIFT Fund's investment strategy, the broader alternatives ecosystem in GIFT City, market perspectives, portfolio construction insights, and where alternatives in India are headed next.",
+        "detail_description": "Akshay Falgunia (Fund Manager, PPFAS GIFT Fund) walks through the fund's own investment approach, portfolio strategy, and current market opportunities. Hema Thakkar (Head of Business Development, Alternatives) covers the broader alternatives landscape and the opportunities it opens up for investors. Together the session works through PPFAS GIFT Fund's operations, the alternative investment landscape inside GIFT City, market and portfolio-construction perspectives, and where alternatives in India are headed next -- an opportunity to hear directly from professionals working in this space.",
+        "agenda": [
+            "PPFAS GIFT Fund: investment approach, portfolio strategy, market opportunities",
+            "The broader alternatives landscape in GIFT City",
+            "Market perspectives and portfolio construction insights",
+            "Where alternatives in India are headed next",
+        ],
         "register_url": "https://luma.com/g9yh8zd4",
-        "context_note": "Rupee savings held against a future dollar goal -- a child's overseas degree, a home abroad -- quietly lose ground to currency depreciation over time. GIFT City's USD-denominated funds, accessed via the Liberalised Remittance Scheme, let that saving happen in the same currency it will eventually be spent in, which is the kind of structure this session's alternatives discussion sits inside.",
-        "context_source_name": "Outlook Money",
-        "context_source_url": "https://www.outlookmoney.com/spotlight/you-have-been-saving-in-rupees-for-a-dollar-future-and-that-is-the-problem",
     },
 ]
