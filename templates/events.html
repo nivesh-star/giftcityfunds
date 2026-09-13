@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Events | GiftCityFunds</title>
+  <meta name="description" content="Webinars and sessions from GIFT City fund houses -- alternative investments, IFSCA regulation, and NRI investing routes." />
+  <link rel="canonical" href="{{ request.url }}" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Events | GiftCityFunds" />
+  <meta property="og:description" content="Webinars and sessions from GIFT City fund houses." />
+  <meta property="og:url" content="{{ request.url }}" />
+  <meta name="twitter:title" content="Events | GiftCityFunds" />
+  <meta name="twitter:description" content="Webinars and sessions from GIFT City fund houses." />
+  {% include '_seo_meta.html' %}
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/address_bar.png') }}">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            'gcf-blue': '#2563eb',
+            'gcf-blue-dark': '#1d4ed8',
+            'gcf-neon': '#79FE0C',
+            'gcf-neon-dark': '#67e600',
+            'fin-dark': '#0b0f19',
+            'fin-card': '#131d31',
+          }
+        }
+      }
+    }
+  </script>
+
+  <link rel="stylesheet" href="/static/css/custom.css" />
+</head>
+<body class="min-h-screen flex flex-col antialiased">
+
+  <!-- ========================================================================= -->
+  <!-- NAVIGATION BAR -->
+  <!-- ========================================================================= -->
+  <nav class="sticky top-0 z-40 bg-[var(--color-bg-subtle)]/90 backdrop-blur-md border-b border-[var(--color-border)] px-4 md:px-8 py-3 transition-colors">
+    <div class="max-w-7xl mx-auto flex items-center justify-between gap-4">
+      <a href="/" class="flex items-center gap-2.5 group shrink-0">
+        <img src="{{ url_for('static', filename='img/logo.png') }}" alt="GiftCityFunds" class="h-11 w-auto shrink-0">
+      </a>
+
+      <ul class="hidden md:flex items-center gap-6 text-xs font-bold tracking-wide text-[var(--color-text-muted)] shrink-0">
+        <li><a href="/" class="hover:text-blue-500 transition-colors">Dashboard</a></li>
+        <li><a href="/gift-city-outbound" class="hover:text-blue-500 transition-colors">Outbound Funds</a></li>
+        <li><a href="/gift-city-inbound" class="hover:text-blue-500 transition-colors">Inbound Funds</a></li>
+        <li><a href="/insights" class="hover:text-blue-500 transition-colors">Insights</a></li>
+        <li><a href="/events" class="text-blue-500">Events</a></li>
+      </ul>
+
+      <div class="flex items-center gap-2.5 shrink-0">
+        {% include '_lead_form_button.html' %}
+
+        {% include '_contact_us.html' %}
+
+        {% include '_mobile_menu_button.html' %}
+        <div class="theme-switch inline-flex items-center gap-1 p-1 rounded-full border border-[var(--color-border)] bg-[var(--color-card)] shrink-0">
+          <button type="button" id="themeToggleLight" aria-label="Light mode" class="theme-switch-btn active w-7 h-7 rounded-full flex items-center justify-center">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+          </button>
+          <button type="button" id="themeToggleDark" aria-label="Dark mode" class="theme-switch-btn w-7 h-7 rounded-full flex items-center justify-center">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ========================================================================= -->
+  <!-- HERO -->
+  <!-- ========================================================================= -->
+  <header class="relative pt-12 pb-8 px-4 md:px-8 overflow-hidden bg-gradient-to-b from-blue-900/10 via-transparent to-transparent">
+    <div class="max-w-3xl mx-auto text-center">
+      <span class="inline-block text-[10px] px-2.5 py-1 rounded-full font-bold bg-blue-500/10 text-blue-500 border border-blue-500/25 mb-4">GIFT360 EVENTS</span>
+      <h1 class="text-3xl md:text-4xl font-black text-[var(--color-text)] leading-tight mb-3">
+        Learn Directly from <span class="text-blue-500">GIFT City</span> Fund Houses
+      </h1>
+      <p class="text-sm md:text-base text-[var(--color-text-muted)] max-w-2xl mx-auto">
+        Webinars and sessions run by GIFT City AMCs -- registration happens on the host's own event page, not here.
+      </p>
+    </div>
+  </header>
+
+  <main class="flex-1 px-4 md:px-8 pb-16">
+    <div class="max-w-3xl mx-auto">
+
+      <div class="flex items-center gap-2 mb-6">
+        <span class="text-xs font-bold px-3.5 py-1.5 rounded-full border border-blue-500 bg-blue-500 text-white">All Events</span>
+      </div>
+
+      <div class="space-y-4">
+        {% for e in events %}
+        <div class="glass-card rounded-2xl overflow-hidden">
+          <div class="relative h-24 bg-gradient-to-br from-blue-600 to-blue-800 flex items-center px-6">
+            <svg class="w-9 h-9 text-white/90 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+            <span class="absolute bottom-3 right-4 text-[9px] font-black tracking-widest text-white/70 uppercase">{{ e.format_display }}</span>
+          </div>
+          <div class="p-5">
+            <span class="text-[9px] px-2 py-0.5 rounded-full font-bold bg-blue-500/10 text-blue-500 border border-blue-500/25">{{ e.badge }}</span>
+            <h2 class="text-lg font-bold text-[var(--color-text)] leading-snug mt-2 mb-1.5">{{ e.title }}</h2>
+            <p class="text-xs text-[var(--color-text-muted)] leading-relaxed mb-3">{{ e.card_description }}</p>
+            <div class="flex flex-wrap gap-x-5 gap-y-1 text-[11px] text-[var(--color-text-subtle)] mb-4">
+              <span><span class="font-bold text-[var(--color-text-muted)]">Host</span> · {{ e.host }}</span>
+              <span><span class="font-bold text-[var(--color-text-muted)]">Date</span> · {{ e.date_display }}, {{ e.time_display }}</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <a href="{{ e.register_url }}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center px-4 py-2 rounded-xl text-xs font-bold text-white bg-black hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-200 transition-colors">Register</a>
+              <button type="button" class="event-details-btn text-xs font-bold text-blue-500 hover:underline" data-event-slug="{{ e.slug }}">See Details</button>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+
+    </div>
+  </main>
+
+  <!-- ========================================================================= -->
+  <!-- FOOTER -->
+  <!-- ========================================================================= -->
+  <footer class="border-t border-[var(--color-border)] px-4 md:px-8 py-6">
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3 text-[11px] text-[var(--color-text-subtle)]">
+      <span>© 2026 GiftCityFunds. Events are hosted and run by their listed organizers, not GIFT360.</span>
+      <a href="/" class="font-bold text-blue-400 hover:underline">← Back to Full Dashboard</a>
+    </div>
+  </footer>
+
+  <!-- ========================================================================= -->
+  <!-- EVENT DETAILS MODAL (one per event, hidden until "See Details" is clicked) -->
+  <!-- Must be a sibling of <nav>, not nested inside it: nav's backdrop-blur-md -->
+  <!-- breaks position:fixed containment for anything nested inside it.        -->
+  <!-- ========================================================================= -->
+  {% for e in events %}
+  <div id="eventDetailsOverlay-{{ e.slug }}" class="hidden fixed inset-0 z-[105] bg-black/50 backdrop-blur-sm overflow-y-auto p-4">
+    <div class="w-full max-w-lg mx-auto my-8 rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] shadow-2xl p-6 relative">
+      <button type="button" class="event-details-close absolute top-4 right-4 text-[var(--color-text-subtle)] hover:text-[var(--color-text)] transition-colors" data-event-slug="{{ e.slug }}" aria-label="Close">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+      </button>
+
+      <span class="text-[9px] px-2 py-0.5 rounded-full font-bold bg-blue-500/10 text-blue-500 border border-blue-500/25">{{ e.badge }}</span>
+      <h3 class="text-lg font-bold text-[var(--color-text)] mt-2 mb-3">{{ e.title }}</h3>
+
+      <div class="flex flex-wrap gap-x-5 gap-y-1 text-[11px] text-[var(--color-text-subtle)] mb-4">
+        <span><span class="font-bold text-[var(--color-text-muted)]">Host</span> · {{ e.host }}</span>
+        <span><span class="font-bold text-[var(--color-text-muted)]">Date</span> · {{ e.date_display }}, {{ e.time_display }}</span>
+        <span><span class="font-bold text-[var(--color-text-muted)]">Format</span> · {{ e.format_display }}</span>
+      </div>
+
+      <p class="text-xs text-[var(--color-text-muted)] leading-relaxed mb-3">{{ e.detail_description }}</p>
+      <p class="text-xs text-[var(--color-text-subtle)] leading-relaxed mb-4"><span class="font-bold text-[var(--color-text-muted)]">Speakers</span> · {{ e.speakers }}</p>
+
+      <div class="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-subtle)] p-3.5 mb-5">
+        <p class="text-[10px] font-bold uppercase tracking-widest text-[var(--color-text-subtle)] mb-1.5">Why this matters</p>
+        <p class="text-xs text-[var(--color-text-muted)] leading-relaxed mb-1.5">{{ e.context_note }}</p>
+        <a href="{{ e.context_source_url }}" target="_blank" rel="noopener noreferrer" class="text-[10px] font-bold text-blue-500 hover:underline">Source: {{ e.context_source_name }} →</a>
+      </div>
+
+      <a href="{{ e.register_url }}" target="_blank" rel="noopener noreferrer" class="block w-full text-center py-2.5 rounded-xl text-xs font-bold text-white bg-blue-600 hover:bg-blue-500 transition-colors">Register on Luma</a>
+    </div>
+  </div>
+  {% endfor %}
+
+  <script>
+    (function () {
+      document.querySelectorAll('.event-details-btn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var overlay = document.getElementById('eventDetailsOverlay-' + btn.getAttribute('data-event-slug'));
+          if (overlay) overlay.classList.remove('hidden');
+        });
+      });
+      document.querySelectorAll('.event-details-close').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var overlay = document.getElementById('eventDetailsOverlay-' + btn.getAttribute('data-event-slug'));
+          if (overlay) overlay.classList.add('hidden');
+        });
+      });
+      document.querySelectorAll('[id^="eventDetailsOverlay-"]').forEach(function (overlay) {
+        overlay.addEventListener('click', function (e) { if (e.target === overlay) overlay.classList.add('hidden'); });
+      });
+      document.addEventListener('keydown', function (e) {
+        if (e.key !== 'Escape') return;
+        document.querySelectorAll('[id^="eventDetailsOverlay-"]').forEach(function (overlay) { overlay.classList.add('hidden'); });
+      });
+    })();
+  </script>
+
+  <script>
+    (function () {
+      const root = document.documentElement;
+      const lightBtn = document.getElementById('themeToggleLight');
+      const darkBtn = document.getElementById('themeToggleDark');
+      function setTheme(theme) {
+        root.classList.toggle('light', theme === 'light');
+        root.classList.toggle('dark', theme === 'dark');
+        if (lightBtn) lightBtn.classList.toggle('active', theme === 'light');
+        if (darkBtn) darkBtn.classList.toggle('active', theme === 'dark');
+      }
+      if (lightBtn) lightBtn.addEventListener('click', function () { setTheme('light'); });
+      if (darkBtn) darkBtn.addEventListener('click', function () { setTheme('dark'); });
+    })();
+  </script>
+  {% include '_analytics.html' %}
+  {% include '_lead_form_modal.html' %}
+  {% include '_mobile_menu_panel.html' %}
+</body>
+</html>

@@ -18,6 +18,7 @@ from typing import Optional
 
 from flask import Blueprint, Response, redirect, render_template, url_for
 
+from content.events import EVENTS
 from content.faqs import FAQ_SOURCE_ATTRIBUTION, INBOUND_FAQS, OUTBOUND_FAQS
 from content.insights import ARTICLES, CATEGORIES, get_article, related_articles
 from routes.auth import login_required
@@ -131,6 +132,14 @@ def fund_detail_page(fund_id: int, slug: Optional[str] = None):
     )
 
 
+@pages_bp.route("/events")
+def events_index():
+    """Lists GIFT City AMC events (webinars, sessions) GIFT360 surfaces for
+    visitors. Registration happens on the host's own page (Luma, etc.) --
+    this is a listing, not a GIFT360-run event platform."""
+    return render_template("events.html", events=EVENTS)
+
+
 @pages_bp.route("/insights")
 def insights_index():
     """Listing page for GIFT360's in-house editorial section -- explainers
@@ -179,6 +188,7 @@ def sitemap_xml():
         (url_for("pages.gift_city_outbound", _external=True), "0.9", "daily"),
         (url_for("pages.gift_city_inbound", _external=True), "0.9", "daily"),
         (url_for("pages.insights_index", _external=True), "0.9", "daily"),
+        (url_for("pages.events_index", _external=True), "0.7", "weekly"),
     ]
     article_urls = [
         (url_for("pages.insight_detail", slug=a["slug"], _external=True), "0.7", "monthly")
