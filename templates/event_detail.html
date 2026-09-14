@@ -101,7 +101,7 @@
           </div>
 
           <div class="flex items-center gap-3">
-            <a href="{{ event.register_url }}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-blue-600 hover:bg-blue-500 transition-colors">Register</a>
+            <a href="{{ event.register_url }}" target="_blank" rel="noopener noreferrer" onclick="window.gaTrack && window.gaTrack('Invest / Visit AMC', {event_slug: '{{ event.slug }}'})" class="inline-flex items-center justify-center px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-blue-600 hover:bg-blue-500 transition-colors">Register</a>
             <button type="button" id="eventShareBtn" class="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl border border-[var(--color-border)] text-xs font-bold text-[var(--color-text-muted)] hover:text-blue-500 hover:border-blue-500/40 transition-colors">
               <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342a3 3 0 100-2.684m0 2.684a3 3 0 100 2.684m0-2.684l6.632 3.316m0-9.316a3 3 0 105.368 2.658 3 3 0 00-5.368-2.658zm0 9.316a3 3 0 105.368-2.658 3 3 0 00-5.368 2.658zm0-9.316L8.684 10.658"></path></svg>
               <span id="eventShareLabel">Share</span>

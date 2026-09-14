@@ -7,5 +7,14 @@
      one partial so the snippet only ever needs to change in one place. -->
 <script>
   window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+
+  // Shared custom-event helper (Vercel Web Analytics' track() API) -- every
+  // page includes this partial, so any template/script can call
+  // window.gaTrack('Fund Viewed', {fund_id: 172}) etc. without redefining
+  // it. A no-op until Web Analytics is enabled for this project (same as
+  // window.va itself above).
+  window.gaTrack = function (name, data) {
+    window.va('event', data ? { name, data } : { name });
+  };
 </script>
 <script defer src="/_vercel/insights/script.js"></script>

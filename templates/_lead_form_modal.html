@@ -84,6 +84,7 @@
         .then(function (result) {
           if (result.ok && result.data.success) {
             showMsg("Thanks! We'll be in touch shortly.", true);
+            if (window.gaTrack) window.gaTrack('Enquire', { page_path: window.location.pathname });
             form.reset();
             setTimeout(close, 1500);
           } else {

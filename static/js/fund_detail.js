@@ -828,6 +828,7 @@ document.addEventListener('DOMContentLoaded', () => {
       state.currentModalFund = { id: f.fund_id, name: f.fund_name, nav: f.nav, currency: f.nav_currency || 'USD' };
       document.title = `${f.fund_name} | GIFT360`;
       setupBuyPanel(f);
+      if (window.gaTrack) window.gaTrack('Fund Viewed', { fund_id: f.fund_id, fund_name: f.fund_name });
 
       document.getElementById('modalFundName').textContent = f.fund_name;
       document.getElementById('modalAmcName').textContent = f.amc_name || 'GIFT City Asset Manager';
@@ -862,8 +863,12 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       document.getElementById('modalLaunchDate').textContent = f.launch_date || 'Not Publicly Disclosed';
-      document.getElementById('modalSourceLink').href = f.source_url;
-      document.getElementById('modalSourceLink').textContent = f.source_name;
+      const sourceLinkEl = document.getElementById('modalSourceLink');
+      sourceLinkEl.href = f.source_url;
+      sourceLinkEl.textContent = f.source_name;
+      sourceLinkEl.addEventListener('click', () => {
+        if (window.gaTrack) window.gaTrack('Invest / Visit AMC', { fund_id: f.fund_id, fund_name: f.fund_name });
+      });
 
       const flowBadge = document.getElementById('modalFlowBadge');
       if (flowBadge) {

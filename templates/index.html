@@ -191,12 +191,12 @@
           </p>
 
           <div class="flex flex-wrap gap-3 pt-2">
-            <a href="#screener" class="btn-blue px-6 py-3 rounded-xl text-xs sm:text-sm inline-flex items-center gap-2">
-              <span>Launch Fund Screener</span>
+            <a href="#screener" onclick="window.gaTrack && window.gaTrack('Explore Funds', {location: 'hero_primary'})" class="btn-blue px-6 py-3 rounded-xl text-xs sm:text-sm inline-flex items-center gap-2">
+              <span>Explore Funds</span>
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
             </a>
-            <a href="#analytics" class="px-5 py-3 rounded-xl text-xs sm:text-sm font-bold border border-[var(--color-border-strong)] bg-[var(--color-card)] text-[var(--color-text)] hover:bg-[var(--color-card-hover)] transition-all">
-              Market Analytics
+            <a href="#screener" onclick="window.gaTrack && window.gaTrack('Explore Funds', {location: 'hero_secondary'})" class="px-5 py-3 rounded-xl text-xs sm:text-sm font-bold border border-[var(--color-border-strong)] bg-[var(--color-card)] text-[var(--color-text)] hover:bg-[var(--color-card-hover)] transition-all">
+              Compare Funds
             </a>
           </div>
         </div>
@@ -257,6 +257,66 @@
       </div>
     </div>
   </header>
+
+  <!-- ========================================================================= -->
+  <!-- HERO FUND DISCOVERY PREVIEW -- shows real funds immediately, before the -->
+  <!-- analytics charts, since visitors are already visiting fund pages.       -->
+  <!-- ========================================================================= -->
+  <section class="py-8 px-4 md:px-8 border-t border-[var(--color-border)]">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-lg sm:text-xl font-black text-[var(--color-text)] tracking-tight">Explore GIFT City Funds</h2>
+        <a href="#screener" onclick="window.gaTrack && window.gaTrack('Explore Funds', {location: 'hero_preview_view_all'})" class="text-xs font-bold text-blue-500 hover:underline shrink-0">View all funds →</a>
+      </div>
+      <div id="heroFundPreview" class="glass-card rounded-2xl overflow-hidden">
+        <div class="p-6 text-center text-xs text-[var(--color-text-subtle)]">Loading funds…</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================================= -->
+  <!-- WHY GIFT CITY FUNDS -->
+  <!-- ========================================================================= -->
+  <section class="py-10 px-4 md:px-8 border-t border-[var(--color-border)] bg-[var(--color-bg-subtle)]/40">
+    <div class="max-w-7xl mx-auto text-center">
+      <h2 class="text-xl sm:text-2xl font-black text-[var(--color-text)] tracking-tight mb-2">A simpler way to discover GIFT City investments</h2>
+      <p class="text-xs sm:text-sm text-[var(--color-text-muted)] max-w-xl mx-auto mb-8">Everything you need to evaluate a GIFT City IFSC fund, in one place.</p>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-left mb-8">
+        <div class="glass-card rounded-2xl p-5">
+          <div class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400 mb-3">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m6 10V11m-9.5 6h13a2 2 0 002-2V7a2 2 0 00-2-2h-13a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+          </div>
+          <h3 class="text-sm font-bold text-[var(--color-text)] mb-1">Compare available funds</h3>
+          <p class="text-xs text-[var(--color-text-muted)] leading-relaxed">Put up to 4 funds side by side on NAV, expense ratio, category, and minimum ticket size.</p>
+        </div>
+        <div class="glass-card rounded-2xl p-5">
+          <div class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 mb-3">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6M9 8h6M5 21h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+          </div>
+          <h3 class="text-sm font-bold text-[var(--color-text)] mb-1">Understand fund strategies</h3>
+          <p class="text-xs text-[var(--color-text-muted)] leading-relaxed">Every fund's own structure, category, and AMC house, sourced from official factsheets and registries.</p>
+        </div>
+        <div class="glass-card rounded-2xl p-5">
+          <div class="w-8 h-8 rounded-lg bg-indigo-500/10 flex items-center justify-center text-indigo-400 mb-3">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
+          </div>
+          <h3 class="text-sm font-bold text-[var(--color-text)] mb-1">Explore performance &amp; risk</h3>
+          <p class="text-xs text-[var(--color-text-muted)] leading-relaxed">Live NAV history charts and statutory intelligence wherever a fund publishes it.</p>
+        </div>
+        <div class="glass-card rounded-2xl p-5">
+          <div class="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400 mb-3">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+          </div>
+          <h3 class="text-sm font-bold text-[var(--color-text)] mb-1">Find the right opportunity</h3>
+          <p class="text-xs text-[var(--color-text-muted)] leading-relaxed">Filter by outbound/inbound flow, category, and currency to narrow 75+ funds down to what fits.</p>
+        </div>
+      </div>
+      <a href="#screener" onclick="window.gaTrack && window.gaTrack('Explore Funds', {location: 'why_section'})" class="btn-blue px-6 py-3 rounded-xl text-xs sm:text-sm inline-flex items-center gap-2">
+        <span>Explore Funds</span>
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+      </a>
+    </div>
+  </section>
 
   <!-- ========================================================================= -->
   <!-- VISUAL ANALYTICS SECTION (Chart.js) -->
@@ -324,6 +384,13 @@
           <span class="text-[10px] text-[var(--color-text-subtle)] text-center block mt-2">HDFC Feeder, DSP, Tata, PPFAS</span>
         </div>
 
+      </div>
+
+      <div class="text-center mt-8">
+        <a href="#screener" onclick="window.gaTrack && window.gaTrack('Explore Funds', {location: 'analytics_section'})" class="btn-blue px-6 py-3 rounded-xl text-xs sm:text-sm inline-flex items-center gap-2">
+          <span>Explore Funds</span>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+        </a>
       </div>
 
     </div>

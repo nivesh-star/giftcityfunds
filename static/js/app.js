@@ -94,10 +94,41 @@ document.addEventListener('DOMContentLoaded', () => {
       if (data.success) {
         state.allFunds = data.funds;
         applyFilters();
+        renderHeroFundPreview(data.funds);
       }
     } catch (e) {
       console.error('Failed to fetch funds:', e);
     }
+  }
+
+  // Real, live fund data shown right under the hero -- not a hardcoded
+  // sample list, so it always reflects whatever's actually in the API.
+  // Prefers funds with a live NAV (more useful at a glance); falls back to
+  // the first few funds if none have one yet.
+  function renderHeroFundPreview(funds) {
+    const container = document.getElementById('heroFundPreview');
+    if (!container) return;
+    if (!funds || !funds.length) {
+      container.innerHTML = '<div class="p-6 text-center text-xs text-[var(--color-text-subtle)]">No funds available right now.</div>';
+      return;
+    }
+    const withNav = funds.filter(f => f.nav != null);
+    const preview = (withNav.length ? withNav : funds).slice(0, 3);
+
+    const rows = preview.map(f => {
+      const slug = slugify(f.fund_name);
+      const navText = f.nav != null ? `${Number(f.nav).toFixed(2)} ${f.nav_currency || 'USD'}` : '—';
+      return `
+        <a href="/fund/${f.fund_id}/${slug}" class="flex items-center justify-between gap-3 px-4 sm:px-5 py-3.5 hover:bg-[var(--color-card-hover)] transition-colors border-b border-[var(--color-border)] last:border-b-0">
+          <div class="min-w-0">
+            <div class="text-xs sm:text-sm font-bold text-[var(--color-text)] truncate">${escapeHtml(f.fund_name)}</div>
+            <div class="text-[10px] sm:text-[11px] text-[var(--color-text-subtle)] truncate">${escapeHtml(f.category || 'Unclassified')} · ${escapeHtml(f.amc_name || '')}</div>
+          </div>
+          <div class="text-xs sm:text-sm font-mono font-bold text-[var(--color-text)] shrink-0">${navText}</div>
+        </a>`;
+    }).join('');
+
+    container.innerHTML = rows;
   }
 
   // --------------------------------------------------------------------------
@@ -1640,9 +1671,17 @@ document.addEventListener('DOMContentLoaded', () => {
     // Search input (Fund Screener section)
     const searchInput = document.getElementById('fundsSearchInput');
     if (searchInput) {
+      let searchTrackTimer = null;
       searchInput.addEventListener('input', (e) => {
         state.searchQuery = e.target.value;
         applyFilters();
+        // Debounced -- fire once ~600ms after the user stops typing,
+        // not on every keystroke.
+        clearTimeout(searchTrackTimer);
+        const q = e.target.value.trim();
+        if (q && window.gaTrack) {
+          searchTrackTimer = setTimeout(() => window.gaTrack('Search Fund', { query: q }), 600);
+        }
       });
     }
 
@@ -1668,6 +1707,7 @@ document.addEventListener('DOMContentLoaded', () => {
       tierSelect.addEventListener('change', (e) => {
         state.tierFilter = e.target.value;
         applyFilters();
+        if (window.gaTrack) window.gaTrack('Filter Used', { filter: 'flow_type', value: e.target.value });
       });
     }
 
@@ -1678,6 +1718,7 @@ document.addEventListener('DOMContentLoaded', () => {
         btn.classList.add('active', 'bg-blue-600', 'text-white');
         state.categoryFilter = btn.getAttribute('data-category');
         applyFilters();
+        if (window.gaTrack) window.gaTrack('Filter Used', { filter: 'category', value: state.categoryFilter });
       });
     });
 
@@ -1687,6 +1728,7 @@ document.addEventListener('DOMContentLoaded', () => {
       currSelect.addEventListener('change', (e) => {
         state.currencyFilter = e.target.value;
         applyFilters();
+        if (window.gaTrack) window.gaTrack('Filter Used', { filter: 'currency', value: e.target.value });
       });
     }
 
@@ -1734,7 +1776,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // Compare Drawer Actions
     const openCompareBtn = document.getElementById('openCompareModalBtn');
     if (openCompareBtn) {
-      openCompareBtn.addEventListener('click', openCompareModal);
+      openCompareBtn.addEventListener('click', () => {
+        if (window.gaTrack) window.gaTrack('Compare Fund', { fund_count: state.compareIds.size });
+        openCompareModal();
+      });
     }
 
     const clearCompareBtn = document.getElementById('clearCompareBtn');
