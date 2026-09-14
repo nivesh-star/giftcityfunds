@@ -115,8 +115,12 @@
             </div>
             <div class="flex items-center gap-3">
               <a href="{{ e.register_url }}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center px-4 py-2 rounded-xl text-xs font-bold text-white bg-black hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-200 transition-colors">Register</a>
-              <button type="button" class="event-details-btn text-xs font-bold text-blue-500 hover:underline" data-event-slug="{{ e.slug }}">See Details</button>
+              <a href="{{ url_for('pages.event_detail', slug=e.slug) }}" class="text-xs font-bold text-blue-500 hover:underline">See Details</a>
+              <button type="button" class="event-share-btn ml-auto inline-flex items-center justify-center w-8 h-8 rounded-lg border border-[var(--color-border)] text-[var(--color-text-subtle)] hover:text-blue-500 hover:border-blue-500/40 transition-colors" data-event-title="{{ e.title }}" data-event-url="{{ url_for('pages.event_detail', slug=e.slug, _external=True) }}" aria-label="Share this event">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342a3 3 0 100-2.684m0 2.684a3 3 0 100 2.684m0-2.684l6.632 3.316m0-9.316a3 3 0 105.368 2.658 3 3 0 00-5.368-2.658zm0 9.316a3 3 0 105.368-2.658 3 3 0 00-5.368 2.658zm0-9.316L8.684 10.658"></path></svg>
+              </button>
             </div>
+            <p class="event-share-feedback hidden text-[10px] font-semibold text-emerald-500 mt-2"></p>
           </div>
         </div>
         {% endfor %}
@@ -135,67 +139,24 @@
     </div>
   </footer>
 
-  <!-- ========================================================================= -->
-  <!-- EVENT DETAILS MODAL (one per event, hidden until "See Details" is clicked) -->
-  <!-- Must be a sibling of <nav>, not nested inside it: nav's backdrop-blur-md -->
-  <!-- breaks position:fixed containment for anything nested inside it.        -->
-  <!-- ========================================================================= -->
-  {% for e in events %}
-  <div id="eventDetailsOverlay-{{ e.slug }}" class="hidden fixed inset-0 z-[105] bg-black/50 backdrop-blur-sm overflow-y-auto p-4">
-    <div class="w-full max-w-lg mx-auto my-8 rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] shadow-2xl p-6 relative">
-      <button type="button" class="event-details-close absolute top-4 right-4 text-[var(--color-text-subtle)] hover:text-[var(--color-text)] transition-colors" data-event-slug="{{ e.slug }}" aria-label="Close">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-      </button>
-
-      <span class="text-[9px] px-2 py-0.5 rounded-full font-bold bg-blue-500/10 text-blue-500 border border-blue-500/25">{{ e.badge }}</span>
-      <h3 class="text-lg font-bold text-[var(--color-text)] mt-2 mb-3">{{ e.title }}</h3>
-
-      <div class="flex flex-wrap gap-x-5 gap-y-1 text-[11px] text-[var(--color-text-subtle)] mb-4">
-        <span><span class="font-bold text-[var(--color-text-muted)]">Organized by</span> · {{ e.organizer }}</span>
-        <span><span class="font-bold text-[var(--color-text-muted)]">Date</span> · {{ e.date_display }}, {{ e.time_display }}</span>
-        <span><span class="font-bold text-[var(--color-text-muted)]">Format</span> · {{ e.format_display }}</span>
-      </div>
-
-      <p class="text-xs text-[var(--color-text-muted)] leading-relaxed mb-3">{{ e.detail_description }}</p>
-      <p class="text-xs text-[var(--color-text-subtle)] leading-relaxed mb-4"><span class="font-bold text-[var(--color-text-muted)]">Speakers</span> · {{ e.speakers }}</p>
-
-      <div class="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-subtle)] p-3.5 mb-5">
-        <p class="text-[10px] font-bold uppercase tracking-widest text-[var(--color-text-subtle)] mb-2">Agenda</p>
-        <ul class="space-y-1.5">
-          {% for point in e.agenda %}
-          <li class="text-xs text-[var(--color-text-muted)] leading-relaxed flex gap-2">
-            <span class="text-blue-500 shrink-0">•</span>
-            <span>{{ point }}</span>
-          </li>
-          {% endfor %}
-        </ul>
-      </div>
-
-      <a href="{{ e.register_url }}" target="_blank" rel="noopener noreferrer" class="block w-full text-center py-2.5 rounded-xl text-xs font-bold text-white bg-blue-600 hover:bg-blue-500 transition-colors">Register on Luma</a>
-    </div>
-  </div>
-  {% endfor %}
-
   <script>
     (function () {
-      document.querySelectorAll('.event-details-btn').forEach(function (btn) {
+      document.querySelectorAll('.event-share-btn').forEach(function (btn) {
         btn.addEventListener('click', function () {
-          var overlay = document.getElementById('eventDetailsOverlay-' + btn.getAttribute('data-event-slug'));
-          if (overlay) overlay.classList.remove('hidden');
+          var title = btn.getAttribute('data-event-title');
+          var url = btn.getAttribute('data-event-url');
+          var feedback = btn.closest('.p-5').querySelector('.event-share-feedback');
+          if (navigator.share) {
+            navigator.share({ title: title, url: url }).catch(function () {});
+            return;
+          }
+          navigator.clipboard.writeText(url).then(function () {
+            if (!feedback) return;
+            feedback.textContent = 'Link copied!';
+            feedback.classList.remove('hidden');
+            setTimeout(function () { feedback.classList.add('hidden'); }, 2000);
+          });
         });
-      });
-      document.querySelectorAll('.event-details-close').forEach(function (btn) {
-        btn.addEventListener('click', function () {
-          var overlay = document.getElementById('eventDetailsOverlay-' + btn.getAttribute('data-event-slug'));
-          if (overlay) overlay.classList.add('hidden');
-        });
-      });
-      document.querySelectorAll('[id^="eventDetailsOverlay-"]').forEach(function (overlay) {
-        overlay.addEventListener('click', function (e) { if (e.target === overlay) overlay.classList.add('hidden'); });
-      });
-      document.addEventListener('keydown', function (e) {
-        if (e.key !== 'Escape') return;
-        document.querySelectorAll('[id^="eventDetailsOverlay-"]').forEach(function (overlay) { overlay.classList.add('hidden'); });
       });
     })();
   </script>

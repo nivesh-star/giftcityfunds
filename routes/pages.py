@@ -134,10 +134,21 @@ def fund_detail_page(fund_id: int, slug: Optional[str] = None):
 
 @pages_bp.route("/events")
 def events_index():
-    """Lists GIFT City AMC events (webinars, sessions) GIFT360 surfaces for
-    visitors. Registration happens on the host's own page (Luma, etc.) --
-    this is a listing, not a GIFT360-run event platform."""
+    """Lists GIFT City AMC events (webinars, sessions) MFAPIs organizes.
+    Registration for each event happens on its own registration page
+    (Luma, etc.), linked from here and from each event's own page."""
     return render_template("events.html", events=EVENTS)
+
+
+@pages_bp.route("/events/<slug>")
+def event_detail(slug: str):
+    """A single event's own shareable page -- full details plus the
+    Register link, so a "Share" link from the listing lands someone
+    directly on this event rather than the general listing."""
+    event = next((e for e in EVENTS if e["slug"] == slug), None)
+    if not event:
+        return redirect(url_for("pages.events_index"))
+    return render_template("event_detail.html", event=event)
 
 
 @pages_bp.route("/insights")
@@ -194,10 +205,14 @@ def sitemap_xml():
         (url_for("pages.insight_detail", slug=a["slug"], _external=True), "0.7", "monthly")
         for a in ARTICLES
     ]
+    event_urls = [
+        (url_for("pages.event_detail", slug=e["slug"], _external=True), "0.6", "weekly")
+        for e in EVENTS
+    ]
 
     entries = "".join(
         f"<url><loc>{loc}</loc><changefreq>{freq}</changefreq><priority>{prio}</priority></url>"
-        for loc, prio, freq in static_urls + article_urls
+        for loc, prio, freq in static_urls + article_urls + event_urls
     )
     xml = f'<?xml version="1.0" encoding="UTF-8"?>' \
           f'<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">{entries}</urlset>'
