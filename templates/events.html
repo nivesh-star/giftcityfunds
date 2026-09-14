@@ -100,12 +100,12 @@
 
       <div class="space-y-4">
         {% for e in events %}
-        <div class="glass-card rounded-2xl overflow-hidden">
-          <div class="relative h-40 bg-gradient-to-br from-blue-600 to-blue-800 overflow-hidden">
+        <div class="glass-card rounded-2xl overflow-hidden sm:flex">
+          <div class="relative w-full sm:w-40 shrink-0 aspect-[2/3] bg-gradient-to-br from-blue-600 to-blue-800 overflow-hidden">
             <img src="{{ url_for('static', filename=e.cover) }}" alt="" class="absolute inset-0 w-full h-full object-cover">
-            <span class="absolute bottom-3 right-4 text-[9px] font-black tracking-widest text-white/70 uppercase drop-shadow">{{ e.format_display }}</span>
+            <span class="absolute bottom-3 right-3 text-[9px] font-black tracking-widest text-white/70 uppercase drop-shadow">{{ e.format_display }}</span>
           </div>
-          <div class="p-5">
+          <div class="p-5 flex-1 min-w-0">
             <span class="text-[9px] px-2 py-0.5 rounded-full font-bold bg-blue-500/10 text-blue-500 border border-blue-500/25">{{ e.badge }}</span>
             <h2 class="text-lg font-bold text-[var(--color-text)] leading-snug mt-2 mb-1.5">{{ e.title }}</h2>
             <p class="text-xs text-[var(--color-text-muted)] leading-relaxed mb-3">{{ e.card_description }}</p>

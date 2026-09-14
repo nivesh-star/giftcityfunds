@@ -10,7 +10,7 @@ EVENTS = [
         "slug": "gift-city-alternative-investments-ppfas-webinar",
         "title": "Understanding Alternative Investments & Opportunities in GIFT City",
         "badge": "Webinar",
-        "cover": "img/Events/PPFAS_Webinar.png",
+        "cover": "img/Events/PPFAS_Webinar.jpeg",
         "organizer": "MFAPIs",
         "speakers": "Akshay Falgunia (Fund Manager, PPFAS GIFT Fund) and Hema Thakkar (Head, Business Development -- Alternatives)",
         "date_display": "Fri, 18 Sep 2026",

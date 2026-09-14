@@ -84,26 +84,30 @@
         Back to Events
       </a>
 
-      <div class="relative h-56 md:h-72 rounded-2xl overflow-hidden bg-gradient-to-br from-blue-600 to-blue-800 mb-6">
-        <img src="{{ url_for('static', filename=event.cover) }}" alt="" class="absolute inset-0 w-full h-full object-cover">
-        <span class="absolute top-4 left-4 text-[10px] px-2.5 py-1 rounded-full font-bold bg-black/50 text-white backdrop-blur-sm">{{ event.badge }}</span>
-        <span class="absolute bottom-4 right-4 text-[9px] font-black tracking-widest text-white/80 uppercase drop-shadow">{{ event.format_display }}</span>
-      </div>
+      <div class="flex flex-col sm:flex-row gap-6 mb-6">
+        <div class="relative w-40 sm:w-48 shrink-0 aspect-[2/3] rounded-2xl overflow-hidden bg-gradient-to-br from-blue-600 to-blue-800 mx-auto sm:mx-0">
+          <img src="{{ url_for('static', filename=event.cover) }}" alt="" class="absolute inset-0 w-full h-full object-cover">
+          <span class="absolute top-3 left-3 text-[10px] px-2.5 py-1 rounded-full font-bold bg-black/50 text-white backdrop-blur-sm">{{ event.badge }}</span>
+          <span class="absolute bottom-3 right-3 text-[9px] font-black tracking-widest text-white/80 uppercase drop-shadow">{{ event.format_display }}</span>
+        </div>
 
-      <h1 class="text-2xl md:text-3xl font-black tracking-tight text-[var(--color-text)] leading-tight mb-4">{{ event.title }}</h1>
+        <div class="flex-1 min-w-0">
+          <h1 class="text-2xl md:text-3xl font-black tracking-tight text-[var(--color-text)] leading-tight mb-4">{{ event.title }}</h1>
 
-      <div class="flex flex-wrap gap-x-6 gap-y-2 text-xs text-[var(--color-text-subtle)] font-medium mb-6">
-        <span><span class="font-bold text-[var(--color-text-muted)]">Organized by</span> · {{ event.organizer }}</span>
-        <span><span class="font-bold text-[var(--color-text-muted)]">Date</span> · {{ event.date_display }}, {{ event.time_display }}</span>
-        <span><span class="font-bold text-[var(--color-text-muted)]">Format</span> · {{ event.format_display }}</span>
-      </div>
+          <div class="flex flex-wrap gap-x-6 gap-y-2 text-xs text-[var(--color-text-subtle)] font-medium mb-6">
+            <span><span class="font-bold text-[var(--color-text-muted)]">Organized by</span> · {{ event.organizer }}</span>
+            <span><span class="font-bold text-[var(--color-text-muted)]">Date</span> · {{ event.date_display }}, {{ event.time_display }}</span>
+            <span><span class="font-bold text-[var(--color-text-muted)]">Format</span> · {{ event.format_display }}</span>
+          </div>
 
-      <div class="flex items-center gap-3 mb-8">
-        <a href="{{ event.register_url }}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-blue-600 hover:bg-blue-500 transition-colors">Register</a>
-        <button type="button" id="eventShareBtn" class="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl border border-[var(--color-border)] text-xs font-bold text-[var(--color-text-muted)] hover:text-blue-500 hover:border-blue-500/40 transition-colors">
-          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342a3 3 0 100-2.684m0 2.684a3 3 0 100 2.684m0-2.684l6.632 3.316m0-9.316a3 3 0 105.368 2.658 3 3 0 00-5.368-2.658zm0 9.316a3 3 0 105.368-2.658 3 3 0 00-5.368 2.658zm0-9.316L8.684 10.658"></path></svg>
-          <span id="eventShareLabel">Share</span>
-        </button>
+          <div class="flex items-center gap-3">
+            <a href="{{ event.register_url }}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-blue-600 hover:bg-blue-500 transition-colors">Register</a>
+            <button type="button" id="eventShareBtn" class="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl border border-[var(--color-border)] text-xs font-bold text-[var(--color-text-muted)] hover:text-blue-500 hover:border-blue-500/40 transition-colors">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342a3 3 0 100-2.684m0 2.684a3 3 0 100 2.684m0-2.684l6.632 3.316m0-9.316a3 3 0 105.368 2.658 3 3 0 00-5.368-2.658zm0 9.316a3 3 0 105.368-2.658 3 3 0 00-5.368 2.658zm0-9.316L8.684 10.658"></path></svg>
+              <span id="eventShareLabel">Share</span>
+            </button>
+          </div>
+        </div>
       </div>
 
       <div class="glass-card rounded-2xl p-5 mb-6">
