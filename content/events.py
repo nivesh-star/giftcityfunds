@@ -25,5 +25,10 @@ EVENTS = [
             "Where alternatives in India are headed next",
         ],
         "register_url": "https://luma.com/g9yh8zd4",
+        # Powers the embedded Luma checkout button (opens inline, no
+        # navigating away) -- confirmed against this event's own Luma
+        # dashboard, not a docs example. Falls back to register_url as a
+        # plain link on any event that doesn't set this.
+        "luma_event_id": "evt-McUEYwTwFcsAm44",
     },
 ]
